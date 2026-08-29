@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable(['name', 'mobile', 'address', 'status'])]
@@ -21,5 +22,18 @@ class Sector extends Model
     public function monthlySectorProfits(): HasMany
     {
         return $this->hasMany(MonthlySectorProfit::class)->orderBy('profit_month', 'desc');
+    }
+
+    /* -------------------------------------------------------
+     * Due ledgers
+     * ----------------------------------------------------- */
+    public function dueLedger(): HasOne
+    {
+        return $this->hasOne(SectorDueLedger::class);
+    }
+
+    public function profitDueLedger(): HasOne
+    {
+        return $this->hasOne(SectorProfitDueLedger::class);
     }
 }

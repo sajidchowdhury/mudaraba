@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\InvestmentType;
+use App\Traits\DueManager;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ])]
 class InvestmentTransaction extends Model
 {
-    use HasFactory, SoftDeletes;
+    use DueManager, HasFactory, SoftDeletes;
 
     protected $casts = [
         'amount' => 'decimal:2',
@@ -64,6 +65,18 @@ class InvestmentTransaction extends Model
     /* -------------------------------------------------------
      * Helpers
      * ----------------------------------------------------- */
+
+    /**
+     * Configuration for the DueManager trait — capital due ledgers.
+     */
+    protected function dueLedgerConfig(): array
+    {
+        return [
+            'entity_column' => 'investor_id',
+            'cumulative_model' => InvestorDueLedger::class,
+            'monthly_model' => InvestorMonthlyDue::class,
+        ];
+    }
 
     /**
      * The signed effect of this transaction on the investor's balance.

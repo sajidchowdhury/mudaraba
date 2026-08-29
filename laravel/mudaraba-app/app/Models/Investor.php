@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
@@ -30,6 +31,19 @@ class Investor extends Model
     public function monthlyProfitDetails(): HasMany
     {
         return $this->hasMany(InvestorMonthlyProfitDetail::class)->orderBy('profit_month', 'desc');
+    }
+
+    /* -------------------------------------------------------
+     * Due ledgers
+     * ----------------------------------------------------- */
+    public function dueLedger(): HasOne
+    {
+        return $this->hasOne(InvestorDueLedger::class);
+    }
+
+    public function profitDueLedger(): HasOne
+    {
+        return $this->hasOne(InvestorProfitDueLedger::class);
     }
 
     /**

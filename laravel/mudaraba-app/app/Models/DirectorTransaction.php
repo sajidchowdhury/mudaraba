@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\DirectorTransactionType;
+use App\Traits\DueManager;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ])]
 class DirectorTransaction extends Model
 {
-    use HasFactory, SoftDeletes;
+    use DueManager, HasFactory, SoftDeletes;
 
     protected $casts = [
         'amount' => 'decimal:2',
@@ -48,6 +49,15 @@ class DirectorTransaction extends Model
     public function scopeInBatch($query, string $batchUuid)
     {
         return $query->where('batch_uuid', $batchUuid);
+    }
+
+    protected function dueLedgerConfig(): array
+    {
+        return [
+            'entity_column' => 'director_id',
+            'cumulative_model' => DirectorDueLedger::class,
+            'monthly_model' => DirectorMonthlyDue::class,
+        ];
     }
 
     /**
