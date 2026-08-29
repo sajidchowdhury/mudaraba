@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
@@ -20,6 +21,11 @@ class Investor extends Model
         'start_profit_month' => 'date',
         'end_profit_month' => 'date',
     ];
+
+    public function investmentTransactions(): HasMany
+    {
+        return $this->hasMany(InvestmentTransaction::class)->orderBy('transaction_date');
+    }
 
     /**
      * Convenience: deed ratio as a float (1.0 / 0.8 / 0.6) for profit calcs.
