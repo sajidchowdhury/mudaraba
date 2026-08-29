@@ -27,6 +27,11 @@ class Investor extends Model
         return $this->hasMany(InvestmentTransaction::class)->orderBy('transaction_date');
     }
 
+    public function monthlyProfitDetails(): HasMany
+    {
+        return $this->hasMany(InvestorMonthlyProfitDetail::class)->orderBy('profit_month', 'desc');
+    }
+
     /**
      * Convenience: deed ratio as a float (1.0 / 0.8 / 0.6) for profit calcs.
      */

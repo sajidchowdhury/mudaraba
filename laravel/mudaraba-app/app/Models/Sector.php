@@ -17,4 +17,9 @@ class Sector extends Model
     {
         return $this->hasMany(SectorInvestment::class)->orderBy('transaction_date');
     }
+
+    public function monthlySectorProfits(): HasMany
+    {
+        return $this->hasMany(MonthlySectorProfit::class)->orderBy('profit_month', 'desc');
+    }
 }
