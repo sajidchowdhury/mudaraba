@@ -108,6 +108,19 @@ services:
   # ---------------------------------------------------------------------------
   # Node — Vite dev server + npm build
   # ---------------------------------------------------------------------------
+  # IMPORTANT: node_modules is a NAMED VOLUME, not bind-mounted from the host.
+  #
+  # Why: Vite 8 uses Rolldown, which ships platform-specific native bindings
+  # (e.g. @rolldown/binding-linux-x64-musl for Alpine, @rolldown/binding-
+  # win32-x64-msvc for Windows). If the host's node_modules/ (installed on
+  # Windows/macOS) is bind-mounted into the Alpine container, the wrong
+  # native binding is present and Vite fails with:
+  #   "Cannot find module '@rolldown/binding-linux-x64-musl'"
+  #
+  # The named volume at /var/www/html/node_modules SHADOWS the host's
+  # node_modules subdirectory. The container therefore has its own Linux-
+  # native node_modules, while source code remains bind-mounted for HMR.
+  # ---------------------------------------------------------------------------
   node:
     build:
       context: .
@@ -117,7 +130,11 @@ services:
     depends_on:
       - app
     volumes:
+      # Source code bind mount (preserves HMR)
       - .:/var/www/html
+      # Named volume that shadows the host's node_modules — the container
+      # gets its own Linux/musl-native node_modules independent of the host
+      - node_modules:/var/www/html/node_modules
     ports:
       - "${VITE_PORT:-5173}:5173"
     networks:
@@ -135,4 +152,9 @@ networks:
 # =============================================================================
 volumes:
   pgdata:
+    driver: local
+  # Linux/musl-native node_modules for the Node container
+  # (shadows the host's node_modules which may have been installed on a
+  # different platform — see node service comment above)
+  node_modules:
     driver: local
