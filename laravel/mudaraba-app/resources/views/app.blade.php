@@ -10,6 +10,18 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700|inter-tight:500,600,700|jetbrains-mono:400,500,600" rel="stylesheet">
 
+    {{-- Anti-FOUC: set .dark class before body paints --}}
+    <script>
+        (function() {
+            try {
+                var stored = localStorage.getItem('mudaraba-theme') || 'system';
+                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                var isDark = stored === 'dark' || (stored === 'system' && prefersDark);
+                if (isDark) document.documentElement.classList.add('dark');
+            } catch (e) {}
+        })();
+    </script>
+
     {{-- Inertia Head --}}
     @routes
     @viteReactRefresh

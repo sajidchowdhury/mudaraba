@@ -3,8 +3,9 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { route } from 'ziggy-js';
+import { ThemeProvider } from '@/Components/ThemeProvider';
+import { Toaster } from '@/Components/ui';
 
-// Make Ziggy's route() available globally for components
 declare global {
     interface Window {
         route: typeof route;
@@ -20,7 +21,12 @@ createInertiaApp({
             import.meta.glob('./Pages/**/*.tsx'),
         ),
     setup({ el, App, props }) {
-        createRoot(el).render(<App {...props} />);
+        createRoot(el).render(
+            <ThemeProvider defaultTheme="system">
+                <App {...props} />
+                <Toaster />
+            </ThemeProvider>,
+        );
     },
     progress: {
         color: '#10B981',
