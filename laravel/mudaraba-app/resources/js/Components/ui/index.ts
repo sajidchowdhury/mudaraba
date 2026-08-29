@@ -80,3 +80,6 @@ export { Tabs, TabsList, TabsTrigger, TabsContent } from "./Tabs";
 
 // Feedback
 export { Toaster } from "./Toaster";
+
+// Collapsible
+export { Collapsible, CollapsibleTrigger, CollapsibleContent } from "./Collapsible";

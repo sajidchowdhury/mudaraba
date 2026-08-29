@@ -14,6 +14,7 @@ import {
     Popover, PopoverContent, PopoverTrigger,
 } from "@/Components/ui";
 import { ThemeToggle } from "@/Components/ThemeToggle";
+import { AuthenticatedLayout } from "@/Components/layout";
 import { toast } from "sonner";
 import {
     Sparkles, Layers, ChevronRight, Plus, Settings, User, Trash2,
@@ -33,36 +34,12 @@ export default function DesignSystem({ appName }: DesignSystemProps) {
     const [sheetOpen, setSheetOpen] = useState(false);
 
     return (
-        <>
-            <Head title="Design System" />
-
-            <div className="min-h-screen bg-background">
-                {/* Top bar */}
-                <header className="sticky top-0 z-40 border-b border-border bg-surface/80 backdrop-blur-sm">
-                    <div className="mx-auto max-w-7xl px-6 py-3 flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3 min-w-0">
-                            <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                                <div className="size-9 rounded-xl bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center shadow-[var(--shadow-lifted)]">
-                                    <Layers className="size-5 text-white" />
-                                </div>
-                                <div className="min-w-0">
-                                    <p className="font-display text-base font-semibold leading-none truncate">
-                                        {appName}
-                                    </p>
-                                    <p className="text-xs text-muted">Design System</p>
-                                </div>
-                            </a>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Badge variant="success">
-                                <Sparkles className="size-3" /> Phase 0 · Session 0.2
-                            </Badge>
-                            <ThemeToggle />
-                        </div>
-                    </div>
-                </header>
-
-                <main className="mx-auto max-w-7xl px-6 py-12 space-y-12">
+        <AuthenticatedLayout
+            title="Design System"
+            actions={<ThemeToggle />}
+            hideBreadcrumb
+        >
+            <main className="mx-auto max-w-7xl px-6 py-12 space-y-12">
                     {/* Hero */}
                     <section className="space-y-3">
                         <Badge variant="primary">Component Library</Badge>
@@ -420,8 +397,7 @@ export default function DesignSystem({ appName }: DesignSystemProps) {
                         </p>
                     </footer>
                 </main>
-            </div>
-        </>
+        </AuthenticatedLayout>
     );
 }
 
