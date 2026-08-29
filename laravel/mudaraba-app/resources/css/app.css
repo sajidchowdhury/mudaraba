@@ -1,0 +1,136 @@
+@import 'tailwindcss';
+
+@source '../views';
+
+@theme {
+    /* Typography */
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --font-display: 'Inter Tight', 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+    /* Color tokens — Light mode (default) */
+    --color-background: #FFFFFF;
+    --color-foreground: #18181B;
+    --color-surface: #FAFAFA;
+    --color-surface-2: #F4F4F5;
+    --color-border: #E4E4E7;
+    --color-muted: #71717A;
+    --color-muted-foreground: #A1A1AA;
+
+    /* Brand: Emerald (primary) */
+    --color-primary: #10B981;
+    --color-primary-foreground: #FFFFFF;
+    --color-primary-soft: #D1FAE5;
+
+    /* Accent: Amber (retained earnings) */
+    --color-accent: #F59E0B;
+    --color-accent-foreground: #1C1917;
+    --color-accent-soft: #FEF3C7;
+
+    /* Semantic */
+    --color-success: #22C55E;
+    --color-success-soft: #DCFCE7;
+    --color-danger: #EF4444;
+    --color-danger-soft: #FEE2E2;
+    --color-warning: #F59E0B;
+    --color-warning-soft: #FEF3C7;
+    --color-info: #06B6D4;
+    --color-info-soft: #CFFAFE;
+
+    /* Radius */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-2xl: 1rem;
+
+    /* Shadows */
+    --shadow-soft: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+    --shadow-lifted: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+
+    /* Animations */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Dark mode overrides */
+.dark {
+    --color-background: #0A0A0B;
+    --color-foreground: #FAFAFA;
+    --color-surface: #141416;
+    --color-surface-2: #1C1C1F;
+    --color-border: #27272A;
+    --color-muted: #A1A1AA;
+    --color-muted-foreground: #71717A;
+
+    --color-primary: #10B981;
+    --color-primary-foreground: #022C22;
+    --color-primary-soft: #064E3B;
+
+    --color-accent: #F59E0B;
+    --color-accent-foreground: #1C1917;
+    --color-accent-soft: #451A03;
+
+    --color-success: #22C55E;
+    --color-success-soft: #052E16;
+    --color-danger: #EF4444;
+    --color-danger-soft: #450A0A;
+    --color-warning: #F59E0B;
+    --color-warning-soft: #451A03;
+    --color-info: #06B6D4;
+    --color-info-soft: #083344;
+}
+
+/* Base body */
+@layer base {
+    html, body {
+        height: 100%;
+    }
+    body {
+        background-color: var(--color-background);
+        color: var(--color-foreground);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    /* Numbers use mono font for Excel-like column alignment */
+    .font-num {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        font-feature-settings: "tnum";
+    }
+    /* Smooth focus rings */
+    :focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+    /* Custom scrollbar for premium feel */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: var(--color-surface); }
+    ::-webkit-scrollbar-thumb {
+        background: var(--color-border);
+        border-radius: 5px;
+        border: 2px solid var(--color-surface);
+    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
+}
+
+/* Utility component classes */
+@layer components {
+    .card {
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-card);
+    }
+    .btn-primary {
+        background-color: var(--color-primary);
+        color: var(--color-primary-foreground);
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-md);
+        transition: all 150ms var(--ease-out);
+    }
+    .btn-primary:hover { filter: brightness(1.05); box-shadow: var(--shadow-lifted); }
+    .btn-primary:active { transform: scale(0.98); }
+}
