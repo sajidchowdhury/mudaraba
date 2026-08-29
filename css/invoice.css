@@ -1,0 +1,241 @@
+*{
+  box-sizing: border-box;;
+}  
+ html,
+ body,
+ div,
+ span,
+ applet,
+ object,
+ iframe,
+ h1,
+ h2,
+ h3,
+ h4,
+ h5,
+ h6,
+ p,
+ blockquote,
+ pre,
+ a,
+ abbr,
+ acronym,
+ address,
+ big,
+ cite,
+ code,
+ del,
+ dfn,
+ em,
+ font,
+ .primary- img,
+ ins,
+ kbd,
+ q,
+ s,
+ samp,
+ small,
+ strike,
+ strong,
+ sub,
+ sup,
+ tt,
+ var,
+ dl,
+ dt,
+ dd,
+ ol,
+ ul,
+ li,
+ fieldset,
+ form,
+ label,
+ legend,
+ table,
+ caption,
+ tbody,
+ tfoot,
+ thead,
+ tr,
+ th,
+ td {
+     margin: 0;
+     padding: 0;
+     border: 0;
+     outline: 0;
+     font-weight: inherit;
+     font-style: inherit;
+     font-size: 13px;
+     font-family: inherit;
+     vertical-align: baseline;
+     text-shadow: none;
+     list-style: none;
+ }
+ /* remember to define focus styles! */
+ 
+ a,
+ a:focus,
+ a:hover {
+     text-decoration: none;
+ }
+ 
+ :focus {
+     outline: 0;
+ }
+ 
+ body {
+     line-height: 1;
+     color: black;
+     background: white;
+     font-family: arial, sans-serif;
+ }
+ 
+ ol,
+ ul {
+     list-style: none;
+ }
+
+ table {
+     border-collapse: separate;
+     border-spacing: 0;
+ }
+ 
+ caption,
+ th,
+ td {
+     text-align: left;
+     font-weight: normal;
+ }
+ 
+ blockquote:before,
+ blockquote:after,
+ q:before,
+ q:after {
+     content: "";
+ }
+ 
+ blockquote,
+ q {
+     quotes: """";
+ }
+ 
+ img {
+     max-width: 100%;
+     height: auto;
+     display: block;
+ }
+ 
+
+ input:focus {
+     outline: 0;
+     box-shadow: 0;
+ }
+
+ input[type=number]::-webkit-inner-spin-button,
+ input[type=number]::-webkit-outer-spin-button {
+     -webkit-appearance: none;
+     -moz-appearance: none;
+     appearance: none;
+     margin: 0;
+ }
+ 
+ .no-padding {
+     padding: 0;
+ }
+ 
+ .no-padding-right {
+     padding-right: 0;
+ }
+/* Reset css styling end  */
+/**************************************************************************************************************************************************************/
+/* Reset css styling start  */
+  /* reset end */
+  *{
+    font-family: 'Open Sans', sans-serif;
+    font-family: 'Poppins', sans-serif;
+    font-weight:400;
+  }
+  .container {
+  border: 0.5px solid #ebebeb;
+  padding: 10px;
+  max-width: 350px;
+  margin:40px auto;
+  margin-top: 10px;
+}
+.text-center {
+  text-align: center
+}
+.float-right {
+  float: right;
+  width: 35%;
+  text-align: right;
+}
+.float-left {
+  float: left;
+  width: 65%;
+}
+.dark-background {
+  /* background-color: #555; */
+}
+.info-total-price {
+  font-weight: 500;
+}
+.border-bottom {
+  border-bottom: 0.5px solid #ebebeb;
+}
+.company-name{
+  font-weight:600;
+  padding-top:8px ;
+  font-size:21px;
+  padding-bottom:8px;
+}
+p{
+  padding-bottom:5px;
+  font-size:13px;
+}
+.bill{
+  padding-top:12px;
+  letter-spacing: 2px;;
+}
+.main-body{
+ padding:10px 0;
+}
+.text-right{
+  text-align:right;
+}
+.sub-total td{
+  color:#000;
+  border: solid 2px;
+    border-right: none;
+    border-left: none;
+}
+.pad-l-5{
+  padding-left:5px
+}
+td{
+  padding:2px 0;
+}
+.total td:last-child,
+.cartes td:last-child{
+  font-size:21px;
+}
+.table1 tr:last-child td {
+  padding-top:20px;
+}
+.info-vat-table{
+  margin:10px 0;
+  border:1px solid #eeeeee;
+  padding:5px;
+}
+.info-table-client{
+
+}
+.info-graditude-text {
+  margin:10px 0;
+}
+.info-graditude-text  h1{
+  font-weight: 600;
+}
+.text-center{
+  text-align:center;
+}

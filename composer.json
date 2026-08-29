@@ -1,0 +1,15 @@
+{
+    "require": {
+        "dompdf/dompdf": "^3.1",
+        "monolog/monolog": "^1.27",
+        "mpdf/mpdf": "^8.2",
+        "kwn/number-to-words": "^1.13",
+        "spomky-labs/otphp": "^9.1",
+        "stichoza/google-translate-php": "^4.1"
+    },
+    "config": {
+        "allow-plugins": {
+            "kylekatarnls/update-helper": true
+        }
+    }
+}
