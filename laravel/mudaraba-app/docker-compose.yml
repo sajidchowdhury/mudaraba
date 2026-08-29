@@ -1,0 +1,138 @@
+# =============================================================================
+# Mudaraba Laravel — Docker Compose (local development)
+#
+# Services:
+#   - postgres  : PostgreSQL 16 (primary DB, per project plan §2.1)
+#   - app       : PHP 8.3-FPM + Composer + Artisan
+#   - nginx     : Serves /public, proxies PHP to app:9000
+#   - node      : Vite dev server (HMR) + npm build
+#
+# Usage:
+#   docker compose up -d --build        # start everything
+#   docker compose exec app php artisan tinker
+#   docker compose exec node sh         # shell into node container
+#   docker compose down                 # stop
+#   docker compose down -v              # stop + delete volumes (resets DB)
+#
+# App URL: http://localhost:8080
+# Vite HMR: http://localhost:5173
+# Postgres: localhost:5432
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL 16 — primary database
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: mudaraba-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-mudaraba}
+      POSTGRES_USER: ${DB_USERNAME:-mudaraba}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "${FORWARD_DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-mudaraba} -d ${DB_DATABASE:-mudaraba}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - mudaraba
+
+  # ---------------------------------------------------------------------------
+  # PHP-FPM application container
+  # ---------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: mudaraba-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # App
+      APP_NAME: "${APP_NAME:-Mudaraba}"
+      APP_ENV: local
+      APP_KEY: "${APP_KEY:-}"
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8080
+      # Database — overrides .env's sqlite with Postgres
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: "${DB_DATABASE:-mudaraba}"
+      DB_USERNAME: "${DB_USERNAME:-mudaraba}"
+      DB_PASSWORD: "${DB_PASSWORD:-secret}"
+      # Session / Cache / Queue — use database (no Redis needed for dev)
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+      # Logging
+      LOG_CHANNEL: stderr
+      LOG_LEVEL: debug
+      # Vite
+      VITE_APP_NAME: "${APP_NAME:-Mudaraba}"
+    volumes:
+      # Bind-mount the entire project (host ⇄ container sync)
+      - .:/var/www/html
+      # Exclude these from host bind to prevent permission issues
+      - /var/www/html/storage/framework/cache/data
+    networks:
+      - mudaraba
+
+  # ---------------------------------------------------------------------------
+  # Nginx — serves the Laravel public directory
+  # ---------------------------------------------------------------------------
+  nginx:
+    image: nginx:alpine
+    container_name: mudaraba-nginx
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - mudaraba
+
+  # ---------------------------------------------------------------------------
+  # Node — Vite dev server + npm build
+  # ---------------------------------------------------------------------------
+  node:
+    build:
+      context: .
+      dockerfile: docker/node.Dockerfile
+    container_name: mudaraba-node
+    restart: unless-stopped
+    depends_on:
+      - app
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "${VITE_PORT:-5173}:5173"
+    networks:
+      - mudaraba
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  mudaraba:
+    driver: bridge
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  pgdata:
+    driver: local

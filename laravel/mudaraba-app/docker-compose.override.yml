@@ -1,0 +1,26 @@
+# =============================================================================
+# Dev overrides — automatically loaded by `docker compose` when present
+#
+# This file adds dev-only conveniences:
+#   - Xdebug install in PHP container
+#   - Extra env vars for debugging
+#   - Expose more ports
+#
+# To disable: rename this file (e.g. docker-compose.override.yml.bak)
+# =============================================================================
+
+services:
+  app:
+    environment:
+      # Enable Telescope/Pail if installed
+      TELESCOPE_ENABLED: "false"
+      PULSE_ENABLED: "false"
+      # Xdebug (uncomment php.ini xdebug section too)
+      XDEBUG_MODE: "${XDEBUG_MODE:-off}"
+      XDEBUG_CONFIG: "client_host=host.docker.internal"
+    # Install Xdebug on container start (uncomment to enable)
+    # command: sh -c "docker-php-ext-install xdebug && php-fpm"
+
+  postgres:
+    ports:
+      - "5432:5432"
