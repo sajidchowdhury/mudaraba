@@ -36,4 +36,12 @@ class Sector extends Model
     {
         return $this->hasOne(SectorProfitDueLedger::class);
     }
+
+    /* -------------------------------------------------------
+     * Advance profit adjustments (Type C targeting this sector)
+     * ----------------------------------------------------- */
+    public function advanceProfitAdjustments(): HasMany
+    {
+        return $this->hasMany(AdvanceProfitAdjustment::class)->orderBy('transaction_date', 'desc');
+    }
 }

@@ -46,6 +46,22 @@ class Investor extends Model
         return $this->hasOne(InvestorProfitDueLedger::class);
     }
 
+    /* -------------------------------------------------------
+     * Retained earnings
+     * ----------------------------------------------------- */
+    public function retainedEarningsDistributions(): HasMany
+    {
+        return $this->hasMany(RetainedEarningsDistribution::class)->orderBy('profit_month', 'desc');
+    }
+
+    /* -------------------------------------------------------
+     * Advance profit adjustments (Type C targeting this investor)
+     * ----------------------------------------------------- */
+    public function advanceProfitAdjustments(): HasMany
+    {
+        return $this->hasMany(AdvanceProfitAdjustment::class)->orderBy('transaction_date', 'desc');
+    }
+
     /**
      * Convenience: deed ratio as a float (1.0 / 0.8 / 0.6) for profit calcs.
      */
