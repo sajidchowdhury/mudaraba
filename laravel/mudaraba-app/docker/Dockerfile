@@ -1,64 +1,85 @@
 # =============================================================================
-# Mudaraba Laravel App — PHP 8.3-FPM image
-# Matches the project's composer.json constraint: php ^8.3
-# Does NOT downgrade Laravel or any locked package.
+# Mudaraba Laravel App — PHP 8.4-FPM Alpine
+#
+# PHP version rationale:
+#   composer.json says "php": "^8.3" (loose constraint)
+#   BUT composer.lock resolved Symfony 8.x packages (symfony/console v8.1.5,
+#   symfony/http-kernel v8.1.5, etc.) which require "php >=8.4.1".
+#   Therefore the runtime MUST be PHP 8.4.x — using 8.3 would make
+#   `composer install` fail with a platform requirement error.
+#
+# Extension rationale:
+#   The base php:8.4-fpm-alpine image ALREADY includes:
+#     pdo, pdo_sqlite, sqlite3, mbstring, curl, dom, xml, simplexml,
+#     fileinfo, filter, hash, json, openssl, pcre, session, tokenizer,
+#     ctype, date, libxml, phar, posix, random, reflection, sodium, spl
+#   These cover everything composer.lock requires (ext-ctype, ext-dom,
+#   ext-fileinfo, ext-filter, ext-hash, ext-json, ext-libxml, ext-mbstring,
+#   ext-openssl, ext-pcre, ext-session, ext-simplexml, ext-tokenizer,
+#   ext-xml, ext-xmlwriter).
+#
+#   We install ONLY 4 additional extensions the application actually needs:
+#     1. pdo_pgsql — Postgres driver (docker-compose sets DB_CONNECTION=pgsql)
+#     2. zip       — Composer needs it to extract package archives
+#     3. intl      — Carbon/Laravel locale formatting (Asia/Dhaka, BDT)
+#     4. opcache   — enables the compiled-in opcache (no compilation needed)
+#
+#   NOT installed (verified unused via grep on app/ and database/):
+#     gd, bcmath, pcntl, exif — the application code does not call any
+#     functions from these extensions.
 # =============================================================================
 
-FROM php:8.3-fpm-alpine
+FROM php:8.4-fpm-alpine
 
 LABEL maintainer="Mudaraba Project"
-LABEL description="PHP 8.3-FPM for Laravel 13 (Mudaraba)"
+LABEL description="PHP 8.4-FPM for Laravel 13 (Mudaraba)"
 
 # ---------------------------------------------------------------------------
-# System dependencies (build + runtime)
+# Install build dependencies + runtime libraries, compile extensions, clean up
+#
+# Build deps are installed EXPLICITLY (not via $PHPIZE_DEPS env var) to avoid
+# "Cannot find config.m4" errors caused by env-var expansion issues on
+# specific Alpine versions where libc-dev doesn't exist (Alpine uses musl-dev).
 # ---------------------------------------------------------------------------
 RUN apk add --no-cache \
-        # Build tools
-        $PHPIZE_DEPS \
-        # PostgreSQL client + dev headers
-        postgresql-dev \
+        # Runtime libraries (kept in final image)
+        postgresql-libs \
         postgresql-client \
-        # SQLite
-        sqlite-dev \
-        sqlite-libs \
-        # Image processing (GD)
-        libpng-dev \
-        libjpeg-turbo-dev \
-        freetype-dev \
-        # Zip
+        libzip \
+        icu-libs \
+        # Build dependencies (removed after extensions are compiled)
+        postgresql-dev \
         libzip-dev \
-        zip \
-        unzip \
-        # Intl (ICU)
         icu-dev \
-        # Curl
-        curl-dev \
-        # Multibyte string
-        oniguruma-dev \
+        autoconf \
+        m4 \
+        make \
+        gcc \
+        g++ \
+        musl-dev \
         # Utilities
         bash \
         git \
-        vim \
-        nano \
-        wget \
-        # For composer + node interop
-        libxml2-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+        zip \
+        unzip \
+    # Compile only the 4 extensions the application needs
+    # (pdo, pdo_sqlite, sqlite3, mbstring, curl, dom, xml are already in base image)
     && docker-php-ext-install -j$(nproc) \
-        pdo \
         pdo_pgsql \
-        pdo_sqlite \
-        sqlite3 \
-        bcmath \
-        gd \
         zip \
         intl \
-        curl \
-        mbstring \
         opcache \
-        pcntl \
-        exif \
-    && apk del $PHPIZE_DEPS \
+    # Remove build dependencies (keep runtime libs + utilities)
+    && apk del \
+        postgresql-dev \
+        libzip-dev \
+        icu-dev \
+        autoconf \
+        m4 \
+        make \
+        gcc \
+        g++ \
+        musl-dev \
     && rm -rf /var/cache/apk/*
 
 # ---------------------------------------------------------------------------
@@ -77,12 +98,12 @@ COPY docker/php/php.ini /usr/local/etc/php/conf.d/99-mudaraba.ini
 WORKDIR /var/www/html
 
 # ---------------------------------------------------------------------------
-# Entrypoint: composer install, key gen, migrate, fix perms, start FPM
+# Entrypoint: wait for Postgres, composer install, key gen, migrate, FPM
 # ---------------------------------------------------------------------------
 COPY docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Use root for dev (storage perms); switch to www-data for production
+# Run as root for dev (storage permissions); switch to www-data for production
 USER root
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

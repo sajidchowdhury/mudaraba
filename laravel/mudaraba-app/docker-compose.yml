@@ -3,7 +3,7 @@
 #
 # Services:
 #   - postgres  : PostgreSQL 16 (primary DB, per project plan §2.1)
-#   - app       : PHP 8.3-FPM + Composer + Artisan
+#   - app       : PHP 8.4-FPM + Composer + Artisan
 #   - nginx     : Serves /public, proxies PHP to app:9000
 #   - node      : Vite dev server (HMR) + npm build
 #
