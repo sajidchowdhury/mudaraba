@@ -65,7 +65,7 @@ class MenuSeeder extends Seeder
             'parent_id' => null,
         ]);
 
-        // Children — single menu items under each group
+        // Children — route names must match actual Laravel route names
         $this->createChild($investors->id, 'New Investor', 'investors.new', 'UserPlus', 1);
         $this->createChild($investors->id, 'All Investors', 'investors.index', 'ListOrdered', 2);
 
@@ -73,36 +73,37 @@ class MenuSeeder extends Seeder
         $this->createChild($sectors->id, 'All Sectors', 'sectors.index', 'List', 2);
 
         $this->createChild($investment->id, 'New / Return', 'investments.index', 'Banknote', 1);
-        $this->createChild($investment->id, 'Sector Wise', 'investments.sector-wise', 'Layers', 2);
 
-        $this->createChild($profit->id, 'Sector Profit', 'profit.sector', 'PieChart', 1);
-        $this->createChild($profit->id, 'Investor Profit', 'profit.investor', 'ReceiptText', 2);
+        $this->createChild($profit->id, 'Sector Profit', 'profit.sector.index', 'PieChart', 1);
+        $this->createChild($profit->id, 'Investor Profit', 'profit.investor.index', 'ReceiptText', 2);
 
         $this->createChild($my->id, 'New Director', 'directors.new', 'UserPlus', 1);
         $this->createChild($my->id, 'Director List', 'directors.index', 'List', 2);
-        $this->createChild($my->id, 'Withdraw', 'my.withdraw', 'ArrowDownToLine', 3);
 
-        $this->createChild($opening->id, 'M / Y', 'opening.my', 'Building2', 1);
-        $this->createChild($opening->id, 'Investor Advance', 'opening.investor', 'Users', 2);
-        $this->createChild($opening->id, 'Sector Advance', 'opening.sector', 'ShoppingBag', 3);
+        $this->createChild($opening->id, 'Opening Balances', 'opening.index', 'Building2', 1);
 
-        $this->createChild($adjust->id, 'Type A', 'adjustments.type-a', 'History', 1);
-        $this->createChild($adjust->id, 'Type B', 'adjustments.type-b', 'History', 2);
-        $this->createChild($adjust->id, 'Type C (General)', 'adjustments.type-c', 'History', 3);
+        $this->createChild($adjust->id, 'Profit Adjustments', 'adjustments.index', 'History', 1);
 
         $this->createChild($reports->id, 'Investor Ledger', 'reports.investor-ledger', 'ScrollText', 1);
         $this->createChild($reports->id, 'Sector Ledger', 'reports.sector-ledger', 'ScrollText', 2);
         $this->createChild($reports->id, 'M / Y Ledger', 'reports.my-ledger', 'BookOpen', 3);
         $this->createChild($reports->id, 'Investment Profit', 'reports.investment-profit', 'DollarSign', 4);
-        $this->createChild($reports->id, 'Profit Adjustment', 'reports.adjustment', 'FileBarChart', 5);
 
-        // Special menu: Permission management (admin-only, will be guarded by middleware)
+        // Special menu: Permission management (admin-only)
         $admin = Menu::firstOrCreate(['name' => 'Admin', 'is_parent' => true], [
             'icon' => 'ShieldCheck',
             'sort_order' => 10,
             'parent_id' => null,
         ]);
         $this->createChild($admin->id, 'Permissions', 'admin.permissions', 'Lock', 1);
+
+        // Month Close
+        $monthClose = Menu::firstOrCreate(['name' => 'Month Close', 'is_parent' => false], [
+            'route' => 'month-close.index',
+            'icon' => 'CalendarClock',
+            'sort_order' => 11,
+            'parent_id' => null,
+        ]);
     }
 
     private function createChild(int $parentId, string $name, string $route, string $icon, int $sort): void

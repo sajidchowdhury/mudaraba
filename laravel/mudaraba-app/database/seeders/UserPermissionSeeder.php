@@ -11,14 +11,11 @@ class UserPermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        // Find the superadmin user
         $superadmin = User::where('role', 'superadmin')->first();
-
         if (! $superadmin) {
             return;
         }
 
-        // Grant full permissions (view + edit + delete + backdate) on ALL menus
         $menus = Menu::all();
         foreach ($menus as $menu) {
             UserPermission::firstOrCreate(

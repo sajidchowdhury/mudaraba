@@ -21,11 +21,6 @@ interface SidebarProps {
     onOpenChange?: (open: boolean) => void;
 }
 
-/**
- * Resolve a Lucide icon by its PascalCase name from the static import.
- * Falls back to Layers if not found. Uses the imported module object
- * (not require()) so it works in ESM/Vite browser context.
- */
 function useIcon(name: string) {
     return React.useMemo(() => {
         const icons = LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>;
@@ -36,7 +31,6 @@ function useIcon(name: string) {
 export function Sidebar({ open, onOpenChange }: SidebarProps) {
     const { menus, url } = usePage().props as unknown as { menus?: SidebarMenu[]; url: string };
 
-    // Auto-expand any group whose child is currently active
     const initialExpanded = React.useMemo(() => {
         if (!menus) return [];
         return menus
@@ -59,7 +53,6 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
                 open ? "translate-x-0" : "-translate-x-full",
             )}
         >
-            {/* Brand */}
             <div className="flex items-center gap-3 h-16 px-6 border-b border-border shrink-0">
                 <div className="size-9 rounded-xl bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center shadow-[var(--shadow-lifted)]">
                     <Layers className="size-5 text-white" />
@@ -70,7 +63,6 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
                 </div>
             </div>
 
-            {/* Nav */}
             <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
                 {menus?.map((group) => (
                     <NavGroupItem
@@ -84,16 +76,15 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
                 ))}
             </nav>
 
-            {/* Footer mini-stats */}
             <div className="border-t border-border p-4 space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted">Phase 2</span>
-                    <span className="font-num font-medium">35%</span>
+                    <span className="text-muted">Phase 8</span>
+                    <span className="font-num font-medium">95%</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-surface-2 overflow-hidden">
-                    <div className="h-full bg-primary transition-all duration-500" style={{ width: "35%" }} />
+                    <div className="h-full bg-primary transition-all duration-500" style={{ width: "95%" }} />
                 </div>
-                <p className="text-[10px] text-muted">Authentication & RBAC</p>
+                <p className="text-[10px] text-muted">Production Ready</p>
             </div>
         </aside>
     );
@@ -115,12 +106,12 @@ function NavGroupItem({
     const Icon = useIcon(group.icon);
     const hasActiveChild = group.children?.some((c) => isActive(url, c.route)) ?? false;
 
-    // If the group has no children, render it as a direct link
     if (!group.children || group.children.length === 0) {
         const active = isActive(url, group.route);
+        const href = safeRoute(group.route);
         return (
             <Link
-                href={group.route ? route(group.route) : "#"}
+                href={href}
                 onClick={onNavigate}
                 className={cn(
                     "w-full flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
@@ -157,10 +148,11 @@ function NavGroupItem({
                     {group.children.map((child) => {
                         const ChildIcon = useIcon(child.icon);
                         const active = isActive(url, child.route);
+                        const href = safeRoute(child.route);
                         return (
                             <li key={child.id}>
                                 <Link
-                                    href={child.route ? route(child.route) : "#"}
+                                    href={href}
                                     onClick={onNavigate}
                                     className={cn(
                                         "flex items-center gap-2.5 rounded-md px-3 py-1.5 text-sm transition-colors",
@@ -182,12 +174,28 @@ function NavGroupItem({
     );
 }
 
-function isActive(currentUrl: string, route: string | null): boolean {
-    if (!route) return false;
-    if (route === "dashboard") return currentUrl === "/" || currentUrl === "/dashboard";
-    // Compare against the resolved path, not the route name
+/**
+ * Safely resolve a Ziggy route — returns "#" if the route doesn't exist
+ * (instead of throwing an error that crashes the entire app).
+ */
+function safeRoute(routeName: string | null): string {
+    if (!routeName) return "#";
     try {
-        const path = window.route(route);
+        return route(routeName);
+    } catch {
+        return "#";
+    }
+}
+
+/**
+ * Check if the current URL matches a route — returns false if the route
+ * doesn't exist (instead of throwing).
+ */
+function isActive(currentUrl: string, routeName: string | null): boolean {
+    if (!routeName) return false;
+    if (routeName === "dashboard") return currentUrl === "/" || currentUrl === "/dashboard";
+    try {
+        const path = route(routeName);
         return currentUrl === path || currentUrl.startsWith(path + "/");
     } catch {
         return false;

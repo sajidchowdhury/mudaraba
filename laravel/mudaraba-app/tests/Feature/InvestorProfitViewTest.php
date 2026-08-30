@@ -132,7 +132,7 @@ it('blocks regular users without permission', function () {
 });
 
 it('allows regular users with explicit permission', function () {
-    $menu = Menu::where('route', 'profit.investor')->first();
+    $menu = Menu::where('route', 'profit.investor.index')->first();
     UserPermission::create([
         'user_id' => $this->regularUser->id,
         'menu_id' => $menu->id,

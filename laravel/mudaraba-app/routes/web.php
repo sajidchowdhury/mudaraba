@@ -81,13 +81,13 @@ Route::middleware('auth')->group(function () {
 
     // Sector Profit Entry (permission-guarded)
     Route::prefix('profit/sector')->name('profit.sector.')->group(function () {
-        Route::get('/', [SectorProfitController::class, 'index'])->middleware('permission:profit.sector')->name('index');
-        Route::post('/', [SectorProfitController::class, 'store'])->middleware('permission:profit.sector')->name('store');
+        Route::get('/', [SectorProfitController::class, 'index'])->middleware('permission:profit.sector.index')->name('index');
+        Route::post('/', [SectorProfitController::class, 'store'])->middleware('permission:profit.sector.index')->name('store');
     });
 
     // Investor Profit View — the "For Sajid" page (permission-guarded)
     Route::get('/profit/investor', [InvestorProfitController::class, 'index'])
-        ->middleware('permission:profit.investor')
+        ->middleware('permission:profit.investor.index')
         ->name('profit.investor.index');
 
     // Reports (permission-guarded)
@@ -119,15 +119,15 @@ Route::middleware('auth')->group(function () {
 
     // Profit Adjustments (unified Fund A + Fund B + Direct)
     Route::prefix('adjustments')->name('adjustments.')->group(function () {
-        Route::get('/', [ProfitAdjustmentController::class, 'index'])->middleware('permission:adjustments.type-c')->name('index');
-        Route::post('/batch', [ProfitAdjustmentController::class, 'storeBatch'])->middleware('permission:adjustments.type-c')->name('store-batch');
-        Route::post('/direct', [ProfitAdjustmentController::class, 'storeDirect'])->middleware('permission:adjustments.type-c')->name('store-direct');
-        Route::delete('/{adjustment}', [ProfitAdjustmentController::class, 'destroy'])->middleware('permission:adjustments.type-c')->name('destroy');
+        Route::get('/', [ProfitAdjustmentController::class, 'index'])->middleware('permission:adjustments.index')->name('index');
+        Route::post('/batch', [ProfitAdjustmentController::class, 'storeBatch'])->middleware('permission:adjustments.index')->name('store-batch');
+        Route::post('/direct', [ProfitAdjustmentController::class, 'storeDirect'])->middleware('permission:adjustments.index')->name('store-direct');
+        Route::delete('/{adjustment}', [ProfitAdjustmentController::class, 'destroy'])->middleware('permission:adjustments.index')->name('destroy');
     });
 
     // Month Closing & Lock (superadmin only for lock/unlock)
     Route::prefix('month-close')->name('month-close.')->group(function () {
-        Route::get('/', [MonthStatusController::class, 'index'])->middleware('permission:profit.investor')->name('index');
+        Route::get('/', [MonthStatusController::class, 'index'])->middleware('permission:profit.investor.index')->name('index');
         Route::post('/lock', [MonthStatusController::class, 'lock'])->middleware('superadmin')->name('lock');
         Route::post('/unlock', [MonthStatusController::class, 'unlock'])->middleware('superadmin')->name('unlock');
     });
