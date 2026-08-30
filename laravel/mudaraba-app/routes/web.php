@@ -8,6 +8,7 @@ use App\Http\Controllers\InvestmentTransactionController;
 use App\Http\Controllers\InvestorController;
 use App\Http\Controllers\InvestorProfitController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\MonthStatusController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\SectorController;
 use App\Http\Controllers\SectorProfitController;
@@ -84,6 +85,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/profit/investor', [InvestorProfitController::class, 'index'])
         ->middleware('permission:profit.investor')
         ->name('profit.investor.index');
+
+    // Month Closing & Lock (superadmin only for lock/unlock)
+    Route::prefix('month-close')->name('month-close.')->group(function () {
+        Route::get('/', [MonthStatusController::class, 'index'])->middleware('permission:profit.investor')->name('index');
+        Route::post('/lock', [MonthStatusController::class, 'lock'])->middleware('superadmin')->name('lock');
+        Route::post('/unlock', [MonthStatusController::class, 'unlock'])->middleware('superadmin')->name('unlock');
+    });
 
     // Admin — permission management (superadmin only)
     Route::middleware('superadmin')->prefix('admin')->name('admin.')->group(function () {

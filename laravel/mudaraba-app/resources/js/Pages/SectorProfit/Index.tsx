@@ -29,10 +29,11 @@ interface Props {
     grid: GridItem[];
     totals: { estimated: number; actual: number; variance: number };
     isFinalized: boolean;
+    isLocked: boolean;
     canEdit: boolean;
 }
 
-export default function SectorProfitIndex({ month, monthLabel, grid, totals, isFinalized, canEdit }: Props) {
+export default function SectorProfitIndex({ month, monthLabel, grid, totals, isFinalized, isLocked, canEdit }: Props) {
     // Local state for the grid (allows live editing without round-trips)
     const [items, setItems] = useState<GridItem[]>(grid);
     const [currentMonth, setCurrentMonth] = useState(month);
@@ -101,7 +102,7 @@ export default function SectorProfitIndex({ month, monthLabel, grid, totals, isF
         router.get(route("profit.sector.index"), { month: newMonth }, { preserveScroll: true });
     };
 
-    const isReadOnly = isFinalized || !canEdit;
+    const isReadOnly = isFinalized || isLocked || !canEdit;
 
     return (
         <AuthenticatedLayout title="Sector Profit Entry">
@@ -136,7 +137,18 @@ export default function SectorProfitIndex({ month, monthLabel, grid, totals, isF
                 </div>
 
                 {/* Status banner */}
-                {isFinalized && (
+                {isLocked && (
+                    <div className="flex items-center gap-3 p-4 rounded-lg border border-danger/30 bg-danger-soft/30">
+                        <Lock className="size-5 text-danger shrink-0" />
+                        <div>
+                            <p className="font-medium text-danger">This month is locked</p>
+                            <p className="text-sm text-muted">
+                                All financial data is frozen. A superadmin must unlock it before any edits can be made.
+                            </p>
+                        </div>
+                    </div>
+                )}
+                {isFinalized && !isLocked && (
                     <div className="flex items-center gap-3 p-4 rounded-lg border border-success/30 bg-success-soft/30">
                         <CheckCircle2 className="size-5 text-success shrink-0" />
                         <div>

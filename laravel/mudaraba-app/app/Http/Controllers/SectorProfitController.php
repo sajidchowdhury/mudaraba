@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\SectorProfitStatus;
 use App\Http\Requests\StoreSectorProfitRequest;
+use App\Models\MonthlyProfitSummary;
 use App\Models\MonthlySectorProfit;
 use App\Models\Sector;
 use App\Services\ProfitCalculatorService;
@@ -51,6 +52,8 @@ class SectorProfitController extends Controller
         $finalizedCount = $existing->filter(fn ($e) => $e->status === SectorProfitStatus::Finalized)->count();
         $isFinalized = $finalizedCount > 0 && $finalizedCount === $sectors->count();
 
+        $summary = MonthlyProfitSummary::find($month) ?? new MonthlyProfitSummary(['status' => 'open']);
+
         return Inertia::render('SectorProfit/Index', [
             'month' => $month,
             'monthLabel' => date('F, Y', strtotime($month)),
@@ -61,7 +64,8 @@ class SectorProfitController extends Controller
                 'variance' => (float) $totalVariance,
             ],
             'isFinalized' => $isFinalized,
-            'canEdit' => $request->user()?->isSuperadmin() || $request->user()?->canEdit('profit.sector') ?? false,
+            'isLocked' => $summary->status->value === 'locked',
+            'canEdit' => $summary->status->value !== 'locked' && ($request->user()?->isSuperadmin() || $request->user()?->canEdit('profit.sector') ?? false),
         ]);
     }
 
