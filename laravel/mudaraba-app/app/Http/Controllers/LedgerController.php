@@ -488,4 +488,92 @@ class LedgerController extends Controller
             ],
         ]);
     }
+
+    /**
+     * Display the Investment Profit Report — a cross-investor comparative view
+     * showing investment, ratio, profit due, and profit ratio over time.
+     *
+     * Unlike the per-investor ledger (7.2), this report compares ALL investors
+     * side-by-side for a selected month, with optional tier filter.
+     */
+    public function investmentProfit(Request $request): Response
+    {
+        $month = $request->get('month', date('Y-m-01'));
+        $month = date('Y-m-01', strtotime($month));
+        $tierFilter = $request->get('tier', 'all');
+
+        // Load all active investors with their due ledger
+        $investorQuery = Investor::where('status', 'active')
+            ->with(['dueLedger', 'profitDueLedger']);
+
+        if ($tierFilter !== 'all') {
+            $investorQuery->where('deed_ratio', $tierFilter);
+        }
+
+        $investors = $investorQuery->orderByDesc('name')->get();
+
+        // Load profit details for this month
+        $details = InvestorMonthlyProfitDetail::where('profit_month', $month)
+            ->get()
+            ->keyBy('investor_id');
+
+        // Load monthly summary for totals
+        $summary = MonthlyProfitSummary::find($month);
+
+        // Build the comparative grid
+        $grid = [];
+        foreach ($investors as $investor) {
+            $detail = $details->get($investor->id);
+            $investment = (float) ($investor->dueLedger?->due ?? 0);
+
+            if ($investment <= 0 && ! $detail) {
+                continue; // Skip investors with no investment AND no profit detail
+            }
+
+            $grid[] = [
+                'investor_id' => $investor->id,
+                'name' => $investor->name,
+                'reference' => $investor->reference,
+                'deed_ratio' => $investor->deed_ratio,
+                'investment' => $investment,
+                'investment_ratio' => $detail ? (float) $detail->investment_ratio : 0,
+                'primary_profit_share' => $detail ? (float) $detail->primary_profit_share : 0,
+                'actual_profit_due' => $detail ? (float) $detail->actual_profit_due : 0,
+                'advance_difference' => $detail ? (float) $detail->advance_difference : 0,
+                'retained_credit' => $detail ? (float) $detail->retained_earnings_credit : 0,
+                'net_settlement' => $detail ? (float) $detail->net_settlement : 0,
+                'profit_ratio' => $detail && $detail->actual_profit_at_full > 0
+                    ? round(((float) $detail->actual_profit_due / (float) $detail->actual_profit_at_full) * 100, 2)
+                    : 0,
+                'has_detail' => (bool) $detail,
+            ];
+        }
+
+        // Sort by investment descending
+        usort($grid, fn ($a, $b) => $b['investment'] <=> $a['investment']);
+
+        // Compute totals
+        $totalInvestment = array_sum(array_column($grid, 'investment'));
+        $totalProfitDue = array_sum(array_column($grid, 'actual_profit_due'));
+        $totalAdvanceDiff = array_sum(array_column($grid, 'advance_difference'));
+        $totalRetained = array_sum(array_column($grid, 'retained_credit'));
+
+        return Inertia::render('Reports/InvestmentProfit', [
+            'month' => $month,
+            'monthLabel' => date('F, Y', strtotime($month)),
+            'grid' => $grid,
+            'totals' => [
+                'investment' => $totalInvestment,
+                'profit_due' => $totalProfitDue,
+                'advance_diff' => $totalAdvanceDiff,
+                'retained' => $totalRetained,
+                'investor_count' => count($grid),
+                'my_profit' => $summary ? (float) $summary->my_profit : 0,
+                'my_profit_ratio' => $summary ? (float) $summary->my_profit_ratio : 0,
+                'total_actual' => $summary ? (float) $summary->total_actual_profit : 0,
+            ],
+            'tierFilter' => $tierFilter,
+            'hasData' => count($grid) > 0,
+        ]);
+    }
 }

@@ -102,6 +102,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/my-ledger', [LedgerController::class, 'myLedger'])
             ->middleware('permission:reports.my-ledger')
             ->name('my-ledger');
+
+        Route::get('/investment-profit', [LedgerController::class, 'investmentProfit'])
+            ->middleware('permission:reports.investment-profit')
+            ->name('investment-profit');
     });
 
     // Opening Balances (superadmin only — initializes due ledgers)
