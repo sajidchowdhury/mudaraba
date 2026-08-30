@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InvestmentTransactionController;
 use App\Http\Controllers\InvestorController;
 use App\Http\Controllers\InvestorProfitController;
+use App\Http\Controllers\LedgerController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MonthStatusController;
 use App\Http\Controllers\OpeningBalanceController;
@@ -87,6 +88,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/profit/investor', [InvestorProfitController::class, 'index'])
         ->middleware('permission:profit.investor')
         ->name('profit.investor.index');
+
+    // Reports (permission-guarded)
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/investor-ledger', [LedgerController::class, 'investorLedger'])
+            ->middleware('permission:reports.investor-ledger')
+            ->name('investor-ledger');
+    });
 
     // Opening Balances (superadmin only — initializes due ledgers)
     Route::prefix('opening')->name('opening.')->middleware('superadmin')->group(function () {
