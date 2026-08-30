@@ -179,11 +179,11 @@ export default function SectorProfitIndex({ month, monthLabel, grid, totals, isF
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="p-0">
-                        <div className="rounded-lg border border-border overflow-hidden">
+                        <div className="rounded-lg border border-border overflow-x-auto">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="w-[40%]">Sector</TableHead>
+                                        <TableHead className="min-w-[150px] sm:w-[40%]">Sector</TableHead>
                                         <TableHead className="text-right">Estimated (Z)</TableHead>
                                         <TableHead className="text-right">Actual (X)</TableHead>
                                         <TableHead className="text-right">Variance (Y)</TableHead>
@@ -243,7 +243,7 @@ export default function SectorProfitIndex({ month, monthLabel, grid, totals, isF
                         </div>
 
                         {/* Sticky totals row */}
-                        <div className="grid grid-cols-5 gap-0 border-t-2 border-primary/30 bg-primary-soft/20">
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-0 border-t-2 border-primary/30 bg-primary-soft/20">
                             <div className="p-4 font-display font-bold">TOTALS</div>
                             <div className="p-4 text-right font-num font-bold text-lg text-primary">
                                 {formatBDT(liveTotals.estimated)}

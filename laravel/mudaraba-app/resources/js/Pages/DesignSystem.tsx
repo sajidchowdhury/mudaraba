@@ -322,7 +322,7 @@ export default function DesignSystem({ appName }: DesignSystemProps) {
 
                     {/* Table */}
                     <ShowcaseSection title="Table" description="Excel-like data display with sticky header">
-                        <div className="rounded-lg border border-border overflow-hidden">
+                        <div className="rounded-lg border border-border overflow-x-auto">
                             <Table>
                                 <TableHeader>
                                     <TableRow>

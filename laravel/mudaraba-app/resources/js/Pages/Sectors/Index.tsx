@@ -124,7 +124,7 @@ export default function SectorsIndex({ sectors, filters }: Props) {
                 {/* Table */}
                 <Card>
                     <CardContent className="p-0">
-                        <div className="rounded-lg border border-border overflow-hidden">
+                        <div className="rounded-lg border border-border overflow-x-auto">
                             <Table>
                                 <TableHeader>
                                     <TableRow>

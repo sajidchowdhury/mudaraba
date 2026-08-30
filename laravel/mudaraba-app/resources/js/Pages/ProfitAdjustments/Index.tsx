@@ -194,7 +194,7 @@ export default function ProfitAdjustmentsIndex({ adjustments, investors, sectors
                                         </CardTitle>
                                         <CardDescription>Enter adjustment amount per investor (decreases profit due)</CardDescription>
                                     </CardHeader>
-                                    <CardContent className="space-y-2 max-h-96 overflow-y-auto">
+                                    <CardContent className="space-y-2 max-h-64 sm:max-h-96 overflow-y-auto">
                                         {investors.map((inv) => (
                                             <div key={inv.id} className="flex items-center gap-3">
                                                 <div className="flex-1 min-w-0">
@@ -225,7 +225,7 @@ export default function ProfitAdjustmentsIndex({ adjustments, investors, sectors
                                         </CardTitle>
                                         <CardDescription>Enter adjustment amount per sector (decreases sector profit due)</CardDescription>
                                     </CardHeader>
-                                    <CardContent className="space-y-2 max-h-96 overflow-y-auto">
+                                    <CardContent className="space-y-2 max-h-64 sm:max-h-96 overflow-y-auto">
                                         {sectors.map((sec) => (
                                             <div key={sec.id} className="flex items-center gap-3">
                                                 <div className="flex-1 min-w-0">
@@ -426,7 +426,7 @@ export default function ProfitAdjustmentsIndex({ adjustments, investors, sectors
                         </div>
                     </CardHeader>
                     <CardContent className="p-0">
-                        <div className="rounded-lg border border-border overflow-hidden">
+                        <div className="rounded-lg border border-border overflow-x-auto">
                             <Table>
                                 <TableHeader>
                                     <TableRow>

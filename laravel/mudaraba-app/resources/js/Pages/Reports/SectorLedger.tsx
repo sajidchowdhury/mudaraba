@@ -205,7 +205,7 @@ export default function SectorLedger({ sectors, selectedId, sector, ledger, filt
                             </div>
                         </CardHeader>
                         <CardContent className="p-0">
-                            <div className="rounded-lg border border-border overflow-hidden">
+                            <div className="rounded-lg border border-border overflow-x-auto">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>

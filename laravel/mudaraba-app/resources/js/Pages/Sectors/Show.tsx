@@ -134,7 +134,7 @@ export default function SectorShow({ sector, stats, recentInvestments, recentPro
                                 <CardDescription>Last {recentInvestments.length} capital movements (add/withdraw).</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0">
-                                <div className="rounded-lg border border-border overflow-hidden">
+                                <div className="rounded-lg border border-border overflow-x-auto">
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
@@ -182,7 +182,7 @@ export default function SectorShow({ sector, stats, recentInvestments, recentPro
                                 <CardDescription>Last {recentProfit.length} monthly profit entries (estimated vs actual).</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0">
-                                <div className="rounded-lg border border-border overflow-hidden">
+                                <div className="rounded-lg border border-border overflow-x-auto">
                                     <Table>
                                         <TableHeader>
                                             <TableRow>

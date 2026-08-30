@@ -183,7 +183,7 @@ export default function OpeningBalancesIndex({ directors, investors, sectors, to
                                 </div>
                             </CardHeader>
                             <CardContent className="p-0">
-                                <div className="rounded-lg border border-border overflow-hidden">
+                                <div className="rounded-lg border border-border overflow-x-auto">
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
@@ -257,7 +257,7 @@ export default function OpeningBalancesIndex({ directors, investors, sectors, to
                                 </div>
                             </CardHeader>
                             <CardContent className="p-0">
-                                <div className="rounded-lg border border-border overflow-hidden">
+                                <div className="rounded-lg border border-border overflow-x-auto">
                                     <Table>
                                         <TableHeader>
                                             <TableRow>

@@ -81,14 +81,14 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     }, {});
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-start justify-center p-4 sm:pt-[15vh]">
+        <div className="fixed inset-0 z-[100] flex items-start justify-center p-4 pt-[10vh] sm:pt-[15vh]">
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in-0"
                 onClick={() => onOpenChange(false)}
             />
             {/* Command panel */}
-            <div className="relative w-full max-w-xl rounded-xl border border-border bg-surface shadow-[var(--shadow-lifted)] overflow-hidden animate-in fade-in-0 zoom-in-95">
+            <div className="relative w-full max-w-xl sm:max-w-xl rounded-xl border border-border bg-surface shadow-[var(--shadow-lifted)] overflow-hidden animate-in fade-in-0 zoom-in-95">
                 <CommandPrimitive
                     className="flex flex-col"
                     loop

@@ -160,11 +160,11 @@ export default function Permissions({ users, menuTree, permissions }: Permission
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="rounded-lg border border-border overflow-hidden">
+                            <div className="rounded-lg border border-border overflow-x-auto">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="w-[40%]">Menu Item</TableHead>
+                                            <TableHead className="min-w-[150px] sm:w-[40%]">Menu Item</TableHead>
                                             <TableHead className="text-center">View</TableHead>
                                             <TableHead className="text-center">Edit</TableHead>
                                             <TableHead className="text-center">Delete</TableHead>

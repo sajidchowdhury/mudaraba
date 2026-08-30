@@ -216,7 +216,7 @@ export default function InvestorLedger({ investors, selectedId, investor, ledger
                             </div>
                         </CardHeader>
                         <CardContent className="p-0">
-                            <div className="rounded-lg border border-border overflow-hidden">
+                            <div className="rounded-lg border border-border overflow-x-auto">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>

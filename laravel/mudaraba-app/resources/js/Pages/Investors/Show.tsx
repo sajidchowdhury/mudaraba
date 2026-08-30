@@ -151,7 +151,7 @@ export default function InvestorShow({ investor, stats, recentTransactions, rece
                                 <CardDescription>Last {recentTransactions.length} capital movements (add/withdraw).</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0">
-                                <div className="rounded-lg border border-border overflow-hidden">
+                                <div className="rounded-lg border border-border overflow-x-auto">
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
@@ -199,7 +199,7 @@ export default function InvestorShow({ investor, stats, recentTransactions, rece
                                 <CardDescription>Last {recentProfit.length} monthly profit distributions.</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0">
-                                <div className="rounded-lg border border-border overflow-hidden">
+                                <div className="rounded-lg border border-border overflow-x-auto">
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
