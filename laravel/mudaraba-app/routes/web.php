@@ -9,6 +9,7 @@ use App\Http\Controllers\InvestorController;
 use App\Http\Controllers\InvestorProfitController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MonthStatusController;
+use App\Http\Controllers\OpeningBalanceController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfitAdjustmentController;
 use App\Http\Controllers\SectorController;
@@ -86,6 +87,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/profit/investor', [InvestorProfitController::class, 'index'])
         ->middleware('permission:profit.investor')
         ->name('profit.investor.index');
+
+    // Opening Balances (superadmin only — initializes due ledgers)
+    Route::prefix('opening')->name('opening.')->middleware('superadmin')->group(function () {
+        Route::get('/', [OpeningBalanceController::class, 'index'])->name('index');
+        Route::put('/director/{director}', [OpeningBalanceController::class, 'updateDirector'])->name('director.update');
+        Route::put('/investors', [OpeningBalanceController::class, 'updateInvestors'])->name('investors.update');
+        Route::put('/sectors', [OpeningBalanceController::class, 'updateSectors'])->name('sectors.update');
+    });
 
     // Profit Adjustments (unified Fund A + Fund B + Direct)
     Route::prefix('adjustments')->name('adjustments.')->group(function () {
