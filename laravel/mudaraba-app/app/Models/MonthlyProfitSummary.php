@@ -32,7 +32,6 @@ class MonthlyProfitSummary extends Model
     public const UPDATED_AT = null;   // append-only snapshot per month (finalized_at/locked_at track lifecycle)
 
     protected $casts = [
-        'profit_month' => 'date',
         'transaction_date' => 'date',
         'total_estimated_profit' => 'decimal:2',
         'total_actual_profit' => 'decimal:2',
