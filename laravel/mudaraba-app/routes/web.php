@@ -6,6 +6,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InvestorController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\SectorController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -60,6 +61,41 @@ Route::middleware('auth')->group(function () {
 
         Route::delete('/{investor}', [InvestorController::class, 'destroy'])
             ->middleware('permission:investors.index')
+            ->name('destroy');
+    });
+
+    /*
+    |----------------------------------------------------------------------
+    | Sectors (permission-guarded)
+    |----------------------------------------------------------------------
+    */
+    Route::prefix('sectors')->name('sectors.')->group(function () {
+        Route::get('/', [SectorController::class, 'index'])
+            ->middleware('permission:sectors.index')
+            ->name('index');
+
+        Route::get('/new', [SectorController::class, 'create'])
+            ->middleware('permission:sectors.new')
+            ->name('new');
+
+        Route::post('/', [SectorController::class, 'store'])
+            ->middleware('permission:sectors.new')
+            ->name('store');
+
+        Route::get('/{sector}', [SectorController::class, 'show'])
+            ->middleware('permission:sectors.index')
+            ->name('show');
+
+        Route::get('/{sector}/edit', [SectorController::class, 'edit'])
+            ->middleware('permission:sectors.index')
+            ->name('edit');
+
+        Route::put('/{sector}', [SectorController::class, 'update'])
+            ->middleware('permission:sectors.index')
+            ->name('update');
+
+        Route::delete('/{sector}', [SectorController::class, 'destroy'])
+            ->middleware('permission:sectors.index')
             ->name('destroy');
     });
 
