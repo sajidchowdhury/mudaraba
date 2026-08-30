@@ -34,6 +34,7 @@ class ProfitCalculatorService
 {
     public function __construct(
         private readonly RetainedEarningsService $retainedEarningsService,
+        private readonly LedgerUpdateService $ledgerUpdateService,
     ) {}
 
     /**
@@ -131,6 +132,9 @@ class ProfitCalculatorService
         $myProfit = $totalActual - $totalActualDue;
         $myProfitRatio = $totalActual > 0 ? ($myProfit / $totalActual) * 100 : 0;
 
+        // Rollback old ledger entries BEFORE deleting old details (re-finalize pattern)
+        $this->ledgerUpdateService->rollback($profitMonth);
+
         // Write Phases 1-4 + 8 in a transaction
         DB::transaction(function () use (
             $profitMonth, $details, $userId,
@@ -165,7 +169,10 @@ class ProfitCalculatorService
         // PHASES 5-7 — Retained earnings allocation + net settlement
         $retainedResult = $this->retainedEarningsService->allocate($profitMonth, $userId);
 
-        Log::info('Profit calculation completed (8 phases)', [
+        // POST-CALCULATION — Update due ledgers (investor profit, sector profit, M/Y)
+        $this->ledgerUpdateService->apply($profitMonth, $myProfit);
+
+        Log::info('Profit calculation completed (8 phases + ledger updates)', [
             'month' => $profitMonth,
             'investors' => count($details),
             'total_estimated' => $totalEstimated,
