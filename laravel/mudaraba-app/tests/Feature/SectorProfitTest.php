@@ -5,12 +5,14 @@ use App\Models\MonthlySectorProfit;
 use App\Models\Sector;
 use App\Models\User;
 use App\Models\UserPermission;
+use Database\Seeders\InvestorSeeder;
 use Database\Seeders\MenuSeeder;
 use Database\Seeders\SectorSeeder;
 
 beforeEach(function () {
     $this->seed(MenuSeeder::class);
     $this->seed(SectorSeeder::class);
+    $this->seed(InvestorSeeder::class);
 
     $this->superadmin = User::factory()->create([
         'username' => 'superadmin_sp',

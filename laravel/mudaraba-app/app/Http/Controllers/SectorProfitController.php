@@ -6,6 +6,7 @@ use App\Enums\SectorProfitStatus;
 use App\Http\Requests\StoreSectorProfitRequest;
 use App\Models\MonthlySectorProfit;
 use App\Models\Sector;
+use App\Services\ProfitCalculatorService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,30 +15,22 @@ use Inertia\Response;
 
 class SectorProfitController extends Controller
 {
+    public function __construct(
+        private readonly ProfitCalculatorService $profitCalculator,
+    ) {}
+
     /**
      * Display the sector profit entry page for a given month.
-     *
-     * Shows an Excel-like grid: 17 sectors × (estimated_profit, actual_profit)
-     * with live totals (Z2, X2, Y2).
      */
     public function index(Request $request): Response
     {
         $month = $request->get('month', date('Y-m-01'));
-
-        // Ensure month is in 'YYYY-MM-01' format
         $month = date('Y-m-01', strtotime($month));
 
-        // Get all active sectors
-        $sectors = Sector::where('status', 'active')
-            ->orderBy('name')
-            ->get(['id', 'name']);
+        $sectors = Sector::where('status', 'active')->orderBy('name')->get(['id', 'name']);
 
-        // Get existing profit entries for this month
-        $existing = MonthlySectorProfit::forMonth($month)
-            ->get()
-            ->keyBy('sector_id');
+        $existing = MonthlySectorProfit::forMonth($month)->get()->keyBy('sector_id');
 
-        // Build the grid data
         $grid = $sectors->map(function (Sector $sector) use ($existing) {
             $entry = $existing->get($sector->id);
 
@@ -51,12 +44,10 @@ class SectorProfitController extends Controller
             ];
         });
 
-        // Compute live totals
         $totalEstimated = $grid->sum('estimated_profit');
         $totalActual = $grid->sum('actual_profit');
-        $totalVariance = $totalEstimated - $totalActual; // Y2 = Z2 - X2
+        $totalVariance = $totalEstimated - $totalActual;
 
-        // Check if the month is finalized
         $finalizedCount = $existing->filter(fn ($e) => $e->status === SectorProfitStatus::Finalized)->count();
         $isFinalized = $finalizedCount > 0 && $finalizedCount === $sectors->count();
 
@@ -65,9 +56,9 @@ class SectorProfitController extends Controller
             'monthLabel' => date('F, Y', strtotime($month)),
             'grid' => $grid,
             'totals' => [
-                'estimated' => (float) $totalEstimated,  // Excel Z2
-                'actual' => $totalActual,     // Excel X2
-                'variance' => $totalVariance,   // Excel Y2
+                'estimated' => (float) $totalEstimated,
+                'actual' => (float) $totalActual,
+                'variance' => (float) $totalVariance,
             ],
             'isFinalized' => $isFinalized,
             'canEdit' => $request->user()?->isSuperadmin() || $request->user()?->canEdit('profit.sector') ?? false,
@@ -77,8 +68,8 @@ class SectorProfitController extends Controller
     /**
      * Store (or update) sector profit entries for a month — batch save.
      *
-     * On 'finalize': sets status to 'finalized' for all entries.
-     * On 'draft': saves with status 'draft' (can be re-saved later).
+     * On 'finalize': sets status to 'finalized' AND triggers the
+     * ProfitCalculatorService to compute per-investor profit details.
      */
     public function store(StoreSectorProfitRequest $request): RedirectResponse
     {
@@ -89,7 +80,6 @@ class SectorProfitController extends Controller
 
         DB::transaction(function () use ($data, $month, $finalize, $userId) {
             foreach ($data['items'] as $item) {
-                // Skip entries with both estimated and actual = 0 (no data entered)
                 if ((float) $item['estimated_profit'] === 0.0 && (float) ($item['actual_profit'] ?? 0) === 0.0) {
                     continue;
                 }
@@ -109,6 +99,11 @@ class SectorProfitController extends Controller
                         'created_by' => $userId,
                     ],
                 );
+            }
+
+            // When finalizing, trigger the 8-phase calculation engine
+            if ($finalize) {
+                $this->profitCalculator->calculate($month, $userId);
             }
         });
 

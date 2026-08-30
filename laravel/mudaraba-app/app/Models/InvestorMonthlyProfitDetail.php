@@ -23,7 +23,6 @@ class InvestorMonthlyProfitDetail extends Model
     public const UPDATED_AT = null; // append-only snapshot per month
 
     protected $casts = [
-        'profit_month' => 'date',
         'transaction_date' => 'date',
         'investment' => 'decimal:2',
         'investment_ratio' => 'decimal:6',
