@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DesignSystemController;
 use App\Http\Controllers\DirectorController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InvestmentTransactionController;
 use App\Http\Controllers\InvestorController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PermissionController;
@@ -61,6 +62,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/{director}/edit', [DirectorController::class, 'edit'])->middleware('permission:directors.index')->name('edit');
         Route::put('/{director}', [DirectorController::class, 'update'])->middleware('permission:directors.index')->name('update');
         Route::delete('/{director}', [DirectorController::class, 'destroy'])->middleware('permission:directors.index')->name('destroy');
+    });
+
+    // Investment Transactions (permission-guarded)
+    Route::prefix('investments')->name('investments.')->group(function () {
+        Route::get('/', [InvestmentTransactionController::class, 'index'])->middleware('permission:investments.index')->name('index');
+        Route::post('/', [InvestmentTransactionController::class, 'store'])->middleware('permission:investments.index')->name('store');
+        Route::delete('/{transaction}', [InvestmentTransactionController::class, 'destroy'])->middleware('permission:investments.index')->name('destroy');
+        Route::get('/balance/{investor}', [InvestmentTransactionController::class, 'balance'])->middleware('permission:investments.index')->name('balance');
     });
 
     // Admin — permission management (superadmin only)
