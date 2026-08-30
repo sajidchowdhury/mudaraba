@@ -6,6 +6,7 @@ use App\Http\Controllers\DirectorController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InvestmentTransactionController;
 use App\Http\Controllers\InvestorController;
+use App\Http\Controllers\InvestorProfitController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\SectorController;
@@ -78,6 +79,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [SectorProfitController::class, 'index'])->middleware('permission:profit.sector')->name('index');
         Route::post('/', [SectorProfitController::class, 'store'])->middleware('permission:profit.sector')->name('store');
     });
+
+    // Investor Profit View — the "For Sajid" page (permission-guarded)
+    Route::get('/profit/investor', [InvestorProfitController::class, 'index'])
+        ->middleware('permission:profit.investor')
+        ->name('profit.investor.index');
 
     // Admin — permission management (superadmin only)
     Route::middleware('superadmin')->prefix('admin')->name('admin.')->group(function () {
