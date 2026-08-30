@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             UserPermissionSeeder::class,
             InvestorSeeder::class,
             SectorSeeder::class,
+            DirectorSeeder::class,
         ]);
     }
 }
