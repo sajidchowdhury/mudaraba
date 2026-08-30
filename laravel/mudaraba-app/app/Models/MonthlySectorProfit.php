@@ -21,7 +21,6 @@ class MonthlySectorProfit extends Model
     protected $table = 'monthly_sector_profit';
 
     protected $casts = [
-        'profit_month' => 'date',
         'transaction_date' => 'date',
         'estimated_profit' => 'decimal:2',
         'actual_profit' => 'decimal:2',

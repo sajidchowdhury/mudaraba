@@ -9,6 +9,7 @@ use App\Http\Controllers\InvestorController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\SectorController;
+use App\Http\Controllers\SectorProfitController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -70,6 +71,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [InvestmentTransactionController::class, 'store'])->middleware('permission:investments.index')->name('store');
         Route::delete('/{transaction}', [InvestmentTransactionController::class, 'destroy'])->middleware('permission:investments.index')->name('destroy');
         Route::get('/balance/{investor}', [InvestmentTransactionController::class, 'balance'])->middleware('permission:investments.index')->name('balance');
+    });
+
+    // Sector Profit Entry (permission-guarded)
+    Route::prefix('profit/sector')->name('profit.sector.')->group(function () {
+        Route::get('/', [SectorProfitController::class, 'index'])->middleware('permission:profit.sector')->name('index');
+        Route::post('/', [SectorProfitController::class, 'store'])->middleware('permission:profit.sector')->name('store');
     });
 
     // Admin — permission management (superadmin only)
