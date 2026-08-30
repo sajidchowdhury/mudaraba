@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { formatBDT, cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { PageTransition } from "@/Components/common";
 
 interface LedgerEntry {
     date: string;
@@ -74,7 +75,7 @@ export default function SectorLedger({ sectors, selectedId, sector, ledger, filt
         <AuthenticatedLayout title="Sector Ledger">
             <Head title="Sector Ledger Report" />
 
-            <div className="space-y-6">
+            <PageTransition><div className="space-y-6">
                 {/* Header */}
                 <div className="flex items-center gap-3">
                     <div className="size-10 rounded-xl bg-primary-soft flex items-center justify-center">
@@ -266,7 +267,7 @@ export default function SectorLedger({ sectors, selectedId, sector, ledger, filt
                         </CardContent>
                     </Card>
                 )}
-            </div>
+            </div></PageTransition>
         </AuthenticatedLayout>
     );
 }

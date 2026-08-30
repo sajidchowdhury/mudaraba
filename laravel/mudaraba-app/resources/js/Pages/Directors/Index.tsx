@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Building2, Plus, Search, Eye, Pencil, Trash2, Crown } from "lucide-react";
 import { formatBDT, cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { PageTransition } from "@/Components/common";
 
 interface Director {
     id: number;
@@ -65,7 +66,7 @@ export default function DirectorsIndex({ directors, filters }: Props) {
         >
             <Head title="Directors" />
 
-            <div className="space-y-6">
+            <PageTransition><div className="space-y-6">
                 {/* Header */}
                 <div className="flex items-center gap-3">
                     <div className="size-10 rounded-xl bg-primary-soft flex items-center justify-center">
@@ -189,7 +190,7 @@ export default function DirectorsIndex({ directors, filters }: Props) {
                         )}
                     </CardContent>
                 </Card>
-            </div>
+            </div></PageTransition>
         </AuthenticatedLayout>
     );
 }

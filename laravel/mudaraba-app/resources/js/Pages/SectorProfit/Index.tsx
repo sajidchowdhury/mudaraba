@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { formatBDT, cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { PageTransition } from "@/Components/common";
 
 interface GridItem {
     sector_id: number;
@@ -108,7 +109,7 @@ export default function SectorProfitIndex({ month, monthLabel, grid, totals, isF
         <AuthenticatedLayout title="Sector Profit Entry">
             <Head title={`Sector Profit — ${monthLabel}`} />
 
-            <div className="space-y-6">
+            <PageTransition><div className="space-y-6">
                 {/* Header with month switcher */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-3">
@@ -311,7 +312,7 @@ export default function SectorProfitIndex({ month, monthLabel, grid, totals, isF
                         </Button>
                     </div>
                 )}
-            </div>
+            </div></PageTransition>
         </AuthenticatedLayout>
     );
 }

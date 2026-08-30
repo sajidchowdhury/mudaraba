@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { formatBDT, cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { PageTransition } from "@/Components/common";
 
 interface LedgerEntry {
     date: string; type: string; subtype: string; description: string;
@@ -58,7 +59,7 @@ export default function MYLedger({ directors, selectedId, director, ledger, filt
         <AuthenticatedLayout title="M/Y Ledger">
             <Head title="M/Y Ledger Report" />
 
-            <div className="space-y-6">
+            <PageTransition><div className="space-y-6">
                 {/* Header */}
                 <div className="flex items-center gap-3">
                     <div className="size-10 rounded-xl bg-primary-soft flex items-center justify-center">
@@ -226,7 +227,7 @@ export default function MYLedger({ directors, selectedId, director, ledger, filt
                         </CardContent>
                     </Card>
                 )}
-            </div>
+            </div></PageTransition>
         </AuthenticatedLayout>
     );
 }

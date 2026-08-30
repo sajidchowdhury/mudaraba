@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { cn, formatBDT, formatPercent } from "@/lib/utils";
 import { toast } from "sonner";
+import { PageTransition } from "@/Components/common";
 
 interface ChecklistItem {
     id: string;
@@ -78,7 +79,7 @@ export default function MonthCloseIndex({ month, monthLabel, status, checklist, 
         <AuthenticatedLayout title="Month Closing">
             <Head title={`Month Close — ${monthLabel}`} />
 
-            <div className="space-y-6 max-w-4xl mx-auto">
+            <PageTransition><div className="space-y-6 max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-3">
@@ -308,7 +309,7 @@ export default function MonthCloseIndex({ month, monthLabel, status, checklist, 
                         <Button variant="ghost" size="sm"><ReceiptText className="size-4" /> Investor Profit View</Button>
                     </Link>
                 </div>
-            </div>
+            </div></PageTransition>
         </AuthenticatedLayout>
     );
 }

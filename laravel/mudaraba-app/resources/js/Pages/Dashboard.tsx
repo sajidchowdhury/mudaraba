@@ -6,6 +6,7 @@ import {
     Button, Badge,
 } from "@/Components/ui";
 import { formatBDT, formatNumber, cn } from "@/lib/utils";
+import { PageTransition, StaggerContainer, StaggerItem } from "@/Components/common";
 import {
     Wallet, TrendingUp, CircleDollarSign, Users,
     ArrowRight, ChevronRight, Activity,
@@ -133,7 +134,7 @@ export default function Dashboard({ appName, auth, kpis, trend, sectorAllocation
         >
             <Head title="Dashboard" />
 
-            <div className="space-y-8">
+            <PageTransition><div className="space-y-8">
                 {/* Hero greeting */}
                 <section>
                     <h1 className="font-display text-3xl font-bold tracking-tight">
@@ -308,7 +309,7 @@ export default function Dashboard({ appName, auth, kpis, trend, sectorAllocation
                         </CardContent>
                     </Card>
                 </section>
-            </div>
+            </div></PageTransition>
         </AuthenticatedLayout>
     );
 }

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { formatBDT, formatPercent, cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { PageTransition } from "@/Components/common";
 
 interface GridItem {
     investor_id: number;
@@ -74,7 +75,7 @@ export default function InvestmentProfit({ month, monthLabel, grid, totals, tier
         <AuthenticatedLayout title="Investment Profit Report">
             <Head title={`Investment Profit — ${monthLabel}`} />
 
-            <div className="space-y-6">
+            <PageTransition><div className="space-y-6">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-3">
@@ -244,7 +245,7 @@ export default function InvestmentProfit({ month, monthLabel, grid, totals, tier
                         )}
                     </CardContent>
                 </Card>
-            </div>
+            </div></PageTransition>
         </AuthenticatedLayout>
     );
 }

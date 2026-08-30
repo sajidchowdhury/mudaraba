@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { formatBDT, cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { PageTransition } from "@/Components/common";
 
 interface Adjustment {
     id: number;
@@ -146,7 +147,7 @@ export default function ProfitAdjustmentsIndex({ adjustments, investors, sectors
         >
             <Head title="Profit Adjustments" />
 
-            <div className="space-y-6">
+            <PageTransition><div className="space-y-6">
                 {/* Header */}
                 <div className="flex items-center gap-3">
                     <div className="size-10 rounded-xl bg-primary-soft flex items-center justify-center">
@@ -506,7 +507,7 @@ export default function ProfitAdjustmentsIndex({ adjustments, investors, sectors
                         )}
                     </CardContent>
                 </Card>
-            </div>
+            </div></PageTransition>
         </AuthenticatedLayout>
     );
 }

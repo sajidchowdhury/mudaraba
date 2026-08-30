@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { formatBDT, cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { PageTransition } from "@/Components/common";
 
 interface Transaction {
     id: number;
@@ -119,7 +120,7 @@ export default function InvestmentsIndex({ transactions, investors, filters, can
         <AuthenticatedLayout title="Investment Transactions">
             <Head title="Investment Transactions" />
 
-            <div className="space-y-6">
+            <PageTransition><div className="space-y-6">
                 {/* Header */}
                 <div className="flex items-center gap-3">
                     <div className="size-10 rounded-xl bg-primary-soft flex items-center justify-center">
@@ -432,7 +433,7 @@ export default function InvestmentsIndex({ transactions, investors, filters, can
                         </Card>
                     </div>
                 </div>
-            </div>
+            </div></PageTransition>
         </AuthenticatedLayout>
     );
 }

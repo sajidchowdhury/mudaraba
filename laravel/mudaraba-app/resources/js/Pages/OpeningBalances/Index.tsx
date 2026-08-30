@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { formatBDT, cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { PageTransition } from "@/Components/common";
 
 interface Director {
     id: number; name: string; is_my: boolean; due: number; has_ledger: boolean;
@@ -97,7 +98,7 @@ export default function OpeningBalancesIndex({ directors, investors, sectors, to
         <AuthenticatedLayout title="Opening Balances">
             <Head title="Opening Balances" />
 
-            <div className="space-y-6">
+            <PageTransition><div className="space-y-6">
                 {/* Header */}
                 <div className="flex items-center gap-3">
                     <div className="size-10 rounded-xl bg-primary-soft flex items-center justify-center">
@@ -307,7 +308,7 @@ export default function OpeningBalancesIndex({ directors, investors, sectors, to
                         </Card>
                     </TabsContent>
                 </Tabs>
-            </div>
+            </div></PageTransition>
         </AuthenticatedLayout>
     );
 }

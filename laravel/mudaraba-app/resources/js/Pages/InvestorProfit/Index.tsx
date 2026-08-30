@@ -11,6 +11,7 @@ import {
     TrendingUp, ChevronLeft, ChevronRight, Calendar, ReceiptText,
     Crown, AlertCircle, Info, FileSpreadsheet, Users,
 } from "lucide-react";
+import { PageTransition } from "@/Components/common";
 import { formatBDT, formatPercent, cn } from "@/lib/utils";
 
 interface GridItem {
@@ -79,7 +80,7 @@ export default function InvestorProfitIndex({ month, monthLabel, grid, totals, r
         <AuthenticatedLayout title="Investor Profit">
             <Head title={`Investor Profit — ${monthLabel}`} />
 
-            <div className="space-y-6">
+            <PageTransition><div className="space-y-6">
                 {/* Header with month switcher */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-3">
@@ -389,7 +390,7 @@ export default function InvestorProfitIndex({ month, monthLabel, grid, totals, r
                         </span>
                     </div>
                 )}
-            </div>
+            </div></PageTransition>
         </AuthenticatedLayout>
     );
 }
