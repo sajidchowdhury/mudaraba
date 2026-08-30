@@ -16,6 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             HandleInertiaRequests::class,
         ]);
+
+        // Redirect unauthenticated users to the named 'login' route
+        $middleware->redirectGuestsTo(fn () => route('login'));
+
+        // Redirect authenticated users away from login/register pages
+        $middleware->redirectUsersTo(fn () => route('dashboard'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

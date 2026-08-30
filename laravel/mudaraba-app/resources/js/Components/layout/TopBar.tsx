@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
+import { router } from "@inertiajs/react";
 import { Menu, Search, Bell, Plus } from "lucide-react";
 import { Button } from "@/Components/ui/Button";
 import { Avatar, AvatarFallback } from "@/Components/ui/Avatar";
@@ -24,15 +25,11 @@ interface TopBarProps {
 }
 
 export function TopBar({ onMenuClick, month, onMonthChange, className }: TopBarProps) {
-    const [searchOpen, setSearchOpen] = React.useState(false);
-
-    // Cmd+K opens command palette (handled by parent via custom event)
     React.useEffect(() => {
         const handler = (e: KeyboardEvent) => {
             if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
                 e.preventDefault();
                 window.dispatchEvent(new CustomEvent("open-command-palette"));
-                setSearchOpen(false);
             }
             if (e.key === "/" && !isTyping(e.target)) {
                 e.preventDefault();
@@ -43,6 +40,20 @@ export function TopBar({ onMenuClick, month, onMonthChange, className }: TopBarP
         return () => window.removeEventListener("keydown", handler);
     }, []);
 
+    // Get user from shared Inertia props (HandleInertiaRequests)
+    const { auth } = usePage().props as { auth?: { user?: { name?: string; username?: string; role?: string } } };
+    const userName = auth?.user?.name ?? auth?.user?.username ?? "M / Y Owner";
+    const userInitials = (auth?.user?.name ?? auth?.user?.username ?? "MY")
+        .split(" ")
+        .map((s) => s[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase();
+
+    const handleLogout = () => {
+        router.post("/logout", {}, { preserveScroll: true });
+    };
+
     return (
         <header
             className={cn(
@@ -51,7 +62,6 @@ export function TopBar({ onMenuClick, month, onMonthChange, className }: TopBarP
                 className,
             )}
         >
-            {/* Mobile hamburger */}
             <Button
                 variant="ghost"
                 size="icon"
@@ -62,13 +72,10 @@ export function TopBar({ onMenuClick, month, onMonthChange, className }: TopBarP
                 <Menu className="size-5" />
             </Button>
 
-            {/* Month switcher — prominent */}
             <MonthSwitcher value={month} onChange={onMonthChange} className="shrink-0" />
 
-            {/* Spacer */}
             <div className="flex-1" />
 
-            {/* Search trigger (desktop) */}
             <button
                 onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
                 className={cn(
@@ -83,7 +90,6 @@ export function TopBar({ onMenuClick, month, onMonthChange, className }: TopBarP
                 </kbd>
             </button>
 
-            {/* Mobile search icon */}
             <Button
                 variant="ghost"
                 size="icon"
@@ -94,12 +100,10 @@ export function TopBar({ onMenuClick, month, onMonthChange, className }: TopBarP
                 <Search className="size-5" />
             </Button>
 
-            {/* Quick add */}
             <Button size="icon" className="shrink-0" aria-label="Quick add">
                 <Plus className="size-5" />
             </Button>
 
-            {/* Notifications */}
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="shrink-0 relative" aria-label="Notifications">
@@ -131,13 +135,12 @@ export function TopBar({ onMenuClick, month, onMonthChange, className }: TopBarP
 
             <ThemeToggle />
 
-            {/* User menu */}
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <button className="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity ml-1">
                         <Avatar className="size-9 ring-2 ring-border">
                             <AvatarFallback className="bg-primary-soft text-primary text-xs font-semibold">
-                                MY
+                                {userInitials}
                             </AvatarFallback>
                         </Avatar>
                     </button>
@@ -145,8 +148,10 @@ export function TopBar({ onMenuClick, month, onMonthChange, className }: TopBarP
                 <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuLabel>
                         <div className="flex flex-col gap-0.5">
-                            <span className="text-sm font-medium text-foreground">M / Y Owner</span>
-                            <span className="text-xs text-muted font-normal">Sajid · superadmin</span>
+                            <span className="text-sm font-medium text-foreground">{userName}</span>
+                            <span className="text-xs text-muted font-normal">
+                                {auth?.user?.username ?? "—"} · {auth?.user?.role ?? "user"}
+                            </span>
                         </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
@@ -157,7 +162,9 @@ export function TopBar({ onMenuClick, month, onMonthChange, className }: TopBarP
                         <Badge variant="success" className="ml-auto text-[10px]">ON</Badge>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-danger focus:text-danger">Sign out</DropdownMenuItem>
+                    <DropdownMenuItem className="text-danger focus:text-danger" onClick={handleLogout}>
+                        Sign out
+                    </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
         </header>

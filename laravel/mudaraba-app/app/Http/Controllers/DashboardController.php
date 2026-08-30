@@ -8,8 +8,18 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+
         return Inertia::render('Dashboard', [
             'appName' => config('app.name'),
+            'auth' => [
+                'user' => $user ? [
+                    'id' => $user->id,
+                    'username' => $user->username,
+                    'role' => $user->role,
+                    'name' => $user->employee?->name ?? $user->username,
+                ] : null,
+            ],
             'kpis' => [
                 [
                     'label' => 'Total Mudaraba Investment',

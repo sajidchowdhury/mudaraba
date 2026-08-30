@@ -335,12 +335,12 @@ export default function Login({ appName }: LoginProps) {
                                 </Button>
                             </form>
 
-                            {/* Demo hint */}
+                            {/* Demo credentials hint */}
                             <div className="mt-8 p-4 rounded-lg border border-border bg-surface-2/50">
                                 <p className="text-xs text-muted text-center">
-                                    <span className="font-medium text-foreground">Demo:</span>{" "}
-                                    Authentication backend is wired up in Session 2.2.
-                                    This page currently demonstrates the premium UI only.
+                                    <span className="font-medium text-foreground">Test credentials:</span>{" "}
+                                    username <code className="font-num px-1 py-0.5 rounded bg-surface text-foreground">E0001</code>
+                                    {" · "}password <code className="font-num px-1 py-0.5 rounded bg-surface text-foreground">Mudaraba@2026</code>
                                 </p>
                             </div>
                         </div>
