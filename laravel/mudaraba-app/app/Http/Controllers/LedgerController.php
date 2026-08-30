@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Director;
+use App\Models\DirectorTransaction;
 use App\Models\InvestmentTransaction;
 use App\Models\Investor;
 use App\Models\InvestorMonthlyProfitDetail;
+use App\Models\MonthlyProfitSummary;
 use App\Models\MonthlySectorProfit;
 use App\Models\ProfitAdjustment;
+use App\Models\RetainedEarnings;
 use App\Models\Sector;
 use App\Models\SectorInvestment;
 use Illuminate\Http\Request;
@@ -339,6 +343,137 @@ class LedgerController extends Controller
                 'name' => $sector->name,
                 'opening_balance' => $openingBalance,
                 'opening_profit_due' => $openingProfitDue,
+            ] : null,
+            'ledger' => $ledger,
+            'filters' => [
+                'date_from' => $dateFrom,
+                'date_to' => $dateTo,
+            ],
+            'summary' => [
+                'total_entries' => count($ledger),
+                'total_inflow' => array_sum(array_map(fn ($e) => $e['amount'] > 0 ? $e['amount'] : 0, $ledger)),
+                'total_outflow' => abs(array_sum(array_map(fn ($e) => $e['amount'] < 0 ? $e['amount'] : 0, $ledger))),
+                'net_balance' => array_sum(array_map(fn ($e) => $e['amount'], $ledger)),
+            ],
+        ]);
+    }
+
+    /**
+     * Display the M/Y (director) ledger report — a unified timeline of all
+     * director transactions, M/Y profit from monthly summaries, and
+     * retained earnings (29% portion).
+     */
+    public function myLedger(Request $request): Response
+    {
+        $directors = Director::orderByDesc('is_my')->orderBy('name')->get(['id', 'name', 'is_my']);
+
+        $selectedId = $request->get('director_id');
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+
+        $ledger = [];
+        $director = null;
+        $openingDue = 0;
+
+        if ($selectedId) {
+            $director = Director::with('dueLedger')->find($selectedId);
+
+            if ($director) {
+                $openingDue = (float) ($director->dueLedger?->due ?? 0);
+
+                // 1. Director transactions (withdraw / return)
+                $txQuery = DirectorTransaction::where('director_id', $selectedId)
+                    ->with('creator:id,username');
+                if ($dateFrom) {
+                    $txQuery->where('transaction_date', '>=', $dateFrom);
+                }
+                if ($dateTo) {
+                    $txQuery->where('transaction_date', '<=', $dateTo);
+                }
+                $transactions = $txQuery->orderBy('transaction_date')->get();
+
+                foreach ($transactions as $tx) {
+                    $signed = $tx->signedAmount();
+                    $ledger[] = [
+                        'date' => $tx->transaction_date?->format('Y-m-d'),
+                        'type' => 'transaction',
+                        'subtype' => $tx->type->value,
+                        'description' => $tx->type->value === 'withdraw' ? 'M/Y Withdrawal' : 'M/Y Return',
+                        'amount' => $signed,
+                        'amount_display' => abs($signed),
+                        'is_positive' => $signed > 0,
+                        'remarks' => $tx->remarks,
+                        'created_by' => $tx->creator?->username ?? '—',
+                    ];
+                }
+
+                // 2. M/Y profit from monthly summaries (AG184)
+                $summaryQuery = MonthlyProfitSummary::query();
+                if ($dateFrom) {
+                    $summaryQuery->where('profit_month', '>=', $dateFrom);
+                }
+                if ($dateTo) {
+                    $summaryQuery->where('profit_month', '<=', $dateTo);
+                }
+                $summaries = $summaryQuery->orderBy('profit_month')->get();
+
+                foreach ($summaries as $summary) {
+                    if ((float) $summary->my_profit != 0) {
+                        $ledger[] = [
+                            'date' => $summary->profit_month,
+                            'type' => 'profit',
+                            'subtype' => 'my_profit',
+                            'description' => 'M/Y Profit (AG184)',
+                            'amount' => (float) $summary->my_profit,
+                            'amount_display' => (float) $summary->my_profit,
+                            'is_positive' => true,
+                            'remarks' => 'Ratio: '.(float) $summary->my_profit_ratio.'% | Actual: '.(float) $summary->total_actual_profit,
+                            'created_by' => '—',
+                        ];
+                    }
+
+                    // Retained earnings 29% portion (AK4)
+                    $retained = RetainedEarnings::where('profit_month', $summary->profit_month)->first();
+                    if ($retained && (float) $retained->my_portion_amount > 0) {
+                        $ledger[] = [
+                            'date' => $summary->profit_month,
+                            'type' => 'retained',
+                            'subtype' => 'my_portion',
+                            'description' => 'Retained Earnings M/Y Portion (AK4)',
+                            'amount' => (float) $retained->my_portion_amount,
+                            'amount_display' => (float) $retained->my_portion_amount,
+                            'is_positive' => true,
+                            'remarks' => '29% of '.(float) $retained->total_amount,
+                            'created_by' => '—',
+                        ];
+                    }
+                }
+
+                // Sort by date
+                usort($ledger, fn ($a, $b) => strcmp($a['date'], $b['date']));
+
+                // Compute running balance
+                $running = 0;
+                foreach ($ledger as &$entry) {
+                    $running += $entry['amount'];
+                    $entry['running_balance'] = $running;
+                }
+                unset($entry);
+            }
+        }
+
+        return Inertia::render('Reports/MYLedger', [
+            'directors' => $directors->map(fn (Director $d) => [
+                'id' => $d->id,
+                'name' => $d->name,
+                'is_my' => (bool) $d->is_my,
+            ]),
+            'selectedId' => (int) $selectedId,
+            'director' => $director ? [
+                'id' => $director->id,
+                'name' => $director->name,
+                'is_my' => (bool) $director->is_my,
+                'opening_due' => $openingDue,
             ] : null,
             'ledger' => $ledger,
             'filters' => [
