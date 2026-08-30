@@ -38,7 +38,7 @@ class LedgerController extends Controller
         $openingProfitDue = 0;
 
         if ($selectedId) {
-            $investor = Investor::with(['dueLedger', 'profitDueLedger'])->find($selectedId);
+            $investor = Investor::with(['dueLedger', 'profitDueLedger'])->select(['id', 'name', 'reference', 'deed_ratio', 'mobile', 'address', 'status', 'start_profit_month', 'end_profit_month'])->find($selectedId);
 
             if ($investor) {
                 $openingBalance = (float) ($investor->dueLedger?->due ?? 0);

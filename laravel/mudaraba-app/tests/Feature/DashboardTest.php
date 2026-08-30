@@ -6,6 +6,7 @@ use App\Models\Sector;
 use App\Models\SectorDueLedger;
 use App\Models\User;
 use Database\Seeders\MenuSeeder;
+use Illuminate\Support\Facades\Cache;
 
 beforeEach(function () {
     $this->seed(MenuSeeder::class);
@@ -85,6 +86,9 @@ it('returns recent activity', function () {
 });
 
 it('returns hasData flag based on investment + profit', function () {
+    // Clear cache to ensure fresh data
+    Cache::flush();
+
     // No data → hasData = false
     $response = $this->actingAs($this->superadmin)->get('/dashboard');
     $response->assertInertia(fn ($page) => $page->where('hasData', false));
@@ -92,6 +96,9 @@ it('returns hasData flag based on investment + profit', function () {
     // Add investment → hasData = true
     $inv = Investor::factory()->create(['status' => 'active']);
     InvestorDueLedger::create(['investor_id' => $inv->id, 'due' => 100000]);
+
+    // Clear cache to pick up the new investment
+    Cache::flush();
 
     $response = $this->actingAs($this->superadmin)->get('/dashboard');
     $response->assertInertia(fn ($page) => $page->where('hasData', true));
