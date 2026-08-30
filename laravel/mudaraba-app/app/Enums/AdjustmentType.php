@@ -3,42 +3,51 @@
 namespace App\Enums;
 
 /**
- * Type of advance profit adjustment.
+ * Type of profit adjustment.
  *
- * - TypeA: Per-date single-amount adjustment into fund type A (unique by date).
- * - TypeB: Per-date single-amount adjustment into fund type B (unique by date).
- * - TypeC: General adjustment that can target either a sector or an investor.
+ * - FundA:   Batch adjustment (investors + sectors) tracked in Fund A.
+ *            Fund A balance = Σ(investor amounts) − Σ(sector amounts).
+ * - FundB:   Identical to Fund A but tracked in Fund B (separate balancing pool).
+ * - Direct:  Single-investor adjustment with no sector side (was Type C).
  */
 enum AdjustmentType: string
 {
-    case TypeA = 'type_a';
-    case TypeB = 'type_b';
-    case TypeC = 'type_c';
+    case FundA = 'fund_a';
+    case FundB = 'fund_b';
+    case Direct = 'direct';
 
     public function label(): string
     {
         return match ($this) {
-            self::TypeA => 'Type A',
-            self::TypeB => 'Type B',
-            self::TypeC => 'Type C (General)',
+            self::FundA => 'Fund A',
+            self::FundB => 'Fund B',
+            self::Direct => 'Direct',
         };
     }
 
     public function badgeVariant(): string
     {
         return match ($this) {
-            self::TypeA => 'info',
-            self::TypeB => 'warning',
-            self::TypeC => 'accent',
+            self::FundA => 'info',
+            self::FundB => 'warning',
+            self::Direct => 'accent',
         };
     }
 
     public function description(): string
     {
         return match ($this) {
-            self::TypeA => 'Daily single-amount adjustment into fund A',
-            self::TypeB => 'Daily single-amount adjustment into fund B',
-            self::TypeC => 'General adjustment targeting a sector or investor',
+            self::FundA => 'Batch adjustment tracked in Fund A balancing pool',
+            self::FundB => 'Batch adjustment tracked in Fund B balancing pool',
+            self::Direct => 'Single investor adjustment (no sector side, no fund tracking)',
         };
+    }
+
+    /**
+     * Whether this type tracks a fund balance.
+     */
+    public function hasFund(): bool
+    {
+        return $this !== self::Direct;
     }
 }

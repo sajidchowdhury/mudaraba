@@ -10,6 +10,7 @@ use App\Http\Controllers\InvestorProfitController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MonthStatusController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\ProfitAdjustmentController;
 use App\Http\Controllers\SectorController;
 use App\Http\Controllers\SectorProfitController;
 use Illuminate\Support\Facades\Route;
@@ -85,6 +86,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/profit/investor', [InvestorProfitController::class, 'index'])
         ->middleware('permission:profit.investor')
         ->name('profit.investor.index');
+
+    // Profit Adjustments (unified Fund A + Fund B + Direct)
+    Route::prefix('adjustments')->name('adjustments.')->group(function () {
+        Route::get('/', [ProfitAdjustmentController::class, 'index'])->middleware('permission:adjustments.type-c')->name('index');
+        Route::post('/batch', [ProfitAdjustmentController::class, 'storeBatch'])->middleware('permission:adjustments.type-c')->name('store-batch');
+        Route::post('/direct', [ProfitAdjustmentController::class, 'storeDirect'])->middleware('permission:adjustments.type-c')->name('store-direct');
+        Route::delete('/{adjustment}', [ProfitAdjustmentController::class, 'destroy'])->middleware('permission:adjustments.type-c')->name('destroy');
+    });
 
     // Month Closing & Lock (superadmin only for lock/unlock)
     Route::prefix('month-close')->name('month-close.')->group(function () {
