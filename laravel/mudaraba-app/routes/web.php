@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DesignSystemController;
 use App\Http\Controllers\DirectorController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InvestmentTransactionController;
 use App\Http\Controllers\InvestorController;
@@ -129,6 +130,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [MonthStatusController::class, 'index'])->middleware('permission:profit.investor')->name('index');
         Route::post('/lock', [MonthStatusController::class, 'lock'])->middleware('superadmin')->name('lock');
         Route::post('/unlock', [MonthStatusController::class, 'unlock'])->middleware('superadmin')->name('unlock');
+    });
+
+    // Exports (permission-guarded)
+    Route::prefix('exports')->name('exports.')->group(function () {
+        Route::get('/investor-ledger', [ExportController::class, 'investorLedgerPdf'])->name('investor-ledger');
+        Route::get('/sector-ledger', [ExportController::class, 'sectorLedgerPdf'])->name('sector-ledger');
+        Route::get('/my-ledger', [ExportController::class, 'myLedgerPdf'])->name('my-ledger');
+        Route::get('/investment-profit', [ExportController::class, 'investmentProfitExcel'])->name('investment-profit');
     });
 
     // Admin — permission management (superadmin only)

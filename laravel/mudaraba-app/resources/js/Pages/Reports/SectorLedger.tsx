@@ -199,7 +199,7 @@ export default function SectorLedger({ sectors, selectedId, sector, ledger, filt
                                     <CardTitle>Transaction Timeline</CardTitle>
                                     <CardDescription>Investments, monthly profits, and adjustments</CardDescription>
                                 </div>
-                                <Button variant="outline" size="sm" onClick={() => toast.info("Excel export coming in Phase 7.6")}>
+                                <Button variant="outline" size="sm" onClick={() => window.open(route("exports.sector-ledger") + "?sector_id=" + selectedSector + (dateFrom ? "&date_from=" + dateFrom : "") + (dateTo ? "&date_to=" + dateTo : ""))}>
                                     <Download className="size-4" /> Export
                                 </Button>
                             </div>

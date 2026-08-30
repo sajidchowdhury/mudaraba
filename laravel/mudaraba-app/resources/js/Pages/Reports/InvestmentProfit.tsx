@@ -150,7 +150,7 @@ export default function InvestmentProfit({ month, monthLabel, grid, totals, tier
                                 </Select>
                                 <Button variant="outline" size="sm" onClick={applyTier}>Apply</Button>
                             </div>
-                            <Button variant="outline" size="sm" onClick={() => toast.info("Excel export coming in Phase 7.6")}>
+                            <Button variant="outline" size="sm" onClick={() => window.open(route("exports.investment-profit") + "?month=" + month)}>
                                 <Download className="size-4" /> Export
                             </Button>
                         </div>

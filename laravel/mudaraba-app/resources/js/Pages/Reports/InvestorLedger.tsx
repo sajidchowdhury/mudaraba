@@ -210,7 +210,7 @@ export default function InvestorLedger({ investors, selectedId, investor, ledger
                                     <CardTitle>Transaction Timeline</CardTitle>
                                     <CardDescription>All capital movements, profit distributions, and adjustments</CardDescription>
                                 </div>
-                                <Button variant="outline" size="sm" onClick={() => toast.info("Excel export coming in Phase 7.6")}>
+                                <Button variant="outline" size="sm" onClick={() => window.open(route("exports.investor-ledger") + "?investor_id=" + selectedInvestor + (dateFrom ? "&date_from=" + dateFrom : "") + (dateTo ? "&date_to=" + dateTo : ""))}>
                                     <Download className="size-4" /> Export
                                 </Button>
                             </div>
