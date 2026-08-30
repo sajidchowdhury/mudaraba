@@ -7,20 +7,8 @@ use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
-    /**
-     * The root template that's loaded on the first page visit.
-     *
-     * @see https://inertiajs.com/server-side-setup#root-template
-     *
-     * @var string
-     */
     protected $rootView = 'app';
 
-    /**
-     * Determines the current asset version.
-     *
-     * @see https://inertiajs.com/asset-versioning
-     */
     public function version(Request $request): ?string
     {
         return parent::version($request);
@@ -29,17 +17,27 @@ class HandleInertiaRequests extends Middleware
     /**
      * Define the props that are shared by default.
      *
-     * @see https://inertiajs.com/shared-data
+     * Shares the authenticated user, their permitted menu tree, and flash
+     * messages with every Inertia page render.
      *
      * @return array<string, mixed>
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
         return array_merge(parent::share($request), [
             'appName' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user ? [
+                    'id' => $user->id,
+                    'username' => $user->username,
+                    'role' => $user->role,
+                    'name' => $user->employee?->name ?? $user->username,
+                ] : null,
+                'isSuperadmin' => $user?->isSuperadmin() ?? false,
             ],
+            'menus' => fn () => $user ? $user->permittedMenuTree() : [],
             'flash' => fn () => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
