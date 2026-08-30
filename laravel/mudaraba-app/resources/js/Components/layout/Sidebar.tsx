@@ -2,6 +2,7 @@ import * as React from "react";
 import { Link, usePage } from "@inertiajs/react";
 import { route } from "ziggy-js";
 import { ChevronRight, Layers } from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/Components/ui/Collapsible";
 
@@ -21,14 +22,14 @@ interface SidebarProps {
 }
 
 /**
- * Dynamically import the icon from lucide-react by name.
- * Falls back to a default icon if not found.
+ * Resolve a Lucide icon by its PascalCase name from the static import.
+ * Falls back to Layers if not found. Uses the imported module object
+ * (not require()) so it works in ESM/Vite browser context.
  */
 function useIcon(name: string) {
     return React.useMemo(() => {
-        // Lucide icons are PascalCase; we store them as PascalCase in the DB
-        const icons = require("lucide-react") as Record<string, React.ComponentType<{ className?: string }>>;
-        return icons[name] ?? icons.Layers;
+        const icons = LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>;
+        return icons[name] ?? Layers;
     }, [name]);
 }
 
