@@ -17,6 +17,7 @@ use App\Models\SectorProfitDueLedger;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class January2026Seeder extends Seeder
 {
@@ -24,9 +25,11 @@ class January2026Seeder extends Seeder
     {
         $data = json_decode(file_get_contents(database_path('seeders/january_2026_data.json')), true);
 
-        // 0. Wipe everything (idempotent re-run support)
+        // 0. Wipe everything (idempotent re-run support).
+        //    Uses Laravel's DB-agnostic Schema helper — works on both PostgreSQL and SQLite.
+        //    (migrate:fresh already drops all tables, but this makes `db:seed` alone safe too.)
         $this->command->info('Wiping existing data…');
-        DB::statement('PRAGMA foreign_keys = OFF;');
+        Schema::disableForeignKeyConstraints();
         foreach ([
             'profit_adjustments',
             'sector_profit_monthly_due',
@@ -55,9 +58,11 @@ class January2026Seeder extends Seeder
             'menus',
             'user_permissions',
         ] as $t) {
+            // PostgreSQL supports TRUNCATE ... CASCADE; SQLite uses DELETE.
+            // DB::table()->truncate() handles both drivers correctly.
             DB::table($t)->truncate();
         }
-        DB::statement('PRAGMA foreign_keys = ON;');
+        Schema::enableForeignKeyConstraints();
 
         // 1. Create superadmin user
         $employee = Employee::create([
