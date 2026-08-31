@@ -123,46 +123,59 @@ it('keeps Fund A and Fund B balances separate', function () {
             'sector_items' => [],
         ]);
 
-    // Fund B: investor 3000, sector 1000 → balance = 2000
+    // Fund B: SECTOR-ONLY (per PHP spec §5) — investor_items rejected.
+    // sector 1000 → balance = +1000 (sector surplus increases Fund B)
     $this->actingAs($this->superadmin)
         ->post('/adjustments/batch', [
             'type' => 'fund_b',
             'transaction_date' => '2026-07-16',
             'profit_month' => '2026-07-01',
-            'investor_items' => [['investor_id' => $this->inv2->id, 'amount' => 3000]],
+            'investor_items' => [],
             'sector_items' => [['sector_id' => $this->sector1->id, 'amount' => 1000]],
         ]);
 
     expect(ProfitAdjustment::fundBalance(AdjustmentType::FundA))->toBe(5000.0);
-    expect(ProfitAdjustment::fundBalance(AdjustmentType::FundB))->toBe(2000.0);
+    expect(ProfitAdjustment::fundBalance(AdjustmentType::FundB))->toBe(1000.0); // +Σ sector
 });
 
-it('stores a direct (single investor) adjustment', function () {
+it('stores a direct (investor-wise) adjustment — sector + investor both debited', function () {
     $response = $this->actingAs($this->superadmin)
         ->post('/adjustments/direct', [
+            'mode' => 'investor_wise',
+            'sector_id' => $this->sector1->id,
             'investor_id' => $this->inv1->id,
-            'amount' => 10000,
+            'total_amount' => 10000,
             'transaction_date' => '2026-07-20',
             'profit_month' => '2026-07-01',
         ]);
 
     $response->assertRedirect();
 
-    $adj = ProfitAdjustment::where('type', 'direct')->first();
-    expect($adj)->not->toBeNull();
-    expect((float) $adj->amount)->toBe(10000.0);
-    expect($adj->target_type->value)->toBe('investor');
+    // 2 records: one investor-side, one sector-side (same batch)
+    expect(ProfitAdjustment::where('type', 'direct')->count())->toBe(2);
+
+    $investorAdj = ProfitAdjustment::where('type', 'direct')->where('target_type', 'investor')->first();
+    expect((float) $investorAdj->amount)->toBe(10000.0);
+
+    $sectorAdj = ProfitAdjustment::where('type', 'direct')->where('target_type', 'sector')->first();
+    expect((float) $sectorAdj->amount)->toBe(10000.0);
 
     // Inv1's profit due should be -10000
     $due = InvestorProfitDueLedger::where('investor_id', $this->inv1->id)->first();
     expect((float) $due->due)->toBe(-10000.0);
+
+    // Sector1's profit due should be -10000
+    $secDue = SectorProfitDueLedger::where('sector_id', $this->sector1->id)->first();
+    expect((float) $secDue->due)->toBe(-10000.0);
 });
 
 it('does not affect fund balances for direct adjustments', function () {
     $this->actingAs($this->superadmin)
         ->post('/adjustments/direct', [
+            'mode' => 'investor_wise',
+            'sector_id' => $this->sector1->id,
             'investor_id' => $this->inv1->id,
-            'amount' => 10000,
+            'total_amount' => 10000,
             'transaction_date' => '2026-07-20',
             'profit_month' => '2026-07-01',
         ]);
@@ -172,11 +185,13 @@ it('does not affect fund balances for direct adjustments', function () {
 });
 
 it('rolls back ledger on delete', function () {
-    // Create a direct adjustment
+    // Create a direct adjustment (investor side only — we delete just one record)
     $this->actingAs($this->superadmin)
         ->post('/adjustments/direct', [
+            'mode' => 'investor_wise',
+            'sector_id' => $this->sector1->id,
             'investor_id' => $this->inv1->id,
-            'amount' => 10000,
+            'total_amount' => 10000,
             'transaction_date' => '2026-07-20',
             'profit_month' => '2026-07-01',
         ]);
@@ -185,14 +200,14 @@ it('rolls back ledger on delete', function () {
     $due = InvestorProfitDueLedger::where('investor_id', $this->inv1->id)->first();
     expect((float) $due->due)->toBe(-10000.0);
 
-    // Delete the adjustment
-    $adj = ProfitAdjustment::first();
+    // Delete the investor-side adjustment
+    $adj = ProfitAdjustment::where('target_type', 'investor')->first();
     $response = $this->actingAs($this->superadmin)
         ->delete("/adjustments/{$adj->id}");
 
     $response->assertRedirect();
 
-    // Due should be back to 0 (rolled back)
+    // Investor due should be back to 0 (rolled back)
     $due = InvestorProfitDueLedger::where('investor_id', $this->inv1->id)->first();
     expect((float) $due->due)->toBe(0.0);
 
@@ -226,7 +241,7 @@ it('validates required fields for direct', function () {
     $response = $this->actingAs($this->superadmin)
         ->post('/adjustments/direct', []);
 
-    $response->assertSessionHasErrors(['investor_id', 'amount', 'transaction_date', 'profit_month']);
+    $response->assertSessionHasErrors(['mode', 'sector_id', 'total_amount', 'transaction_date', 'profit_month']);
 });
 
 it('skips zero-amount entries in batch', function () {
@@ -266,4 +281,47 @@ it('supports filtering by type', function () {
     $response->assertInertia(fn ($page) => $page
         ->where('adjustments.total', 1)
     );
+});
+
+it('rejects investor_items for Fund B (sector-only per PHP spec §5)', function () {
+    $response = $this->actingAs($this->superadmin)
+        ->post('/adjustments/batch', [
+            'type' => 'fund_b',
+            'transaction_date' => '2026-07-16',
+            'profit_month' => '2026-07-01',
+            'investor_items' => [['investor_id' => $this->inv1->id, 'amount' => 5000]],
+            'sector_items' => [['sector_id' => $this->sector1->id, 'amount' => 1000]],
+        ]);
+
+    // Should redirect back with errors (investor_items forbidden for Fund B)
+    $response->assertSessionHasErrors(['investor_items']);
+
+    // No records should have been created
+    expect(ProfitAdjustment::count())->toBe(0);
+});
+
+it('stores a direct as-per-invest adjustment (bulk investors by ratio)', function () {
+    $response = $this->actingAs($this->superadmin)
+        ->post('/adjustments/direct', [
+            'mode' => 'as_per_invest',
+            'sector_id' => $this->sector1->id,
+            'total_amount' => 10000,
+            'transaction_date' => '2026-07-20',
+            'profit_month' => '2026-07-01',
+            'investor_items' => [
+                ['investor_id' => $this->inv1->id, 'amount' => 6000],
+                ['investor_id' => $this->inv2->id, 'amount' => 4000],
+            ],
+        ]);
+
+    $response->assertRedirect();
+
+    // 3 records: 1 sector (total) + 2 investors
+    expect(ProfitAdjustment::where('type', 'direct')->count())->toBe(3);
+
+    $sectorAdj = ProfitAdjustment::where('type', 'direct')->where('target_type', 'sector')->first();
+    expect((float) $sectorAdj->amount)->toBe(10000.0);
+
+    $invAdjs = ProfitAdjustment::where('type', 'direct')->where('target_type', 'investor')->get();
+    expect($invAdjs->sum(fn ($a) => (float) $a->amount))->toBe(10000.0);
 });

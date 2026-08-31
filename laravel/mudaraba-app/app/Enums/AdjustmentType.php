@@ -5,10 +5,14 @@ namespace App\Enums;
 /**
  * Type of profit adjustment.
  *
- * - FundA:   Batch adjustment (investors + sectors) tracked in Fund A.
+ * - FundA:   Batch adjustment — investors + sectors tracked in Fund A.
+ *            Investor amounts ADD to the fund; sector amounts DEDUCT from it.
  *            Fund A balance = Σ(investor amounts) − Σ(sector amounts).
- * - FundB:   Identical to Fund A but tracked in Fund B (separate balancing pool).
- * - Direct:  Single-investor adjustment with no sector side (was Type C).
+ * - FundB:   Sector-only surplus credited to Fund B reserve.
+ *            NO investor side. Sector amounts INCREASE the fund.
+ *            Fund B balance = +Σ(sector amounts).
+ * - Direct:  Sector ↔ Investor direct transfer (no fund ledger).
+ *            Two modes: investor_wise (single) and as_per_invest (bulk by ratio).
  */
 enum AdjustmentType: string
 {
@@ -37,9 +41,9 @@ enum AdjustmentType: string
     public function description(): string
     {
         return match ($this) {
-            self::FundA => 'Batch adjustment tracked in Fund A balancing pool',
-            self::FundB => 'Batch adjustment tracked in Fund B balancing pool',
-            self::Direct => 'Single investor adjustment (no sector side, no fund tracking)',
+            self::FundA => 'Investor + sector adjustment in Fund A pool',
+            self::FundB => 'Sector surplus credited to Fund B reserve',
+            self::Direct => 'Sector ↔ Investor direct transfer (no fund)',
         };
     }
 

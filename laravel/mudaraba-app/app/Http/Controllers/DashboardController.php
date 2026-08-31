@@ -8,6 +8,7 @@ use App\Models\Investor;
 use App\Models\InvestorDueLedger;
 use App\Models\MonthlyProfitSummary;
 use App\Models\Sector;
+use App\Models\SectorInvestment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
@@ -74,6 +75,23 @@ class DashboardController extends Controller
                 ->groupBy('deed_ratio')
                 ->pluck('count', 'deed_ratio');
 
+            // ----- Cash-in-Hand Tracking -----
+            // Money collected from investors (InvestmentTransaction) vs deployed to sectors (SectorInvestment).
+            // Cash in Hand = net investor deposits − net sector deployments.
+            $investorAdds       = (float) InvestmentTransaction::where('type', 'add')->sum('amount');
+            $investorWithdraws  = (float) InvestmentTransaction::where('type', 'withdraw')->sum('amount');
+            $sectorAdds         = (float) SectorInvestment::where('type', 'add')->sum('amount');
+            $sectorWithdraws    = (float) SectorInvestment::where('type', 'withdraw')->sum('amount');
+
+            $totalCollected      = $investorAdds;
+            $totalWithdrawn      = $investorWithdraws;
+            $totalAllocated      = $sectorAdds;
+            $totalSectorReturn   = $sectorWithdraws;
+            $netInvestorDeposit  = $investorAdds - $investorWithdraws;
+            $netSectorDeployed   = $sectorAdds - $sectorWithdraws;
+            $cashInHand          = $netInvestorDeposit - $netSectorDeployed;
+            $cashInHandPct       = $netInvestorDeposit > 0 ? ($cashInHand / $netInvestorDeposit) * 100 : 0;
+
             return [
                 'totalInvestment' => $totalInvestment,
                 'currentMonthProfit' => $currentMonthProfit,
@@ -87,6 +105,16 @@ class DashboardController extends Controller
                 'tier80' => $tierCounts->get('80', 0),
                 'tier60' => $tierCounts->get('60', 0),
                 'hasData' => $totalInvestment > 0 || $currentMonthProfit > 0,
+                'cashFlow' => [
+                    'totalCollected'     => $totalCollected,
+                    'totalWithdrawn'      => $totalWithdrawn,
+                    'totalAllocated'      => $totalAllocated,
+                    'totalSectorReturn'   => $totalSectorReturn,
+                    'netInvestorDeposit'  => $netInvestorDeposit,
+                    'netSectorDeployed'   => $netSectorDeployed,
+                    'cashInHand'          => $cashInHand,
+                    'cashInHandPct'       => $cashInHandPct,
+                ],
             ];
         });
 
@@ -177,6 +205,7 @@ class DashboardController extends Controller
                 ['name' => 'Tier 80%',  'value' => $data['tier80'],  'color' => '#F59E0B'],
                 ['name' => 'Tier 60%',  'value' => $data['tier60'],  'color' => '#06B6D4'],
             ],
+            'cashFlow' => $data['cashFlow'],
             'recentActivity' => $recentActivity->values(),
             'hasData' => $data['hasData'],
         ]);

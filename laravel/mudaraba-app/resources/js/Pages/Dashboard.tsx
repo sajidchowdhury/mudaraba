@@ -11,6 +11,7 @@ import {
     Wallet, TrendingUp, CircleDollarSign, Users,
     ArrowRight, ChevronRight, Activity,
     PieChart, ReceiptText, Settings2, CalendarClock,
+    ArrowDownCircle, ArrowUpCircle, Building2, Banknote,
 } from "lucide-react";
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -52,6 +53,17 @@ interface ActivityItem {
     created_at: string;
 }
 
+interface CashFlow {
+    totalCollected: number;
+    totalWithdrawn: number;
+    totalAllocated: number;
+    totalSectorReturn: number;
+    netInvestorDeposit: number;
+    netSectorDeployed: number;
+    cashInHand: number;
+    cashInHandPct: number;
+}
+
 interface DashboardProps {
     appName: string;
     auth: { user: { id: number; username: string; role: string; name: string } | null };
@@ -59,6 +71,7 @@ interface DashboardProps {
     trend: TrendItem[];
     sectorAllocation: SectorItem[];
     tierDistribution: TierItem[];
+    cashFlow: CashFlow;
     recentActivity: ActivityItem[];
     hasData: boolean;
 }
@@ -109,7 +122,7 @@ function KpiCard({ kpi }: { kpi: Kpi }) {
     );
 }
 
-export default function Dashboard({ appName, auth, kpis, trend, sectorAllocation, tierDistribution, recentActivity, hasData }: DashboardProps) {
+export default function Dashboard({ appName, auth, kpis, trend, sectorAllocation, tierDistribution, cashFlow, recentActivity, hasData }: DashboardProps) {
     const userName = auth?.user?.name ?? "M / Y Owner";
 
     // Chart colors
@@ -150,6 +163,78 @@ export default function Dashboard({ appName, auth, kpis, trend, sectorAllocation
                     {kpis.map((kpi) => (
                         <KpiCard key={kpi.label} kpi={kpi} />
                     ))}
+                </section>
+
+                {/* Cash-in-Hand tracking section */}
+                <section className="space-y-3">
+                    <div className="flex items-center gap-2">
+                        <Wallet className="size-5 text-emerald-600" />
+                        <h2 className="font-display text-xl font-semibold tracking-tight">Cash Flow &amp; Investment Pool</h2>
+                    </div>
+                    <p className="text-sm text-muted -mt-1">
+                        Money collected from investors vs deployed to sectors. Cash in Hand = unallocated capital still available.
+                    </p>
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        <Card className="border-emerald-200 dark:border-emerald-900">
+                            <CardContent className="p-4">
+                                <div className="flex items-start justify-between">
+                                    <div className="space-y-1">
+                                        <p className="text-xs text-muted">Total Collected</p>
+                                        <p className="font-num text-xl font-bold tracking-tight">{formatBDT(cashFlow.totalCollected)}</p>
+                                        <p className="text-xs text-muted">From investors (add)</p>
+                                    </div>
+                                    <div className="size-9 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center">
+                                        <ArrowDownCircle className="size-5 text-emerald-600" />
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <Card>
+                            <CardContent className="p-4">
+                                <div className="flex items-start justify-between">
+                                    <div className="space-y-1">
+                                        <p className="text-xs text-muted">Total Withdrawn</p>
+                                        <p className="font-num text-xl font-bold tracking-tight">{formatBDT(cashFlow.totalWithdrawn)}</p>
+                                        <p className="text-xs text-muted">Returned to investors</p>
+                                    </div>
+                                    <div className="size-9 rounded-lg bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
+                                        <ArrowUpCircle className="size-5 text-red-600" />
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <Card className="border-amber-200 dark:border-amber-900">
+                            <CardContent className="p-4">
+                                <div className="flex items-start justify-between">
+                                    <div className="space-y-1">
+                                        <p className="text-xs text-muted">Allocated to Sectors</p>
+                                        <p className="font-num text-xl font-bold tracking-tight">{formatBDT(cashFlow.totalAllocated)}</p>
+                                        <p className="text-xs text-muted">Deployed capital</p>
+                                    </div>
+                                    <div className="size-9 rounded-lg bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center">
+                                        <Building2 className="size-5 text-amber-600" />
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <Card className={cn(
+                            "ring-2 transition-all",
+                            cashFlow.cashInHand > 0 ? "ring-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20" : "ring-transparent"
+                        )}>
+                            <CardContent className="p-4">
+                                <div className="flex items-start justify-between">
+                                    <div className="space-y-1">
+                                        <p className="text-xs text-muted">Cash in Hand</p>
+                                        <p className="font-num text-xl font-bold tracking-tight text-emerald-700 dark:text-emerald-400">{formatBDT(cashFlow.cashInHand)}</p>
+                                        <p className="text-xs text-muted">{cashFlow.cashInHandPct.toFixed(2)}% of net deposits</p>
+                                    </div>
+                                    <div className="size-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 flex items-center justify-center">
+                                        <Banknote className="size-5 text-emerald-700 dark:text-emerald-400" />
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </section>
 
                 {/* Charts */}

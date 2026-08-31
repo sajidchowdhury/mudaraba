@@ -1,1157 +1,191 @@
 {
-  "investors": [
-    {
-      "name": "Afzal B",
-      "ref": "MD",
-      "nid": "Kazi Afzal Noor",
-      "inv": 4700000,
-      "deed": "100"
-    },
-    {
-      "name": "Topu",
-      "ref": "MD",
-      "nid": "Kazi Anwar Noor",
-      "inv": 600000,
-      "deed": "100"
-    },
-    {
-      "name": "Papun",
-      "ref": "MD",
-      "nid": "",
-      "inv": 1000000,
-      "deed": "100"
-    },
-    {
-      "name": "Lova Apu (papun)",
-      "ref": "MD",
-      "nid": "",
-      "inv": 200000,
-      "deed": "100"
-    },
-    {
-      "name": "Biva Apu",
-      "ref": "MD",
-      "nid": "",
-      "inv": 400000,
-      "deed": "100"
-    },
-    {
-      "name": "Yahia b",
-      "ref": "MD",
-      "nid": "",
-      "inv": 1500000,
-      "deed": "100"
-    },
-    {
-      "name": "Atika",
-      "ref": "MD",
-      "nid": "Atika Binte Yahia",
-      "inv": 300000,
-      "deed": "100"
-    },
-    {
-      "name": "Ichar",
-      "ref": "",
-      "nid": "Ichar",
-      "inv": 250000,
-      "deed": "100"
-    },
-    {
-      "name": "Rasel B",
-      "ref": "MD",
-      "nid": "Mohammad Moidur Rahman Rasel",
-      "inv": 200000,
-      "deed": "100"
-    },
-    {
-      "name": "Anis B Shahi",
-      "ref": "",
-      "nid": "",
-      "inv": 2000000,
-      "deed": "100"
-    },
-    {
-      "name": "Azad B Shahi",
-      "ref": "",
-      "nid": "",
-      "inv": 1500000,
-      "deed": "80"
-    },
-    {
-      "name": "Sujan paka",
-      "ref": "",
-      "nid": "Md. Suzan",
-      "inv": 150000,
-      "deed": "100"
-    },
-    {
-      "name": "Habib b IPS",
-      "ref": "",
-      "nid": "",
-      "inv": 700000,
-      "deed": "100"
-    },
-    {
-      "name": "Masud PK",
-      "ref": "",
-      "nid": "Md. Masud Ahmed",
-      "inv": 1000000,
-      "deed": "100"
-    },
-    {
-      "name": "Amin",
-      "ref": "",
-      "nid": "Aminul Islam",
-      "inv": 1175000,
-      "deed": "100"
-    },
-    {
-      "name": "Amin MA",
-      "ref": "Amin",
-      "nid": "Mst. Mahfuza Khatun",
-      "inv": 190000,
-      "deed": "100"
-    },
-    {
-      "name": "Rafique B (amin)",
-      "ref": "Amin",
-      "nid": "Mohammad Rafiqul Islam",
-      "inv": 145000,
-      "deed": "100"
-    },
-    {
-      "name": "Aziz B",
-      "ref": "Amin",
-      "nid": "Md. Azizul Islam",
-      "inv": 1300000,
-      "deed": "100"
-    },
-    {
-      "name": "Asma Apu",
-      "ref": "",
-      "nid": "Asma Akther",
-      "inv": 500000,
-      "deed": "100"
-    },
-    {
-      "name": "Anty Dotala (Ma)",
-      "ref": "MD",
-      "nid": "Shahnaz Begum",
-      "inv": 300000,
-      "deed": "80"
-    },
-    {
-      "name": "MA",
-      "ref": "",
-      "nid": "Nurun Nahar",
-      "inv": 100000,
-      "deed": "60"
-    },
-    {
-      "name": "Khalammi",
-      "ref": "",
-      "nid": "Samsun Nahar",
-      "inv": 100000,
-      "deed": "100"
-    },
-    {
-      "name": "Hasi bu",
-      "ref": "",
-      "nid": "",
-      "inv": 150000,
-      "deed": "100"
-    },
-    {
-      "name": "Tunu Apu",
-      "ref": "",
-      "nid": "Sabeha Yasmin",
-      "inv": 100000,
-      "deed": "100"
-    },
-    {
-      "name": "Mou Apu (moni)",
-      "ref": "MD",
-      "nid": "Maliha Yasmin (Mukta)",
-      "inv": 500000,
-      "deed": "100"
-    },
-    {
-      "name": "Halima Anty",
-      "ref": "",
-      "nid": "",
-      "inv": 2610000,
-      "deed": "100"
-    },
-    {
-      "name": "Fatema binte A Rajjak",
-      "ref": "",
-      "nid": "",
-      "inv": 200000,
-      "deed": "100"
-    },
-    {
-      "name": "Banat Madrasa",
-      "ref": "",
-      "nid": "",
-      "inv": 1150000,
-      "deed": "100"
-    },
-    {
-      "name": "Madrasa Land",
-      "ref": "",
-      "nid": "",
-      "inv": 235000,
-      "deed": "100"
-    },
-    {
-      "name": "Hedayet Vabi",
-      "ref": "",
-      "nid": "",
-      "inv": 500000,
-      "deed": "100"
-    },
-    {
-      "name": "Hena Apu",
-      "ref": "",
-      "nid": "",
-      "inv": 700000,
-      "deed": "100"
-    },
-    {
-      "name": "Nabila",
-      "ref": "MD",
-      "nid": "Farzana Rabi",
-      "inv": 2550000,
-      "deed": "100"
-    },
-    {
-      "name": "Momotaj Begum",
-      "ref": "MD",
-      "nid": "Momotaj Begum",
-      "inv": 550000,
-      "deed": "100"
-    },
-    {
-      "name": "Alauddin U",
-      "ref": "",
-      "nid": "",
-      "inv": 5000000,
-      "deed": "100"
-    },
-    {
-      "name": "M Mamun b",
-      "ref": "",
-      "nid": "Abdullah Al Mamun",
-      "inv": 2200000,
-      "deed": "100"
-    },
-    {
-      "name": "Billah",
-      "ref": "MD",
-      "nid": "Md Mobassir Billah",
-      "inv": 2000000,
-      "deed": "100"
-    },
-    {
-      "name": "Billah boro bhai",
-      "ref": "MD",
-      "nid": "Mohammad Mustanasar Billah",
-      "inv": 600000,
-      "deed": "100"
-    },
-    {
-      "name": "Billah Wife",
-      "ref": "MD",
-      "nid": "Khadizatul Kubra Mim",
-      "inv": 300000,
-      "deed": "100"
-    },
-    {
-      "name": "Mashud",
-      "ref": "",
-      "nid": "",
-      "inv": 1150000,
-      "deed": "100"
-    },
-    {
-      "name": "Fouzia Sultana (Mashud)",
-      "ref": "",
-      "nid": "",
-      "inv": 2000000,
-      "deed": "100"
-    },
-    {
-      "name": "Laboni",
-      "ref": "",
-      "nid": "",
-      "inv": 1550000,
-      "deed": "100"
-    },
-    {
-      "name": "Ruma (Mashud)",
-      "ref": "",
-      "nid": "",
-      "inv": 700000,
-      "deed": "100"
-    },
-    {
-      "name": "Jony",
-      "ref": "",
-      "nid": "",
-      "inv": 500000,
-      "deed": "100"
-    },
-    {
-      "name": "Sumon (Frnd)",
-      "ref": "",
-      "nid": "",
-      "inv": 550000,
-      "deed": "100"
-    },
-    {
-      "name": "Nurul Kabir u",
-      "ref": "MD",
-      "nid": "Md. Nurul Kabir",
-      "inv": 100000,
-      "deed": "100"
-    },
-    {
-      "name": "Nasir B nur b",
-      "ref": "MD",
-      "nid": "Md. Nasir Uddin",
-      "inv": 2000000,
-      "deed": "100"
-    },
-    {
-      "name": "Zahir b Rampura",
-      "ref": "MD",
-      "nid": "Zahirul Islam",
-      "inv": 3000000,
-      "deed": "100"
-    },
-    {
-      "name": "Foysal B",
-      "ref": "MD",
-      "nid": "Md. Abdullah Faisal",
-      "inv": 1000000,
-      "deed": "100"
-    },
-    {
-      "name": "Tajul Islam U",
-      "ref": "",
-      "nid": "",
-      "inv": 2800000,
-      "deed": "100"
-    },
-    {
-      "name": "Mamun B (Rasel B)",
-      "ref": "MD",
-      "nid": "Mohammad Mahfuzur Rahman Mamun",
-      "inv": 600000,
-      "deed": "100"
-    },
-    {
-      "name": "Shaila Rasel B Sis",
-      "ref": "",
-      "nid": "",
-      "inv": 1000000,
-      "deed": "100"
-    },
-    {
-      "name": "Akkas B",
-      "ref": "",
-      "nid": "",
-      "inv": 400000,
-      "deed": "100"
-    },
-    {
-      "name": "Shahadat B",
-      "ref": "",
-      "nid": "",
-      "inv": 500000,
-      "deed": "100"
-    },
-    {
-      "name": "Musa",
-      "ref": "",
-      "nid": "",
-      "inv": 300000,
-      "deed": "100"
-    },
-    {
-      "name": "Musa 2nd",
-      "ref": "",
-      "nid": "",
-      "inv": 100000,
-      "deed": "100"
-    },
-    {
-      "name": "Rajib b (saiful islam)",
-      "ref": "",
-      "nid": "Md. Razibul Hassan (Razu)",
-      "inv": 1200000,
-      "deed": "100"
-    },
-    {
-      "name": "Saiful Sks",
-      "ref": "",
-      "nid": "Md. Shaiful Isalm",
-      "inv": 100000,
-      "deed": "100"
-    },
-    {
-      "name": "Zakir Uncle (Bashabo)",
-      "ref": "",
-      "nid": "",
-      "inv": 2800000,
-      "deed": "100"
-    },
-    {
-      "name": "Anis B (masud)",
-      "ref": "",
-      "nid": "",
-      "inv": 100000,
-      "deed": "100"
-    },
-    {
-      "name": "Tayaba",
-      "ref": "",
-      "nid": "Salma Pervin Tania",
-      "inv": 100000,
-      "deed": "100"
-    },
-    {
-      "name": "Bappy B",
-      "ref": "",
-      "nid": "",
-      "inv": 100000,
-      "deed": "100"
-    },
-    {
-      "name": "Anwar Noor Ma in law",
-      "ref": "Mohosin",
-      "nid": "Monoara Begum",
-      "inv": 200000,
-      "deed": "100"
-    },
-    {
-      "name": "Jasmine Mohsin Sis",
-      "ref": "Mohosin",
-      "nid": "Jesmin Akter",
-      "inv": 100000,
-      "deed": "100"
-    },
-    {
-      "name": "Ayesha Mohsin Sis",
-      "ref": "Mohosin",
-      "nid": "Umme Aisha Akter",
-      "inv": 200000,
-      "deed": "100"
-    },
-    {
-      "name": "Salma Apu (mohsin)",
-      "ref": "Mohosin",
-      "nid": "Umme Salma Akter",
-      "inv": 700000,
-      "deed": "100"
-    },
-    {
-      "name": "A Rab uncle",
-      "ref": "Mohosin",
-      "nid": "Abdul Rob",
-      "inv": 300000,
-      "deed": "100"
-    },
-    {
-      "name": "Shakil (Sakib PK)",
-      "ref": "Sakib PK",
-      "nid": "Md. Shakil Ahmmed",
-      "inv": 450000,
-      "deed": "100"
-    },
-    {
-      "name": "Delower B A kaiyum db",
-      "ref": "",
-      "nid": "",
-      "inv": 800000,
-      "deed": "100"
-    },
-    {
-      "name": "Amily apu (A. kaiyum)",
-      "ref": "",
-      "nid": "",
-      "inv": 400000,
-      "deed": "100"
-    },
-    {
-      "name": "Tahia",
-      "ref": "",
-      "nid": "",
-      "inv": 350000,
-      "deed": "100"
-    },
-    {
-      "name": "Junayed",
-      "ref": "",
-      "nid": "Md. Zoanid Bin Noor",
-      "inv": 990000,
-      "deed": "100"
-    },
-    {
-      "name": "Josna Apu",
-      "ref": "",
-      "nid": "",
-      "inv": 800000,
-      "deed": "100"
-    },
-    {
-      "name": "Delwar B Wife (yasin )",
-      "ref": "",
-      "nid": "",
-      "inv": 1000000,
-      "deed": "100"
-    },
-    {
-      "name": "Delwar B (yasin )",
-      "ref": "",
-      "nid": "",
-      "inv": 1300000,
-      "deed": "100"
-    },
-    {
-      "name": "Fatema Pakhi Apu (dulal)",
-      "ref": "",
-      "nid": "",
-      "inv": 200000,
-      "deed": "100"
-    },
-    {
-      "name": "Amena anty (dulal)",
-      "ref": "",
-      "nid": "",
-      "inv": 100000,
-      "deed": "100"
-    },
-    {
-      "name": "Dulal B (yasin baba)",
-      "ref": "",
-      "nid": "",
-      "inv": 400000,
-      "deed": "100"
-    },
-    {
-      "name": "Rina (yasin)",
-      "ref": "",
-      "nid": "",
-      "inv": 100000,
-      "deed": "100"
-    },
-    {
-      "name": "Jubayer",
-      "ref": "",
-      "nid": "Mirza Jubayer",
-      "inv": 1900000,
-      "deed": "100"
-    },
-    {
-      "name": "Jubayer Wife",
-      "ref": "",
-      "nid": "Jannatul Ferdous Jannati",
-      "inv": 150000,
-      "deed": "100"
-    },
-    {
-      "name": "Jaynab Jubayer Sis in law",
-      "ref": "",
-      "nid": "",
-      "inv": 200000,
-      "deed": "100"
-    },
-    {
-      "name": "Mala Anty (mubin)",
-      "ref": "",
-      "nid": "",
-      "inv": 1400000,
-      "deed": "100"
-    },
-    {
-      "name": "Mou (mubin)",
-      "ref": "",
-      "nid": "Sabrina Tabassom Mou",
-      "inv": 1000000,
-      "deed": "100"
-    },
-    {
-      "name": "Bipu",
-      "ref": "",
-      "nid": "A. K. M. Ashifur Rahman",
-      "inv": 2400000,
-      "deed": "100"
-    },
-    {
-      "name": "Sumon B (masud)",
-      "ref": "",
-      "nid": "Syed Mohammad Sumon",
-      "inv": 200000,
-      "deed": "100"
-    },
-    {
-      "name": "Jamal B (monnu)",
-      "ref": "",
-      "nid": "",
-      "inv": 300000,
-      "deed": "100"
-    },
-    {
-      "name": "Badsha B",
-      "ref": "",
-      "nid": "",
-      "inv": 500000,
-      "deed": "100"
-    },
-    {
-      "name": "Taim",
-      "ref": "Taim",
-      "nid": "Nasrin Sultana",
-      "inv": 100000,
-      "deed": "100"
-    },
-    {
-      "name": "Afsana Apu",
-      "ref": "",
-      "nid": "Afsana Begum",
-      "inv": 400000,
-      "deed": "100"
-    },
-    {
-      "name": "Asha Apu (Adiba)",
-      "ref": "",
-      "nid": "",
-      "inv": 1200000,
-      "deed": "100"
-    },
-    {
-      "name": "Rakib BX",
-      "ref": "",
-      "nid": "",
-      "inv": 40000,
-      "deed": "100"
-    },
-    {
-      "name": "Aslamuddin B (abu humayra)",
-      "ref": "",
-      "nid": "Md. Aslam Uddin",
-      "inv": 350000,
-      "deed": "100"
-    },
-    {
-      "name": "Rownok Apu",
-      "ref": "",
-      "nid": "Maliha Mehjabin Rownok",
-      "inv": 50000,
-      "deed": "100"
-    },
-    {
-      "name": "Maw Zahir B",
-      "ref": "",
-      "nid": "",
-      "inv": 100000,
-      "deed": "100"
-    },
-    {
-      "name": "Jihad",
-      "ref": "",
-      "nid": "Md. Zihad Gazi",
-      "inv": 150000,
-      "deed": "100"
-    },
-    {
-      "name": "Kohinur Anty (Sayed)",
-      "ref": "Jubayer",
-      "nid": "Mst. Kohinur Begum",
-      "inv": 180000,
-      "deed": "100"
-    },
-    {
-      "name": "Hemayet B",
-      "ref": "",
-      "nid": "Hemayet Uddin",
-      "inv": 500000,
-      "deed": "100"
-    },
-    {
-      "name": "Nilufa Anty (ibrahim)",
-      "ref": "MD",
-      "nid": "Nilufa",
-      "inv": 300000,
-      "deed": "100"
-    },
-    {
-      "name": "Hira Apu (bipu)",
-      "ref": "Bipu",
-      "nid": "Tahmena Rahman",
-      "inv": 100000,
-      "deed": "100"
-    },
-    {
-      "name": "Rakib JF",
-      "ref": "Rakib SKS",
-      "nid": "Md. Shahidul Islam",
-      "inv": 200000,
-      "deed": "100"
-    },
-    {
-      "name": "Safia Begum",
-      "ref": "",
-      "nid": "Safia Begum",
-      "inv": 500000,
-      "deed": "100"
-    },
-    {
-      "name": "Ferdousi Apu (junayed)",
-      "ref": "Junayed",
-      "nid": "Ferdoushi Akter",
-      "inv": 2100000,
-      "deed": "100"
-    },
-    {
-      "name": "Amena Apu Madrasa",
-      "ref": "",
-      "nid": "Amena Akter",
-      "inv": 100000,
-      "deed": "100"
-    },
-    {
-      "name": "Laboni 2",
-      "ref": "",
-      "nid": "",
-      "inv": 150000,
-      "deed": "100"
-    },
-    {
-      "name": "Nipa (socib Vabi)",
-      "ref": "",
-      "nid": "Nipa Hakim",
-      "inv": 400000,
-      "deed": "100"
-    },
-    {
-      "name": "Rana (DTF)",
-      "ref": "",
-      "nid": "Md. Anis",
-      "inv": 400000,
-      "deed": "100"
-    },
-    {
-      "name": "Fariha Islam Moury",
-      "ref": "",
-      "nid": "Fariha Islam Moury",
-      "inv": 200000,
-      "deed": "100"
-    },
-    {
-      "name": "Ayaj",
-      "ref": "",
-      "nid": "Ayaz Ishmam",
-      "inv": 50000,
-      "deed": "100"
-    },
-    {
-      "name": "Mashud 2",
-      "ref": "",
-      "nid": "",
-      "inv": 250000,
-      "deed": "100"
-    },
-    {
-      "name": "Habiba (Rafique )",
-      "ref": "Amin",
-      "nid": "Habiba Begum",
-      "inv": 40000,
-      "deed": "100"
-    },
-    {
-      "name": "Rokhsana (Jubayer)",
-      "ref": "Jubayer",
-      "nid": "Rokhsana",
-      "inv": 300000,
-      "deed": "100"
-    },
-    {
-      "name": "Welfare Fund",
-      "ref": "",
-      "nid": "Welfare Fund",
-      "inv": 232000,
-      "deed": "100"
-    },
-    {
-      "name": "Masuma Begum (jubayer Fufu)",
-      "ref": "Jubayer",
-      "nid": "Masuma Begum",
-      "inv": 350000,
-      "deed": "100"
-    },
-    {
-      "name": "Abdullah Yusha (Yahia b)",
-      "ref": "",
-      "nid": "Abdullah Yusha",
-      "inv": 50000,
-      "deed": "100"
-    },
-    {
-      "name": "Foysal B Relative",
-      "ref": "Foysal",
-      "nid": "Nazmun Nahar",
-      "inv": 100000,
-      "deed": "100"
-    },
-    {
-      "name": "Tanjina Afrin",
-      "ref": "Umme Muhib",
-      "nid": "Tanjina Afrin",
-      "inv": 200000,
-      "deed": "100"
-    },
-    {
-      "name": "Nazmun Nahar",
-      "ref": "Umme Muhib",
-      "nid": "Nazmun Nahar",
-      "inv": 100000,
-      "deed": "100"
-    },
-    {
-      "name": "Shanjina Shaharin",
-      "ref": "Jubayer",
-      "nid": "Shanjina Shaharin",
-      "inv": 400000,
-      "deed": "100"
-    },
-    {
-      "name": "Kohinur Begum",
-      "ref": "Umme Muhib",
-      "nid": "Kohinur Begum",
-      "inv": 50000,
-      "deed": "100"
-    },
-    {
-      "name": "Khadiza Begum Ratna",
-      "ref": "Umme Muhib",
-      "nid": "Khadiza Begum Ratna",
-      "inv": 400000,
-      "deed": "100"
-    },
-    {
-      "name": "Fuad B Nur Bag",
-      "ref": "",
-      "nid": "Shahriar Fuad",
-      "inv": 300000,
-      "deed": "100"
-    },
-    {
-      "name": "Muhammad",
-      "ref": "",
-      "nid": "",
-      "inv": 6925000,
-      "deed": "100"
-    },
-    {
-      "name": "Yusha B",
-      "ref": "",
-      "nid": "",
-      "inv": 9135000,
-      "deed": "100"
-    },
-    {
-      "name": "Mithun B",
-      "ref": "",
-      "nid": "Mst. Mina Parvin",
-      "inv": 200000,
-      "deed": "100"
-    },
-    {
-      "name": "Shamim d.bhai",
-      "ref": "",
-      "nid": "",
-      "inv": 2000000,
-      "deed": "100"
-    },
-    {
-      "name": "Masud B Inv",
-      "ref": "",
-      "nid": "",
-      "inv": 1800000,
-      "deed": "100"
-    },
-    {
-      "name": "Shuvo b",
-      "ref": "",
-      "nid": "",
-      "inv": 5020000,
-      "deed": "100"
-    },
-    {
-      "name": "Hi tec",
-      "ref": "",
-      "nid": "",
-      "inv": 270000,
-      "deed": "100"
-    },
-    {
-      "name": "Abbu Yusha B",
-      "ref": "",
-      "nid": "Md. Nazibar Rahman",
-      "inv": 1850000,
-      "deed": "100"
-    },
-    {
-      "name": "Ammu Yusha B",
-      "ref": "",
-      "nid": "Jahan Ara Yasmin",
-      "inv": 1315000,
-      "deed": "100"
-    },
-    {
-      "name": "Koni Vabi",
-      "ref": "",
-      "nid": "Husnahur Yasmin",
-      "inv": 350000,
-      "deed": "100"
-    },
-    {
-      "name": "Babu Tishan",
-      "ref": "",
-      "nid": "Mohammad Nafiur Rahman (Tishan)",
-      "inv": 350000,
-      "deed": "100"
-    },
-    {
-      "name": "Ritu Mama",
-      "ref": "",
-      "nid": "",
-      "inv": 1450000,
-      "deed": "100"
-    },
-    {
-      "name": "Maw Habibullah ( Harun B)",
-      "ref": "",
-      "nid": "",
-      "inv": 40000,
-      "deed": "100"
-    },
-    {
-      "name": "Harun B malibag",
-      "ref": "",
-      "nid": "",
-      "inv": 30000,
-      "deed": "100"
-    },
-    {
-      "name": "Nurul Haq B",
-      "ref": "",
-      "nid": "",
-      "inv": 400000,
-      "deed": "100"
-    },
-    {
-      "name": "Zahir B Ziko",
-      "ref": "",
-      "nid": "Zahirul Azim",
-      "inv": 450000,
-      "deed": "100"
-    },
-    {
-      "name": "Mehedi B",
-      "ref": "",
-      "nid": "Mehedi Hassan",
-      "inv": 2000000,
-      "deed": "100"
-    },
-    {
-      "name": "Monika Murshida",
-      "ref": "",
-      "nid": "Monika Murshida",
-      "inv": 500000,
-      "deed": "100"
-    },
-    {
-      "name": "Tashikul Alam (duke)",
-      "ref": "",
-      "nid": "Md. Tasiqul Alam Khan",
-      "inv": 1000000,
-      "deed": "100"
-    },
-    {
-      "name": "Maw Abdullah",
-      "ref": "",
-      "nid": "Md. Abdullah",
-      "inv": 2000000,
-      "deed": "100"
-    },
-    {
-      "name": "Shariful Haque Tauhid",
-      "ref": "",
-      "nid": "A K M Shariful Haque Taohid",
-      "inv": 4000000,
-      "deed": "100"
-    },
-    {
-      "name": "Ha Mim Muhammad Molla",
-      "ref": "",
-      "nid": "Ha Mim Muhammad Molla",
-      "inv": 500000,
-      "deed": "100"
-    },
-    {
-      "name": "Imran",
-      "ref": "",
-      "nid": "Imran",
-      "inv": 650000,
-      "deed": "100"
-    },
-    {
-      "name": "Siddik U (mohsin)",
-      "ref": "",
-      "nid": "Md. Siddikur Rahman",
-      "inv": 2000000,
-      "deed": "100"
-    },
-    {
-      "name": "Kashem B",
-      "ref": "",
-      "nid": "Abul Kashem",
-      "inv": 1000000,
-      "deed": "100"
-    },
-    {
-      "name": "Zakir B (imran)",
-      "ref": "",
-      "nid": "Zakir Hossain",
-      "inv": 1200000,
-      "deed": "100"
-    },
-    {
-      "name": "Kajol Apu (Sabbir)",
-      "ref": "",
-      "nid": "Md. Sabbir Hossain",
-      "inv": 2500000,
-      "deed": "100"
-    },
-    {
-      "name": "Jahidur Rahman",
-      "ref": "",
-      "nid": "Jahidur Rahman",
-      "inv": 800000,
-      "deed": "100"
-    },
-    {
-      "name": "Asma Akter Anty",
-      "ref": "",
-      "nid": "Asma Akter",
-      "inv": 200000,
-      "deed": "100"
-    }
-  ],
-  "sectors": [
-    {
-      "name": "PK M",
-      "inv": 3865000,
-      "actual": 15900,
-      "estimated": -900
-    },
-    {
-      "name": "DTF",
-      "inv": 1800000,
-      "actual": 18300,
-      "estimated": 1700
-    },
-    {
-      "name": "Poshra",
-      "inv": 6740000,
-      "actual": 4600,
-      "estimated": 15400
-    },
-    {
-      "name": "SKS",
-      "inv": 4430000,
-      "actual": 73300,
-      "estimated": 26700
-    },
-    {
-      "name": "JFT",
-      "inv": 7297000,
-      "actual": 72000,
-      "estimated": 28000
-    },
-    {
-      "name": "JF Online",
-      "inv": 1750000,
-      "actual": 2200,
-      "estimated": 17800
-    },
-    {
-      "name": "Bike D\u00e9cor",
-      "inv": 2350000,
-      "actual": 0,
-      "estimated": 0
-    },
-    {
-      "name": "Moto Craft",
-      "inv": 3650000,
-      "actual": 0,
-      "estimated": 0
-    },
-    {
-      "name": "JFMR",
-      "inv": 6590000,
-      "actual": 157300,
-      "estimated": -7300
-    },
-    {
-      "name": "China House BD",
-      "inv": 40225000,
-      "actual": 101500,
-      "estimated": 408500
-    },
-    {
-      "name": "Bike X",
-      "inv": 40655000,
-      "actual": 251500,
-      "estimated": 348500
-    },
-    {
-      "name": "Dubai",
-      "inv": 13420000,
-      "actual": 0,
-      "estimated": 0
-    },
-    {
-      "name": "EiD Inv PB",
-      "inv": 1130000,
-      "actual": 0,
-      "estimated": 0
-    },
-    {
-      "name": "PT",
-      "inv": 620000,
-      "actual": 0,
-      "estimated": 0
-    },
-    {
-      "name": "PC",
-      "inv": 1475000,
-      "actual": 0,
-      "estimated": 0
-    },
-    {
-      "name": "A/R",
-      "inv": 1025000,
-      "actual": 0,
-      "estimated": 0
-    }
-  ],
+  "_meta": {
+    "source": "Book1.xlsx — January, 2026 sheet",
+    "extracted": "2026-08-31",
+    "note": "estimated = budgeted monthly profit; variance = estimated - actual (computed at runtime)"
+  },
   "totals": {
-    "z2_estimated": 838400,
-    "y2_actual": 696600,
-    "total_investment": 137022000
-  }
+    "total_investment": 137022000,
+    "total_estimated_profit": 1535000,
+    "total_actual_profit": 696600,
+    "total_variance": 838400
+  },
+  "sectors": [
+    { "name": "PK M",           "inv": 3865000,  "actual": 15900,  "estimated": 15000 },
+    { "name": "DTF",            "inv": 1800000,  "actual": 18300,  "estimated": 20000 },
+    { "name": "Poshra",         "inv": 6740000,  "actual": 4600,   "estimated": 20000 },
+    { "name": "SKS",            "inv": 4430000,  "actual": 73300,  "estimated": 100000 },
+    { "name": "JFT",            "inv": 7297000,  "actual": 72000,  "estimated": 100000 },
+    { "name": "JF Online",      "inv": 1750000,  "actual": 2200,   "estimated": 20000 },
+    { "name": "Bike Décor",     "inv": 2350000,  "actual": 0,      "estimated": 0 },
+    { "name": "Moto Craft",     "inv": 3650000,  "actual": 0,      "estimated": 0 },
+    { "name": "JFMR",           "inv": 6590000,  "actual": 157300, "estimated": 150000 },
+    { "name": "China House BD", "inv": 40225000, "actual": 101500, "estimated": 510000 },
+    { "name": "Bike X",         "inv": 40655000, "actual": 251500, "estimated": 600000 },
+    { "name": "Dubai",          "inv": 13420000, "actual": 0,      "estimated": 0 },
+    { "name": "EiD Inv PB",     "inv": 1130000,  "actual": 0,      "estimated": 0 },
+    { "name": "PT",             "inv": 620000,   "actual": 0,      "estimated": 0 },
+    { "name": "PC",             "inv": 1475000,  "actual": 0,      "estimated": 0 },
+    { "name": "A/R",            "inv": 1025000,  "actual": 0,      "estimated": 0 }
+  ],
+  "investors": [
+    { "name": "Afzal B",                  "ref": "MD",        "inv": 4700000, "deed": "100" },
+    { "name": "Topu",                     "ref": "MD",        "inv": 600000,  "deed": "100" },
+    { "name": "Papun",                    "ref": "MD",        "inv": 1000000, "deed": "100" },
+    { "name": "Lova Apu (papun)",         "ref": "MD",        "inv": 200000,  "deed": "100" },
+    { "name": "Biva Apu",                 "ref": "MD",        "inv": 400000,  "deed": "100" },
+    { "name": "Yahia b",                  "ref": "MD",        "inv": 1500000, "deed": "100" },
+    { "name": "Atika",                    "ref": "MD",        "inv": 300000,  "deed": "100" },
+    { "name": "Ichar",                    "ref": "",          "inv": 250000,  "deed": "100" },
+    { "name": "Rasel B",                  "ref": "MD",        "inv": 200000,  "deed": "100" },
+    { "name": "Taohid",                   "ref": "MD",        "inv": 0,       "deed": "100" },
+    { "name": "Anis B Shahi",             "ref": "",          "inv": 2000000, "deed": "100" },
+    { "name": "Azad B Shahi",             "ref": "",          "inv": 1500000, "deed": "100" },
+    { "name": "Sujan paka",               "ref": "",          "inv": 150000,  "deed": "80" },
+    { "name": "Habib b IPS",              "ref": "",          "inv": 700000,  "deed": "80" },
+    { "name": "Masud PK",                 "ref": "",          "inv": 1000000, "deed": "80" },
+    { "name": "Amin",                     "ref": "",          "inv": 1175000, "deed": "80" },
+    { "name": "Amin MA",                  "ref": "Amin",      "inv": 190000,  "deed": "80" },
+    { "name": "Rafique B (amin)",         "ref": "Amin",      "inv": 145000,  "deed": "80" },
+    { "name": "Aziz B",                   "ref": "Amin",      "inv": 1300000, "deed": "80" },
+    { "name": "Asma Apu",                 "ref": "",          "inv": 500000,  "deed": "80" },
+    { "name": "Mou Ma",                   "ref": "",          "inv": 0,       "deed": "80" },
+    { "name": "Anty Dotala (Ma)",         "ref": "MD",        "inv": 300000,  "deed": "80" },
+    { "name": "MA",                       "ref": "",          "inv": 100000,  "deed": "60" },
+    { "name": "Khalammi",                 "ref": "",          "inv": 100000,  "deed": "60" },
+    { "name": "Hasi bu",                  "ref": "",          "inv": 150000,  "deed": "60" },
+    { "name": "Tunu Apu",                 "ref": "",          "inv": 100000,  "deed": "60" },
+    { "name": "Mou Apu (moni)",           "ref": "MD",        "inv": 500000,  "deed": "60" },
+    { "name": "Halima Anty",              "ref": "",          "inv": 2610000, "deed": "60" },
+    { "name": "Fatema binte A Rajjak",    "ref": "",          "inv": 200000,  "deed": "60" },
+    { "name": "Banat Madrasa",            "ref": "",          "inv": 1150000, "deed": "60" },
+    { "name": "Madrasa Land",             "ref": "",          "inv": 235000,  "deed": "60" },
+    { "name": "Hedayet Vabi",             "ref": "",          "inv": 500000,  "deed": "60" },
+    { "name": "Hena Apu",                 "ref": "",          "inv": 700000,  "deed": "60" },
+    { "name": "Nabila",                   "ref": "MD",        "inv": 2550000, "deed": "60" },
+    { "name": "Momotaj Begum",            "ref": "MD",        "inv": 550000,  "deed": "60" },
+    { "name": "Alauddin U",               "ref": "",          "inv": 5000000, "deed": "60" },
+    { "name": "M Mamun b",                "ref": "",          "inv": 2200000, "deed": "60" },
+    { "name": "Billah",                   "ref": "MD",        "inv": 2000000, "deed": "60" },
+    { "name": "Billah boro bhai",         "ref": "MD",        "inv": 600000,  "deed": "60" },
+    { "name": "Billah Wife",              "ref": "MD",        "inv": 300000,  "deed": "60" },
+    { "name": "Mashud",                   "ref": "",          "inv": 1150000, "deed": "60" },
+    { "name": "Fouzia Sultana (Mashud)",  "ref": "",          "inv": 2000000, "deed": "60" },
+    { "name": "Laboni",                   "ref": "",          "inv": 1550000, "deed": "60" },
+    { "name": "Ruma (Mashud)",            "ref": "",          "inv": 700000,  "deed": "60" },
+    { "name": "Jony",                     "ref": "",          "inv": 500000,  "deed": "60" },
+    { "name": "Sumon (Frnd)",             "ref": "",          "inv": 550000,  "deed": "60" },
+    { "name": "Nurul Kabir u",            "ref": "MD",        "inv": 100000,  "deed": "60" },
+    { "name": "Nasir B nur b",            "ref": "MD",        "inv": 2000000, "deed": "60" },
+    { "name": "Zahir b Rampura",          "ref": "MD",        "inv": 3000000, "deed": "60" },
+    { "name": "Foysal B",                 "ref": "MD",        "inv": 1000000, "deed": "60" },
+    { "name": "Tajul Islam U",            "ref": "",          "inv": 2800000, "deed": "60" },
+    { "name": "Mamun B (Rasel B)",        "ref": "MD",        "inv": 600000,  "deed": "60" },
+    { "name": "Shaila Rasel B Sis",       "ref": "",          "inv": 1000000, "deed": "60" },
+    { "name": "Akkas B",                  "ref": "",          "inv": 400000,  "deed": "60" },
+    { "name": "Shahadat B",               "ref": "",          "inv": 500000,  "deed": "60" },
+    { "name": "Musa",                     "ref": "",          "inv": 300000,  "deed": "60" },
+    { "name": "Musa 2nd",                 "ref": "",          "inv": 100000,  "deed": "60" },
+    { "name": "Rajib b (saiful islam)",   "ref": "",          "inv": 1200000, "deed": "60" },
+    { "name": "Saiful Sks",               "ref": "",          "inv": 100000,  "deed": "60" },
+    { "name": "Zakir Uncle (Bashabo)",    "ref": "",          "inv": 2800000, "deed": "60" },
+    { "name": "Anis B (masud)",           "ref": "",          "inv": 100000,  "deed": "60" },
+    { "name": "Tayaba",                   "ref": "",          "inv": 100000,  "deed": "60" },
+    { "name": "Bappy B",                  "ref": "",          "inv": 100000,  "deed": "60" },
+    { "name": "Anwar Noor Ma in law",     "ref": "Mohosin",   "inv": 200000,  "deed": "60" },
+    { "name": "Jasmine Mohsin Sis",       "ref": "Mohosin",   "inv": 100000,  "deed": "60" },
+    { "name": "Ayesha Mohsin Sis",        "ref": "Mohosin",   "inv": 200000,  "deed": "60" },
+    { "name": "Salma Apu (mohsin)",       "ref": "Mohosin",   "inv": 700000,  "deed": "60" },
+    { "name": "A Rab uncle",              "ref": "Mohosin",   "inv": 300000,  "deed": "60" },
+    { "name": "Shakil (Sakib PK)",        "ref": "Sakib PK",  "inv": 450000,  "deed": "60" },
+    { "name": "Delower B A kaiyum db",    "ref": "",          "inv": 800000,  "deed": "60" },
+    { "name": "Amily apu (A. kaiyum)",    "ref": "",          "inv": 400000,  "deed": "60" },
+    { "name": "Tahia",                     "ref": "",          "inv": 350000,  "deed": "60" },
+    { "name": "Junayed",                  "ref": "",          "inv": 990000,  "deed": "60" },
+    { "name": "Josna Apu",                "ref": "",          "inv": 800000,  "deed": "60" },
+    { "name": "Delwar B Wife (yasin)",    "ref": "",          "inv": 1000000, "deed": "60" },
+    { "name": "Delwar B (yasin)",         "ref": "",          "inv": 1300000, "deed": "60" },
+    { "name": "Fatema Pakhi Apu (dulal)", "ref": "",          "inv": 200000,  "deed": "60" },
+    { "name": "Amena anty (dulal)",       "ref": "",          "inv": 100000,  "deed": "60" },
+    { "name": "Dulal B (yasin baba)",     "ref": "",          "inv": 400000,  "deed": "60" },
+    { "name": "Rina (yasin)",             "ref": "",          "inv": 100000,  "deed": "60" },
+    { "name": "Jubayer",                  "ref": "",          "inv": 1900000, "deed": "60" },
+    { "name": "Jubayer Wife",             "ref": "",          "inv": 150000,  "deed": "60" },
+    { "name": "Jaynab Jubayer Sis in law","ref": "",          "inv": 200000,  "deed": "60" },
+    { "name": "Mala Anty (mubin)",        "ref": "",          "inv": 1400000, "deed": "60" },
+    { "name": "Mou (mubin)",              "ref": "",          "inv": 1000000, "deed": "60" },
+    { "name": "Bipu",                     "ref": "",          "inv": 2400000, "deed": "60" },
+    { "name": "Sumon B (masud)",          "ref": "",          "inv": 200000,  "deed": "60" },
+    { "name": "Jamal B (monnu)",          "ref": "",          "inv": 300000,  "deed": "60" },
+    { "name": "Badsha B",                 "ref": "",          "inv": 500000,  "deed": "60" },
+    { "name": "Taim",                     "ref": "Taim",      "inv": 100000,  "deed": "60" },
+    { "name": "Afsana Apu",               "ref": "",          "inv": 400000,  "deed": "60" },
+    { "name": "Asha Apu (Adiba)",         "ref": "",          "inv": 1200000, "deed": "60" },
+    { "name": "Yusuf B (Juwel 3pcs)",     "ref": "",          "inv": 0,       "deed": "60" },
+    { "name": "Rakib BX",                 "ref": "",          "inv": 40000,   "deed": "60" },
+    { "name": "Aslamuddin B (abu humayra)","ref": "",         "inv": 350000,  "deed": "60" },
+    { "name": "Rownok Apu",               "ref": "",          "inv": 50000,   "deed": "60" },
+    { "name": "Maw Zahir B",              "ref": "",          "inv": 100000,  "deed": "60" },
+    { "name": "Jihad",                    "ref": "",          "inv": 150000,  "deed": "60" },
+    { "name": "Kohinur Anty (Sayed)",     "ref": "Jubayer",   "inv": 180000,  "deed": "60" },
+    { "name": "Hemayet B",                "ref": "",          "inv": 500000,  "deed": "60" },
+    { "name": "Nilufa Anty (ibrahim)",    "ref": "MD",        "inv": 300000,  "deed": "60" },
+    { "name": "Hira Apu (bipu)",          "ref": "Bipu",      "inv": 100000,  "deed": "60" },
+    { "name": "Rakib JF",                 "ref": "Rakib SKS", "inv": 200000,  "deed": "60" },
+    { "name": "Safia Begum",              "ref": "",          "inv": 500000,  "deed": "60" },
+    { "name": "Ferdousi Apu (junayed)",   "ref": "Junayed",   "inv": 2100000, "deed": "60" },
+    { "name": "Amena Apu Madrasa",        "ref": "",          "inv": 100000,  "deed": "60" },
+    { "name": "Laboni 2",                 "ref": "",          "inv": 150000,  "deed": "60" },
+    { "name": "Nipa (socib Vabi)",        "ref": "",          "inv": 400000,  "deed": "60" },
+    { "name": "Rana (DTF)",               "ref": "",          "inv": 400000,  "deed": "60" },
+    { "name": "Fariha Islam Moury",       "ref": "",          "inv": 200000,  "deed": "60" },
+    { "name": "Ayaj",                     "ref": "",          "inv": 50000,   "deed": "60" },
+    { "name": "Mashud 2",                 "ref": "",          "inv": 250000,  "deed": "60" },
+    { "name": "Habiba (Rafique)",         "ref": "Amin",      "inv": 40000,   "deed": "60" },
+    { "name": "Rokhsana (Jubayer)",       "ref": "Jubayer",   "inv": 300000,  "deed": "60" },
+    { "name": "Welfare Fund",             "ref": "",          "inv": 232000,  "deed": "60" },
+    { "name": "Anis B New",               "ref": "",          "inv": 0,       "deed": "60" },
+    { "name": "Masuma Begum (jubayer Fufu)","ref": "Jubayer", "inv": 350000,  "deed": "60" },
+    { "name": "Abdullah Yusha (Yahia b)", "ref": "",          "inv": 50000,   "deed": "60" },
+    { "name": "Foysal B Relative",        "ref": "Foysal",    "inv": 100000,  "deed": "60" },
+    { "name": "Tanjina Afrin",            "ref": "Umme Muhib","inv": 200000,  "deed": "60" },
+    { "name": "Nazmun Nahar",             "ref": "Umme Muhib","inv": 100000,  "deed": "60" },
+    { "name": "Shanjina Shaharin",        "ref": "Jubayer",   "inv": 400000,  "deed": "60" },
+    { "name": "Kohinur Begum",            "ref": "Umme Muhib","inv": 50000,   "deed": "60" },
+    { "name": "Khadiza Begum Ratna",     "ref": "Umme Muhib","inv": 400000,  "deed": "60" },
+    { "name": "Fuad B Nur Bag",           "ref": "",          "inv": 300000,  "deed": "60" },
+    { "name": "Muhammad",                 "ref": "",          "inv": 6925000, "deed": "100" },
+    { "name": "Yusha B",                  "ref": "",          "inv": 9135000, "deed": "100" },
+    { "name": "Mithun B",                 "ref": "",          "inv": 200000,  "deed": "80" },
+    { "name": "Shamim d.bhai",            "ref": "",          "inv": 2000000, "deed": "80" },
+    { "name": "Masud B Inv",              "ref": "",          "inv": 1800000, "deed": "80" },
+    { "name": "Gurdian of Unaysah",       "ref": "",          "inv": 0,       "deed": "80" },
+    { "name": "Shuvo b",                  "ref": "",          "inv": 5020000, "deed": "80" },
+    { "name": "Putul apu",                "ref": "",          "inv": 0,       "deed": "60" },
+    { "name": "Hi tec",                   "ref": "",          "inv": 270000,  "deed": "60" },
+    { "name": "Abbu Yusha B",             "ref": "",          "inv": 1850000, "deed": "60" },
+    { "name": "Ammu Yusha B",             "ref": "",          "inv": 1315000, "deed": "60" },
+    { "name": "Koni Vabi",               "ref": "",          "inv": 350000,  "deed": "60" },
+    { "name": "Babu Tishan",              "ref": "",          "inv": 350000,  "deed": "60" },
+    { "name": "Ritu Mama",                "ref": "",          "inv": 1450000, "deed": "60" },
+    { "name": "Maw Habibullah (Harun B)", "ref": "",          "inv": 40000,   "deed": "60" },
+    { "name": "Harun B malibag",          "ref": "",          "inv": 30000,   "deed": "60" },
+    { "name": "Nurul Haq B",              "ref": "",          "inv": 400000,  "deed": "60" },
+    { "name": "Zahir B Ziko",             "ref": "",          "inv": 450000,  "deed": "60" },
+    { "name": "Mehedi B",                 "ref": "",          "inv": 2000000, "deed": "60" },
+    { "name": "Monika Murshida",         "ref": "",          "inv": 500000,  "deed": "60" },
+    { "name": "Tashikul Alam (duke)",     "ref": "",          "inv": 1000000, "deed": "60" },
+    { "name": "Abu Taher",                "ref": "",          "inv": 0,       "deed": "60" },
+    { "name": "Maw Abdullah",             "ref": "",          "inv": 2000000, "deed": "60" },
+    { "name": "Shariful Haque Tauhid",   "ref": "",          "inv": 4000000, "deed": "60" },
+    { "name": "Ha Mim Muhammad Molla",   "ref": "",          "inv": 500000,  "deed": "60" },
+    { "name": "Imran",                    "ref": "",          "inv": 650000,  "deed": "100" },
+    { "name": "Siddik U (mohsin)",        "ref": "",          "inv": 2000000, "deed": "100" },
+    { "name": "Kashem B",                 "ref": "",          "inv": 1000000, "deed": "100" },
+    { "name": "Zakir B (imran)",          "ref": "",          "inv": 1200000, "deed": "100" },
+    { "name": "Kajol Apu (Sabbir)",       "ref": "",          "inv": 2500000, "deed": "100" },
+    { "name": "Montu B (Sabbir 2nd)",     "ref": "",          "inv": 0,       "deed": "100" },
+    { "name": "Jahidur Rahman",           "ref": "",          "inv": 800000,  "deed": "100" },
+    { "name": "Asma Akter Anty",          "ref": "",          "inv": 200000,  "deed": "100" }
+  ]
 }

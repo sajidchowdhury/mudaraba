@@ -77,18 +77,34 @@ class ProfitAdjustment extends Model
     /* -------------------------------------------------------
      * Fund balance computation (replaces separate fund tables)
      *
-     * Equation: Fund balance = Σ(investor amounts) − Σ(sector amounts)
+     * Per PHP spec:
+     *  - Fund A: balance = Σ(investor amounts) − Σ(sector amounts)
+     *            (investors add to the fund, sectors deduct from it)
+     *  - Fund B: balance = +Σ(sector amounts)
+     *            (sector surplus INCREASES the fund; NO investor side)
+     *  - Direct: no fund tracking (returns 0.0)
      *
-     * This is always computed on-the-fly from the adjustment records,
+     * Always computed on-the-fly from adjustment records,
      * so it can never drift from the actual transactions.
      * ----------------------------------------------------- */
 
     /**
      * Get the current balance for a fund type (Fund A or Fund B).
-     * Fund balance = Σ(investor adjustments) − Σ(sector adjustments).
      */
     public static function fundBalance(AdjustmentType $type): float
     {
+        if ($type === AdjustmentType::FundB) {
+            // Fund B: sector surplus increases the fund (no investor side)
+            return (float) self::forType($type)
+                ->where('target_type', AdjustmentTarget::Sector)
+                ->sum('amount');
+        }
+
+        if ($type === AdjustmentType::Direct) {
+            return 0.0;
+        }
+
+        // Fund A: investor amounts add, sector amounts deduct
         $investorTotal = self::forType($type)
             ->where('target_type', AdjustmentTarget::Investor)
             ->sum('amount');
@@ -105,6 +121,17 @@ class ProfitAdjustment extends Model
      */
     public static function fundBalanceAt(AdjustmentType $type, string $date): float
     {
+        if ($type === AdjustmentType::FundB) {
+            return (float) self::forType($type)
+                ->where('target_type', AdjustmentTarget::Sector)
+                ->where('transaction_date', '<=', $date)
+                ->sum('amount');
+        }
+
+        if ($type === AdjustmentType::Direct) {
+            return 0.0;
+        }
+
         $investorTotal = self::forType($type)
             ->where('target_type', AdjustmentTarget::Investor)
             ->where('transaction_date', '<=', $date)
@@ -123,6 +150,17 @@ class ProfitAdjustment extends Model
      */
     public static function fundBalanceForDate(AdjustmentType $type, string $date): float
     {
+        if ($type === AdjustmentType::FundB) {
+            return (float) self::forType($type)
+                ->where('target_type', AdjustmentTarget::Sector)
+                ->where('transaction_date', $date)
+                ->sum('amount');
+        }
+
+        if ($type === AdjustmentType::Direct) {
+            return 0.0;
+        }
+
         $investorTotal = self::forType($type)
             ->where('target_type', AdjustmentTarget::Investor)
             ->where('transaction_date', $date)
