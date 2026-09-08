@@ -137,7 +137,10 @@ export function TopBar({ onMenuClick, month, onMonthChange, className }: TopBarP
 
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity ml-1">
+                    <button
+                        data-testid="user-menu-trigger"
+                        className="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity ml-1"
+                    >
                         <Avatar className="size-9 ring-2 ring-border">
                             <AvatarFallback className="bg-primary-soft text-primary text-xs font-semibold">
                                 {userInitials}

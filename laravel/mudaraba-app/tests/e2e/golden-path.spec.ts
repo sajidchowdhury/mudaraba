@@ -194,20 +194,16 @@ test.describe("Golden Path — Monthly Reconciliation Workflow", () => {
         }
 
         // ─── 9. LOGOUT ──────────────────────────────────────────────────────
-        // The user menu is a dropdown in the TopBar. The trigger is a <button>
-        // containing an Avatar (with the user's initials). We click it to open
-        // the dropdown, then click the "Sign out" text.
-        //
-        // Radix DropdownMenuTrigger renders as a <button> — we find it by
-        // looking for the button that contains an Avatar element (the user's
-        // initial). This is the last interactive button in the header.
-        const userMenuButton = page.locator("header button:has([class*='avatar'], [class*='Avatar'])").last();
+        // The user menu is a dropdown in the TopBar. We added a data-testid to
+        // the trigger button for reliable E2E targeting (the Radix Avatar
+        // component doesn't have 'avatar' in its CSS class names, making CSS
+        // selectors fragile).
+        const userMenuButton = page.getByTestId("user-menu-trigger");
         await userMenuButton.click();
 
         // Wait for the dropdown to open and the "Sign out" text to appear.
-        // Radix DropdownMenuItem renders as a <div> with the text — we use
-        // text matching (not role="menuitem") because the role attribute
-        // may vary across Radix versions.
+        // Using text matching (not role="menuitem") because Radix DropdownMenuItem
+        // may not always set role="menuitem" consistently.
         const signOutItem = page.locator("text=Sign out").first();
         await expect(signOutItem).toBeVisible({ timeout: 10_000 });
 
