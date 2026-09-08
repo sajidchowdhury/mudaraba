@@ -9,7 +9,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui";
 import {
     TrendingUp, ChevronLeft, ChevronRight, Calendar, ReceiptText,
-    Crown, AlertCircle, Info, FileSpreadsheet, Users,
+    Crown, AlertCircle, Info, FileSpreadsheet, Users, Download,
 } from "lucide-react";
 import { PageTransition } from "@/Components/common";
 import { formatBDT, formatPercent, cn } from "@/lib/utils";
@@ -103,6 +103,18 @@ export default function InvestorProfitIndex({ month, monthLabel, grid, totals, r
                         <Button variant="outline" size="icon" onClick={() => navigateMonth("next")} aria-label="Next month">
                             <ChevronRight className="size-4" />
                         </Button>
+                        {isCalculated && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => window.open(route("exports.investment-profit") + "?month=" + month)}
+                                className="ml-2"
+                                title="Export this month's grid as .xlsx — matches the Excel 'For Sajid' sheet layout"
+                            >
+                                <Download className="size-4" />
+                                <span className="hidden sm:inline">Export to Excel</span>
+                            </Button>
+                        )}
                     </div>
                 </div>
 

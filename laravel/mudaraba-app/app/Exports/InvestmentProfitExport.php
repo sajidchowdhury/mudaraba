@@ -23,9 +23,17 @@ class InvestmentProfitExport implements FromCollection, WithColumnWidths, WithEv
         private readonly string $month,
     ) {}
 
+    /**
+     * Sheet tab name — matches the Excel "For Sajid" sheet naming convention.
+     * Excel limits sheet names to 31 chars; "For Sajid — September, 2026" = 31 chars exactly.
+     * Use a plain hyphen if the em-dash pushes the length over.
+     */
     public function title(): string
     {
-        return date('F, Y', strtotime($this->month));
+        $label = date('F, Y', strtotime($this->month));
+        $title = "For Sajid - {$label}";
+
+        return strlen($title) > 31 ? substr($title, 0, 31) : $title;
     }
 
     public function collection(): Collection
@@ -89,23 +97,42 @@ class InvestmentProfitExport implements FromCollection, WithColumnWidths, WithEv
                 $sheet = $event->sheet;
                 $lastRow = $sheet->getHighestDataRow() + 2;
 
+                // ---- Totals row (Excel AG182, AH182, AJ182 etc.) ----
                 $sheet->setCellValue("A{$lastRow}", 'TOTALS');
-                $sheet->setCellValue("D{$lastRow}", $this->summary?->total_mudaraba_investment ?? 0);
-                $sheet->setCellValue("I{$lastRow}", $this->summary?->total_investor_profit_due ?? 0);
-                $sheet->setCellValue("J{$lastRow}", $this->summary?->total_investor_advance_diff ?? 0);
-                $sheet->setCellValue("K{$lastRow}", $this->summary?->total_investor_retained ?? 0);
-                $sheet->setCellValue("L{$lastRow}", $this->summary?->my_profit ?? 0);
+                $sheet->setCellValue("D{$lastRow}", $this->summary?->total_mudaraba_investment ?? 0);  // D181
+                $sheet->setCellValue("F{$lastRow}", $this->summary?->total_estimated_profit ?? 0);     // ΣQ = Z2
+                $sheet->setCellValue("G{$lastRow}", $this->summary?->total_actual_profit ?? 0);        // ΣN = X2
+                $sheet->setCellValue("I{$lastRow}", $this->summary?->total_investor_profit_due ?? 0);  // AG182
+                $sheet->setCellValue("J{$lastRow}", $this->summary?->total_investor_advance_diff ?? 0);// AH182
+                $sheet->setCellValue("K{$lastRow}", $this->summary?->total_investor_retained ?? 0);    // AJ182
+                $sheet->setCellValue("L{$lastRow}", $this->details->sum('net_settlement'));            // ΣAK (true sum, not my_profit)
 
                 $sheet->getStyle("A{$lastRow}:L{$lastRow}")->getFont()->setBold(true);
                 $sheet->getStyle("A{$lastRow}:L{$lastRow}")->getFill()
                     ->setFillType(Fill::FILL_SOLID)
                     ->getStartColor()->setRGB('D1FAE5');
 
-                $ratioRow = $lastRow + 1;
-                $sheet->setCellValue("A{$ratioRow}", 'M/Y Profit Ratio (AG186):');
-                $sheet->setCellValue("B{$ratioRow}", ($this->summary?->my_profit_ratio ?? 0).'%');
-                $sheet->getStyle("A{$ratioRow}")->getFont()->setBold(true);
+                // ---- M/Y profit block (Excel AG184, AG186) ----
+                $myRow = $lastRow + 1;
+                $sheet->setCellValue("A{$myRow}", 'M/Y Profit (AG184):');
+                $sheet->setCellValue("D{$myRow}", $this->summary?->my_profit ?? 0);
+                $sheet->setCellValue("E{$myRow}", ($this->summary?->my_profit_ratio ?? 0).'%');
+                $sheet->setCellValue("F{$myRow}", 'AG186 ratio');
+                $sheet->getStyle("A{$myRow}")->getFont()->setBold(true);
+                $sheet->getStyle("D{$myRow}")->getFont()->setBold(true);
 
+                // ---- Retained earnings block (Excel AI3, AJ4, AK4) ----
+                $reRow = $lastRow + 3;
+                $sheet->setCellValue("A{$reRow}", 'Retained Earnings (AI3):');
+                $sheet->setCellValue("D{$reRow}", $this->summary?->total_investor_retained ?? 0);
+                $sheet->setCellValue("E{$reRow}", 'split 71% / 29%');
+                $sheet->setCellValue("G{$reRow}", 'Investors 71% (AJ4)');
+                $sheet->setCellValue("I{$reRow}", ($this->summary?->total_investor_retained ?? 0));
+                $sheet->setCellValue("J{$reRow}", 'M/Y 29% (AK4)');
+                $sheet->setCellValue("L{$reRow}", ($this->summary?->my_profit ?? 0) - ($this->summary?->total_investor_advance_diff ?? 0) + ($this->summary?->total_investor_retained ?? 0));
+                $sheet->getStyle("A{$reRow}")->getFont()->setBold(true);
+
+                // Format monetary columns as #,##0.00
                 for ($col = 'D'; $col <= 'L'; $col++) {
                     $sheet->getStyle("{$col}2:{$col}{$lastRow}")
                         ->getNumberFormat()->setFormatCode('#,##0.00');

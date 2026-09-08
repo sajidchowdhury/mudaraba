@@ -133,7 +133,14 @@ class ExportController extends Controller
     */
 
     /**
-     * Export investment profit report as Excel — the "For Sajid" sheet replica.
+     * Export the "For Sajid" investor profit grid as Excel.
+     *
+     * Replicates the column layout of the Excel "For Sajid" sheet:
+     *   D = Investment, E = Ratio, Q = Primary Share, N = Actual @100%,
+     *   AF = Deed Tier, AG = Profit Due, AH = Advance Diff,
+     *   AJ = Retained Credit, AK = Net Settlement
+     *
+     * Plus totals row (AG182, AH182, AJ182) and M/Y profit row (AG184, AG186).
      */
     public function investmentProfitExcel(Request $request)
     {
@@ -149,8 +156,9 @@ class ExportController extends Controller
 
         $export = new InvestmentProfitExport($details, $summary, $month);
 
+        // Filename matches the Excel sheet naming convention: "For Sajid - July, 2026.xlsx"
         $monthLabel = date('F_Y', strtotime($month));
-        $filename = "investment-profit-{$monthLabel}.xlsx";
+        $filename = "For Sajid - {$monthLabel}.xlsx";
 
         return Excel::download($export, $filename);
     }

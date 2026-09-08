@@ -83,7 +83,7 @@ These are the items where the current code differs from the written plan, and wh
 4. **Session timeout / login time-window enforcement** — verify these are wired into `LoginController` (plan §2.2 deliverable). Quick code review needed.
 5. **Phase 8.4 E2E (Playwright) tests** — `package.json` has no Playwright dependency. Only Pest feature/unit tests exist. If browser E2E is required (plan §8.2), add Playwright + a golden-path test.
 6. **Phase 8.5 Documentation** — README is one-liner; no deployment checklist or backup strategy doc. AGENTS.md/CLAUDE.md are just Laravel Boost bootstrap stubs.
-7. **Phase 4.5 "Export to Excel (preserves the familiar format)"** — only `InvestmentProfitExport.php` exists (for the Investment Profit report). The "For Sajid" page (`/profit/investor`) does not have a 1-click Excel export of the full investor grid matching the Excel layout.
+7. **Phase 4.5 "Export to Excel (preserves the familiar format)"** — ✅ **CLOSED (2026-09-08)**. The `InvestmentProfitExport` and `ExportController::investmentProfitExcel` route already existed, but the "For Sajid" page (`/profit/investor`) had no button to trigger it. Added an "Export to Excel" button to `InvestorProfit/Index.tsx` (visible only when `isCalculated`), wired to the existing `/exports/investment-profit?month=...` route. Updated the filename to `For Sajid - {Month Year}.xlsx` and the sheet tab title to `For Sajid - {Month Year}`. Enhanced the totals row to show Σ Primary Share (Z2), Σ Actual @100% (X2), true Σ Net Settlement (rather than reusing `my_profit`), plus a dedicated M/Y Profit block (AG184, AG186) and Retained Earnings block (AI3, AJ4, AK4) below the totals row. Added 2 new Pest tests in `ExportTest.php` covering the filename convention and graceful empty-state behavior.
 8. **Audit log writes** — `AuditLog` model exists but it is not clear whether every financial mutation writes to it. Quick audit of `ProfitCalculatorService`, `InvestmentTransactionController`, `ProfitAdjustmentController` needed to confirm `audit_logs` is being populated.
 9. **Soft deletes** — plan §4.1 calls for soft deletes on financial records. Verify the migration schemas actually include `deleted_at` columns and that the corresponding Eloquent models use `SoftDeletes`.
 10. **Performance / virtualization (Phase 8.3)** — `@tanstack/react-table` is installed, but the 150-row InvestorProfit grid may not be virtualized. Confirm TanStack Virtual is used; if not, add it for the 150+ row grid.
@@ -861,7 +861,7 @@ Stored in `investor_due_ledger` as a running balance, updated on each `investmen
 | 1 | Database Design & Migrations | 6 | Medium | `php artisan migrate:fresh` clean | ✅ DONE |
 | 2 | Authentication & RBAC | 4 | Medium | Login works, permissions enforced | 🟡 2FA missing |
 | 3 | Master Data Management | 4 | Medium | CRUD for investors/sectors/directors | ✅ DONE |
-| 4 | The Profit Engine | 6 | **High** | Monthly reconciliation matches Excel | 🟡 Excel export gap |
+| 4 | The Profit Engine | 6 | **High** | Monthly reconciliation matches Excel | ✅ DONE (export added) |
 | 5 | Advance Profit Adjustments | 4 | Medium | Type A/B/C adjustments working | ✅ DONE |
 | 6 | Opening Balances | 3 | Low | Opening entries migrate PHP data | ✅ DONE |
 | 7 | Reports & Dashboards | 6 | Medium | All ledgers + dashboard + exports | ✅ DONE |
@@ -1056,15 +1056,14 @@ Stored in `investor_due_ledger` as a running balance, updated on each `investmen
 - ✅ Write `monthly_profit_summary` totals
 - ✅ **Deliverable**: All ledgers consistent after reconciliation → covered by `LedgerUpdateTest.php`
 
-#### Session 4.5 — Investor Profit View (the "For Sajid" page)  🟡 **PARTIAL**
+#### Session 4.5 — Investor Profit View (the "For Sajid" page)  ✅ **DONE**
 - ✅ Premium spreadsheet-like grid: 151 investors × all 8-phase columns → `resources/js/Pages/InvestorProfit/Index.tsx` (429 LOC)
 - ✅ Sticky header + sticky totals row (matching Excel AG182, AH182, AG184, AG186)
 - ✅ Color-coded advance_diff (green over-paid, red under-paid)
 - ✅ Per-investor expandable row showing retained earnings breakdown
 - ✅ "Reconcile" CTA finalizes the month
-- ❌ **Export to Excel (preserves the familiar format)** — only `InvestmentProfitExport.php` exists, no per-grid export
+- ✅ **Export to Excel (preserves the familiar format)** — added an "Export to Excel" button next to the month switcher (commit below), wired to `/exports/investment-profit?month=...`. Filename: `For Sajid - {Month Year}.xlsx`. Sheet tab title: `For Sajid - {Month Year}`. Totals row + M/Y profit + retained earnings blocks included below the data.
 - 🟡 **Deliverable**: Page visually + numerically matches "July, 2026 For Sajid" sheet — *visual ✓, but seed data is January 2026 not July 2026 (Gap #1)*
-- 📌 **Missing export → see "Where to Start Next → Step 5" above.**
 
 #### Session 4.6 — Month Closing & Lock  ✅
 - ✅ Status workflow: `draft → finalized → locked` → `app/Enums/MonthStatus.php` + `MonthStatusController`

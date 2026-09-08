@@ -76,6 +76,27 @@ it('exports investment profit as Excel', function () {
     $response->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 });
 
+it('uses "For Sajid - {Month Year}.xlsx" filename for the investor profit export', function () {
+    $response = $this->actingAs($this->superadmin)
+        ->get('/exports/investment-profit?month=2026-07-01');
+
+    $response->assertStatus(200);
+    $disposition = $response->headers->get('content-disposition', '');
+    expect($disposition)->toContain('For Sajid - July_2026.xlsx')
+        ->and($disposition)->toContain('attachment');
+});
+
+it('returns a valid xlsx even when no calculation exists for the month (graceful empty state)', function () {
+    // A month with no MonthlyProfitSummary and no InvestorMonthlyProfitDetail rows
+    $response = $this->actingAs($this->superadmin)
+        ->get('/exports/investment-profit?month=2025-01-01');
+
+    $response->assertStatus(200);
+    $response->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    $disposition = $response->headers->get('content-disposition', '');
+    expect($disposition)->toContain('For Sajid - January_2025.xlsx');
+});
+
 it('redirects unauthenticated users to login', function () {
     $response = $this->get('/exports/investor-ledger');
     $response->assertRedirect('/login');
