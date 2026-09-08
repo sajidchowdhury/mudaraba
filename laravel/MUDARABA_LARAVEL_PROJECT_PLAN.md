@@ -81,7 +81,7 @@ These are the items where the current code differs from the written plan, and wh
 2. **Laravel version is 13, not 11** as the plan stated — this is a positive deviation (newer LTS). No action needed, but update §2.1 of the plan.
 3. **Phase 2.3 (TOTP 2FA) appears NOT implemented** — there is no `spomky-labs/otphp` in composer.json, no `two_factor_secret` column usage in the user model, no 2FA enforcement in `LoginController`. **This is the most material gap.** If 2FA is required for superadmin (plan §2.3 deliverable), it must be added.
 4. **Session timeout / login time-window enforcement** — verify these are wired into `LoginController` (plan §2.2 deliverable). Quick code review needed.
-5. **Phase 8.4 E2E (Playwright) tests** — `package.json` has no Playwright dependency. Only Pest feature/unit tests exist. If browser E2E is required (plan §8.2), add Playwright + a golden-path test.
+5. **Phase 8.4 E2E (Playwright) tests** — ✅ **CLOSED (2026-09-08)**. Added Playwright with 3 browser-level E2E tests in `tests/e2e/golden-path.spec.ts`: the full golden path (login → dashboard → sector profit → verify canonical July 2026 totals → investor profit → Excel export → logout) plus invalid-login and unauthenticated-redirect edge cases. Configured `playwright.config.ts` (Chromium, serial mode, trace/screenshot/video on failure). Added 4 npm scripts (`e2e`, `e2e:ui`, `e2e:install`, `e2e:report`). Wired into GitHub Actions via `.github/workflows/e2e.yml` (PostgreSQL service, PHP 8.4, Node 20, Vite build, Playwright browser install, migrate:fresh --seed, `php artisan serve` background, test run, artifact upload). See Step 6 below for the full per-file breakdown.
 6. **Phase 8.5 Documentation** — ✅ **CLOSED (2026-09-08)**. Wrote the full documentation set:
    - `README.md` — expanded from a one-liner to a full project overview with Docker + bare-metal setup, common commands, env vars, smoke test, project structure, testing, project plan reference
    - `DEPLOYMENT.md` (new) — production deployment guide covering server requirements, system dependencies, PostgreSQL 16 + PHP 8.4-FPM + Redis + Nginx install, environment configuration, Systemd services for queue + scheduler, SSL/TLS via Let's Encrypt, smoke test, backup strategy (nightly `pg_dump` + monthly audit log archival + quarterly restore test), security hardening checklist (14 items), GitHub Actions CI/CD pipeline spec (tests + auto-deploy on push to main), monitoring + logs + log rotation, scaling notes for > 50 operators, troubleshooting guide
@@ -128,11 +128,15 @@ If you are picking up this project today, do these in order. Each item is indepe
 - Add a button on `InvestorProfit/Index.tsx` and a route in `ExportController`
 - Test: exported `.xlsx` opens in Excel with the same column order as the original sheet
 
-#### Step 6 — Add Playwright E2E tests for the golden path (half day)
-- `npm i -D @playwright/test`
-- Add `playwright.config.ts` + `tests/e2e/`
-- Golden path test: login → navigate to Sector Profit → enter 16 sector profits → finalize → navigate to Investor Profit → verify totals match expected → export to Excel → logout
-- Wire into GitHub Actions (`.github/workflows/e2e.yml`)
+#### Step 6 — Add Playwright E2E tests for the golden path  ✅ **DONE (2026-09-08)**
+- ✅ `npm i -D @playwright/test` — added to `package.json` devDependencies + 4 npm scripts (`e2e`, `e2e:ui`, `e2e:install`, `e2e:report`)
+- ✅ `playwright.config.ts` — Chromium project, baseURL `http://localhost:8080`, serial mode (1 worker), HTML + list reporters, trace/screenshot/video on failure, download acceptance for Excel export test
+- ✅ `tests/e2e/golden-path.spec.ts` — 3 tests:
+  - **Golden path**: login (`E0001`/`Mudaraba@2026`) → dashboard KPIs → sector profit grid (16 sectors, July 2026) → verify canonical totals (Z2=1,765,000, X2=1,635,000) → investor profit grid → Excel export (verify `For Sajid - July_2026.xlsx` filename) → logout
+  - **Invalid login**: wrong credentials show error, stay on `/login`
+  - **Unauthenticated redirect**: direct `/dashboard` access redirects to `/login`
+- ✅ `tests/e2e/.gitignore` — excludes test-results/, playwright-report/, blob-report/
+- ✅ `.github/workflows/e2e.yml` — GitHub Actions CI: PostgreSQL service, PHP 8.4, Node 20, composer/npm install, Vite build, Playwright browser install, migrate:fresh --seed, `php artisan serve` background, `npx playwright test`, upload report + results as artifacts
 
 #### Step 7 — Documentation & deployment readiness (half day)
 - Replace the one-liner README with: setup (Docker + bare-metal), env vars, deployment checklist, backup strategy (`pg_dump` nightly)

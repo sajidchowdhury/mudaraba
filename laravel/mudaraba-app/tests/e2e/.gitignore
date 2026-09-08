@@ -1,0 +1,6 @@
+# Playwright output directories — don't commit test artifacts
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

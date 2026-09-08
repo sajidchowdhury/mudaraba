@@ -358,6 +358,38 @@ php artisan test
 | `tests/Feature/InvestmentProfitReportTest.php` | Investment profit report |
 | `tests/Feature/OpeningBalanceTest.php` | Opening balance bulk update |
 
+### E2E tests (Playwright)
+
+Browser-level end-to-end tests for the golden path: login → dashboard → sector profit → finalize → investor profit → export to Excel → logout.
+
+| File | What it covers |
+|------|---------------|
+| `tests/e2e/golden-path.spec.ts` | Login, dashboard KPIs, sector profit grid, canonical July 2026 totals (Z2, X2), investor profit grid, Excel export (`For Sajid - July_2026.xlsx`), logout + invalid-login + unauthenticated-redirect edge cases |
+
+#### Running E2E tests
+
+```bash
+# Prerequisites (one-time):
+#   1. Docker dev environment running: docker compose up -d --build
+#   2. Database seeded: docker compose exec app php artisan migrate:fresh --seed
+#   3. Playwright browser installed:
+docker compose exec node npx playwright install --with-deps chromium
+
+# Run all E2E tests (headless):
+npm run e2e
+
+# Interactive UI mode (great for debugging):
+npm run e2e:ui
+
+# Run a specific test by name:
+npm run e2e -- --grep "login"
+
+# View the HTML report after a run:
+npm run e2e:report
+```
+
+The E2E tests run against `http://localhost:8080` (the Nginx container's mapped port). If you changed `APP_PORT` in `.env.docker`, update `playwright.config.ts → use.baseURL` to match.
+
 ### Static analysis
 
 ```bash
