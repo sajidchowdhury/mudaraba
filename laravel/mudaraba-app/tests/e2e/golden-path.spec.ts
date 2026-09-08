@@ -86,9 +86,10 @@ test.describe("Golden Path — Monthly Reconciliation Workflow", () => {
             timeout: 15_000,
         });
 
-        // Verify KPI cards load — "Total Investment" and "Cash in Hand" are in
-        // <p> tags inside KPI card components
-        await expect(page.locator("text=Total Investment").first()).toBeVisible({
+        // Verify KPI cards load — the 4 KPI labels (from DashboardController) are:
+        //   "Total Mudaraba Investment", "Current Month Profit", "M / Y Profit", "Active Investors"
+        // Plus the "Cash in Hand" section below the KPI cards.
+        await expect(page.locator("text=Total Mudaraba Investment").first()).toBeVisible({
             timeout: 10_000,
         });
         await expect(page.locator("text=Cash in Hand").first()).toBeVisible();
