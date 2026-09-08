@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ])]
 class AdvanceProfitAdjustment extends Model
 {
-    use Auditable, HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $casts = [
         'amount' => 'decimal:2',

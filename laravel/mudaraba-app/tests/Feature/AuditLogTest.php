@@ -3,9 +3,6 @@
 use App\Enums\AdjustmentTarget;
 use App\Enums\AdjustmentType;
 use App\Enums\InvestmentType;
-use App\Models\AdvanceProfitAdjustment;
-use App\Models\AdvanceProfitAdjustmentTypeA;
-use App\Models\AdvanceProfitAdjustmentTypeB;
 use App\Models\AuditLog;
 use App\Models\Director;
 use App\Models\DirectorTransaction;
@@ -52,6 +49,27 @@ beforeEach(function () {
 // ----------------------------------------------------------------------------
 // InvestmentTransaction — capital add / withdraw per investor
 // ----------------------------------------------------------------------------
+
+it('the Auditable trait fires created event on InvestmentTransaction (diagnostic)', function () {
+    // This test verifies the trait's event listener is actually wired up.
+    // If this fails, the Auditable trait's bootAuditable() method isn't
+    // being called — which means the created/updated/deleted events won't
+    // fire, and no audit logs will be written.
+    $fired = false;
+    InvestmentTransaction::created(function () use (&$fired) {
+        $fired = true;
+    });
+
+    $tx = InvestmentTransaction::create([
+        'investor_id' => $this->investor->id,
+        'amount' => 100000, 'type' => 'add',
+        'transaction_month' => '2026-07-01', 'transaction_date' => '2026-07-15',
+        'created_by' => $this->superadmin->id,
+    ]);
+
+    expect($fired)->toBeTrue('The InvestmentTransaction::created event did not fire. The Auditable trait may not be booting correctly.');
+    expect($tx->exists)->toBeTrue();
+});
 
 it('logs an audit entry when an investment transaction is created', function () {
     $this->actingAs($this->superadmin);
@@ -242,63 +260,12 @@ it('logs an audit entry when a ProfitAdjustment (Fund A) is created', function (
         ->and($audit->after_data['amount'])->toBe(5000.0);
 });
 
-it('logs an audit entry when an AdvanceProfitAdjustment (Type C) is created', function () {
-    $this->actingAs($this->superadmin);
-
-    $adj = AdvanceProfitAdjustment::create([
-        'investor_id' => $this->investor->id,
-        'amount' => 3000,
-        'transaction_date' => '2026-07-15',
-        'profit_month' => '2026-07-01',
-        'created_by' => $this->superadmin->id,
-    ]);
-
-    $audit = AuditLog::where('entity_type', 'advance_profit_adjustment')
-        ->where('entity_id', $adj->id)
-        ->where('action', 'create')
-        ->first();
-
-    expect($audit)->not->toBeNull()
-        ->and($audit->after_data['amount'])->toBe(3000.0);
-});
-
-it('logs an audit entry when an AdvanceProfitAdjustmentTypeA is created', function () {
-    $this->actingAs($this->superadmin);
-
-    $adj = AdvanceProfitAdjustmentTypeA::create([
-        'transaction_date' => '2026-07-15',
-        'amount' => 10000,
-        'remarks' => 'Fund A adjustment',
-        'created_by' => $this->superadmin->id,
-    ]);
-
-    $audit = AuditLog::where('entity_type', 'advance_profit_adjustment_type_a')
-        ->where('entity_id', $adj->id)
-        ->where('action', 'create')
-        ->first();
-
-    expect($audit)->not->toBeNull()
-        ->and($audit->after_data['amount'])->toBe(10000.0);
-});
-
-it('logs an audit entry when an AdvanceProfitAdjustmentTypeB is created', function () {
-    $this->actingAs($this->superadmin);
-
-    $adj = AdvanceProfitAdjustmentTypeB::create([
-        'transaction_date' => '2026-07-15',
-        'amount' => 7000,
-        'remarks' => 'Fund B adjustment',
-        'created_by' => $this->superadmin->id,
-    ]);
-
-    $audit = AuditLog::where('entity_type', 'advance_profit_adjustment_type_b')
-        ->where('entity_id', $adj->id)
-        ->where('action', 'create')
-        ->first();
-
-    expect($audit)->not->toBeNull()
-        ->and($audit->after_data['amount'])->toBe(7000.0);
-});
+// NOTE: Tests for AdvanceProfitAdjustment (Type C), AdvanceProfitAdjustmentTypeA,
+// and AdvanceProfitAdjustmentTypeB have been REMOVED. These legacy models point
+// to tables that were intentionally DROPPED by the 2026_08_30_150836 migration
+// (which created the unified `profit_adjustments` table to replace them).
+// The Auditable trait was also removed from those 3 models. Audit logging for
+// profit adjustments is now covered by the ProfitAdjustment model test above.
 
 // ----------------------------------------------------------------------------
 // InvestorMonthlyProfitDetail — snapshot rows
