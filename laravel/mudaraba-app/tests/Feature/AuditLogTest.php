@@ -60,7 +60,7 @@ it('logs an audit entry when an investment transaction is created', function () 
         'created_by' => $this->superadmin->id,
     ]);
 
-    $audit = AuditLog::where('entity_type', 'investment_transaction')
+    $audit = AuditLog::where('entity_type', 'investment_transactions')
         ->where('entity_id', $tx->id)
         ->where('action', 'create')
         ->first();
@@ -87,7 +87,7 @@ it('logs an audit entry when an investment transaction is deleted (soft-delete)'
 
     $tx->delete();
 
-    $audit = AuditLog::where('entity_type', 'investment_transaction')
+    $audit = AuditLog::where('entity_type', 'investment_transactions')
         ->where('entity_id', $tx->id)
         ->where('action', 'delete')
         ->first();
@@ -111,7 +111,7 @@ it('logs an audit entry when a sector investment is created', function () {
         'created_by' => $this->superadmin->id,
     ]);
 
-    $audit = AuditLog::where('entity_type', 'sector_investment')
+    $audit = AuditLog::where('entity_type', 'sector_investments')
         ->where('entity_id', $inv->id)
         ->where('action', 'create')
         ->first();
@@ -136,7 +136,7 @@ it('logs an audit entry when a director transaction is created', function () {
         'created_by' => $this->superadmin->id,
     ]);
 
-    $audit = AuditLog::where('entity_type', 'director_transaction')
+    $audit = AuditLog::where('entity_type', 'director_transactions')
         ->where('entity_id', $tx->id)
         ->where('action', 'create')
         ->first();
@@ -228,7 +228,7 @@ it('logs an audit entry when a ProfitAdjustment (Fund A) is created', function (
         'created_by' => $this->superadmin->id,
     ]);
 
-    $audit = AuditLog::where('entity_type', 'profit_adjustment')
+    $audit = AuditLog::where('entity_type', 'profit_adjustments')
         ->where('entity_id', $adj->id)
         ->where('action', 'create')
         ->first();
@@ -291,7 +291,7 @@ it('logs audit "create" entries (not delete) for investor monthly profit details
     // Should have NO 'delete' audit entries for investor_monthly_profit_detail
     // (per the shouldAudit override that suppresses bulk-delete spam)
     $detailDeleteAudits = AuditLog::where('action', 'delete')
-        ->where('entity_type', 'investor_monthly_profit_detail')
+        ->where('entity_type', 'investor_monthly_profit_details')
         ->count();
     expect($detailDeleteAudits)->toBe(0);
 });
