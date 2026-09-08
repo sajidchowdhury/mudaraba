@@ -17,7 +17,13 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    // MUDARABA_DB_OVERRIDE: when set (by phpunit.xml), force the DB connection
+    // to the specified value, ignoring whatever .env has. This is needed
+    // because Dotenv loads .env (which has DB_CONNECTION=pgsql in Docker)
+    // and overwrites the phpunit.xml <env> values. Using a custom env var
+    // that doesn't exist in .env sidesteps the overwrite (same trick as
+    // MUDARABA_TESTING for CSRF bypass).
+    'default' => env('MUDARABA_DB_OVERRIDE', env('DB_CONNECTION', 'sqlite')),
 
     /*
     |--------------------------------------------------------------------------
@@ -35,7 +41,9 @@ return [
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
-            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            // MUDARABA_DB_PATH: when set (by phpunit.xml), force the SQLite path.
+            // Same Dotenv-overwrite bypass trick as MUDARABA_DB_OVERRIDE.
+            'database' => env('MUDARABA_DB_PATH', env('DB_DATABASE', database_path('database.sqlite'))),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
             'busy_timeout' => null,

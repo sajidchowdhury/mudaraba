@@ -71,35 +71,54 @@ class AuditService
         ?array $before = null,
         ?array $after = null,
         ?int $userId = null,
-    ): AuditLog {
-        $userId ??= Auth::id();
+    ): ?AuditLog {
+        try {
+            $userId ??= Auth::id();
 
-        // Handle non-numeric primary keys (e.g. MonthlyProfitSummary has
-        // profit_month as a string date PK, but audit_logs.entity_id is
-        // unsignedBigInteger). For non-numeric keys, we set entity_id to
-        // null and stash the actual key in after_data['_entity_key'] so
-        // the audit row is still traceable. Numeric keys go to entity_id
-        // directly for fast indexed lookups.
-        $key = $model->getKey();
-        $entityId = null;
-        if (is_numeric($key)) {
-            $entityId = (int) $key;
-        } elseif ($key !== null) {
-            // Preserve the actual key in after_data so the row is still
-            // traceable. Merge with any existing after_data.
-            $after = array_merge($after ?? [], ['_entity_key' => (string) $key]);
+            // Handle non-numeric primary keys (e.g. MonthlyProfitSummary has
+            // profit_month as a string date PK, but audit_logs.entity_id is
+            // unsignedBigInteger). For non-numeric keys, we set entity_id to
+            // null and stash the actual key in after_data['_entity_key'] so
+            // the audit row is still traceable. Numeric keys go to entity_id
+            // directly for fast indexed lookups.
+            $key = $model->getKey();
+            $entityId = null;
+            if (is_numeric($key)) {
+                $entityId = (int) $key;
+            } elseif ($key !== null) {
+                // Preserve the actual key in after_data so the row is still
+                // traceable. Merge with any existing after_data.
+                $after = array_merge($after ?? [], ['_entity_key' => (string) $key]);
+            }
+
+            return AuditLog::create([
+                'user_id' => $userId,
+                'action' => $action,
+                'entity_type' => $model->getMorphClass(),
+                'entity_id' => $entityId,
+                'before_data' => $before,
+                'after_data' => $after,
+                'ip_address' => self::requestIp(),
+                'user_agent' => self::userAgent(),
+            ]);
+        } catch (\Throwable $e) {
+            // Audit logging must NEVER break the main operation — if the audit
+            // write fails (e.g. DB constraint violation, transaction rollback),
+            // log the error and return null. The main business operation
+            // should still succeed.
+            //
+            // This is especially important in tests where RefreshDatabase
+            // wraps everything in a transaction — if the audit insert fails
+            // for any reason, we don't want to poison the test.
+            \Illuminate\Support\Facades\Log::warning('Audit log write failed', [
+                'action' => $action,
+                'entity_type' => $model->getMorphClass(),
+                'entity_id' => $model->getKey(),
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
         }
-
-        return AuditLog::create([
-            'user_id' => $userId,
-            'action' => $action,
-            'entity_type' => $model->getMorphClass(),
-            'entity_id' => $entityId,
-            'before_data' => $before,
-            'after_data' => $after,
-            'ip_address' => self::requestIp(),
-            'user_agent' => self::userAgent(),
-        ]);
     }
 
     /**

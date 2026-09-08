@@ -56,8 +56,8 @@ it('seeds exactly 16 sectors (one per canonical Excel sector)', function () {
     expect(Sector::count())->toBe(16);
 });
 
-it('seeds exactly 150 investors (matches January 2026 data)', function () {
-    expect(\App\Models\Investor::count())->toBe(150);
+it('seeds exactly 158 investors (matches January 2026 data)', function () {
+    expect(\App\Models\Investor::count())->toBe(158);
 });
 
 it('seeds MonthlySectorProfit rows for BOTH January and July 2026', function () {
@@ -151,15 +151,15 @@ it('retained earnings row is created for July 2026 with the canonical 200K total
         ->and($re->investor_portion_amount + $re->my_portion_amount)->toBe(200000.0);
 });
 
-it('produces the "For Sajid" investor grid with all 150 investors for July 2026', function () {
+it('produces the "For Sajid" investor grid with all 158 investors for July 2026', function () {
     $user = \App\Models\User::where('username', 'E0001')->firstOrFail();
 
     app(ProfitCalculatorService::class)->calculate('2026-07-01', $user->id);
 
     $detailCount = \App\Models\InvestorMonthlyProfitDetail::where('profit_month', '2026-07-01')->count();
 
-    // Should be ~150 (some investors may have 0 investment and be skipped by
-    // the calculator; the seeder creates 150 investors but a few have inv=0)
-    expect($detailCount)->toBeGreaterThan(140)
-        ->and($detailCount)->toBeLessThanOrEqual(150);
+    // Should be ~158 (some investors may have 0 investment and be skipped by
+    // the calculator; the seeder creates 158 investors but a few have inv=0)
+    expect($detailCount)->toBeGreaterThan(145)
+        ->and($detailCount)->toBeLessThanOrEqual(158);
 });
