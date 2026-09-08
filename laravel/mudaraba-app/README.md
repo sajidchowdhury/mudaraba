@@ -405,10 +405,9 @@ See [`../MUDARABA_LARAVEL_PROJECT_PLAN.md`](../MUDARABA_LARAVEL_PROJECT_PLAN.md)
 
 ### Headline status (2026-09-08)
 
-**All 9 phases (Phase 0 → Phase 8) have at least a first-pass implementation** committed to `main` (52 commits total). The app boots, the 8-phase calculation engine passes its parity tests, audit logging is in place for every financial mutation, and January 2026 seed data is loaded.
+**All 9 phases (Phase 0 → Phase 8) have at least a first-pass implementation** committed to `main` (52 commits total). The app boots, the 8-phase calculation engine passes its parity tests, audit logging is in place for every financial mutation, and both January + July 2026 seed data is loaded (July 2026 is the canonical "For Sajid" reference).
 
 Known gaps (excluding 2FA per project decision):
-- **Seeder ≠ parity test** — seeder loads January 2026 data; `ParityTest.php` asserts July 2026 numbers
 - **Playwright E2E** — only Pest tests exist; no browser E2E
 - **Pest test suite has CSRF issues** — 65 tests failing with HTTP 419 (work in progress)
 - **Performance / virtualization** — `@tanstack/react-virtual` not yet installed for the 150-row investor grid

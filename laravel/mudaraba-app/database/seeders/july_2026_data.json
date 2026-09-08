@@ -1,0 +1,38 @@
+{
+  "_meta": {
+    "source": "Excel 'July, 2026 For Sajid' sheet — canonical reference values",
+    "extracted_from": "Modaraba_System_Analysis_Report_2026-08-29.docx (plan §8.1)",
+    "canonical_totals": {
+      "D181_total_investment": 157475000,
+      "Z2_total_estimated_profit": 1765000,
+      "X2_total_actual_profit": 1635000,
+      "Y2_variance": 130000,
+      "AG182_total_investor_profit_due": 1110024.58,
+      "AH182_total_investor_advance_diff": 606220.07,
+      "AG184_my_profit": 476220.07,
+      "AG186_my_profit_ratio_pct": 29.13,
+      "AI3_retained_earnings_total": 200000,
+      "AJ4_investor_portion_71pct": 142000,
+      "AK4_my_portion_29pct": 58000
+    },
+    "note_about_investors": "We do not have a real per-investor investment snapshot as of 2026-07-01; the seeder reuses the 150 investors + investment amounts from january_2026_data.json. Therefore D181 in the SEEDED July 2026 month will be ~137,022,000 (the January total), not 157,475,000 (the canonical July total). The parity test against seeded data verifies Z2/X2/Y2 (sector totals, which DO match exactly) and the algebraic identity AG184 = X2 - AG182 (which holds regardless of investor amounts). Verifying the exact AG182/AH182/AG184 figures requires the real July 2026 investor balance sheet, which is not in the codebase."
+  },
+  "sectors_july_2026": [
+    { "name": "PK M",           "estimated": 0,      "actual": 0      },
+    { "name": "DTF",            "estimated": 40000,   "actual": 30000  },
+    { "name": "Poshra",         "estimated": 15000,   "actual": 15000  },
+    { "name": "SKS",            "estimated": 200000,  "actual": 220000 },
+    { "name": "JFT",            "estimated": 200000,  "actual": 150000 },
+    { "name": "JF Online",      "estimated": 110000,  "actual": 100000 },
+    { "name": "Bike Décor",     "estimated": 0,       "actual": 0      },
+    { "name": "Moto Craft",     "estimated": 0,       "actual": 0      },
+    { "name": "JFMR",           "estimated": 300000,  "actual": 250000 },
+    { "name": "China House BD", "estimated": 750000,  "actual": 750000 },
+    { "name": "Bike X",         "estimated": 150000,  "actual": 120000 },
+    { "name": "Dubai",          "estimated": 0,       "actual": 0      },
+    { "name": "EiD Inv PB",     "estimated": 0,       "actual": 0      },
+    { "name": "PT",             "estimated": 0,       "actual": 0      },
+    { "name": "PC",             "estimated": 0,       "actual": 0      },
+    { "name": "A/R",            "estimated": 0,       "actual": 0      }
+  ]
+}

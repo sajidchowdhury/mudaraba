@@ -21,7 +21,7 @@ That's it. On first run, the entrypoint automatically:
 - Generates APP_KEY
 - Waits for PostgreSQL
 - Runs all migrations
-- Seeds the database (superadmin user, menus, permissions, investors, sectors, directors)
+- Seeds the database (superadmin user, menus, permissions, 150 investors, 16 sectors, directors, January + July 2026 sector profits — July 2026 is the canonical "For Sajid" reference)
 
 Wait ~60 seconds for everything to start up, then check:
 ```bash
