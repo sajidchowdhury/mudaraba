@@ -1,50 +1,41 @@
 <?php
 
 /**
- * CsrfDiagnosticTest — a diagnostic test that confirms the CSRF middleware
- * is actually being bypassed during the test run.
+ * CsrfDiagnosticTest — confirms CSRF middleware is bypassed during tests.
  *
- * If this test PASSES, the CSRF exemption is working.
+ * If this test PASSES, the CSRF exemption is working for real app routes
+ * (not just dynamically-registered test routes).
  * If this test FAILS with HTTP 419, the exemption is NOT working.
  *
  * Run: php artisan test --filter=CsrfDiagnosticTest
- *
- * If you're seeing 65 CSRF failures and this test also fails with 419,
- * the most likely cause is that your local code is out of date —
- * run `git pull origin main` and `php artisan optimize:clear` before
- * re-running the tests.
  */
 
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
-use Illuminate\Support\Facades\Route;
 
-beforeEach(function () {
-    // Register a throwaway POST route that just returns 200 OK
-    // (no controller logic — we're only testing whether the middleware
-    // blocks the request with 419)
-    Route::post('/__csrf_diagnostic_test', fn () => response('OK', 200));
-});
+it('POST to a REAL app route (/login) does not get blocked by CSRF', function () {
+    // We POST to /login (defined in routes/web.php, which uses the `web`
+    // middleware group that includes ValidateCsrfToken). If CSRF is
+    // properly disabled, we should get a redirect (302 to /login with
+    // errors — invalid credentials) or a validation error — NOT 419.
+    //
+    // The previous version of this test registered its OWN route via
+    // Route::post(...), which bypasses the `web` middleware group entirely
+    // and gave a false positive. This version uses a real app route.
+    $response = $this->post('/login', [
+        'username' => 'nonexistent_user',
+        'password' => 'wrong_password',
+        'remember' => false,
+    ]);
 
-it('POST requests to test routes do not get blocked by CSRF middleware', function () {
-    $response = $this->post('/__csrf_diagnostic_test', ['any' => 'data']);
-
-    // If CSRF is enabled, this returns 419 (TokenMismatchException).
-    // If CSRF is bypassed (which is what we want for tests), this returns 200.
-    expect($response->status())->toBe(200, "Expected 200 OK but got {$response->status()}. CSRF middleware is NOT being bypassed — see tests/TestCase.php setUp().");
+    // 419 = CSRF blocked the request (bad — exemption not working)
+    // 302 = validation failed, redirected back with errors (good — CSRF bypassed)
+    expect($response->status())->not->toBe(419, "POST /login returned 419 — CSRF middleware is NOT being bypassed for real app routes. See bootstrap/app.php → validateCsrfTokens(except: ['*']).");
 });
 
 it('the ValidateCsrfToken class exists (sanity check for the Laravel 11+ class name)', function () {
-    // Sanity check: confirm the class name we're disabling in
-    // tests/TestCase.php setUp() actually exists in this Laravel version.
-    // In Laravel 11+, the canonical CSRF middleware is
-    // Illuminate\Foundation\Http\Middleware\ValidateCsrfToken
-    // (in older Laravel it was VerifyCsrfToken).
-    //
-    // If this fails, the class name changed in a future Laravel version —
-    // update tests/TestCase.php to use the new class name.
     expect(class_exists(ValidateCsrfToken::class))->toBeTrue(
         'Class Illuminate\\Foundation\\Http\\Middleware\\ValidateCsrfToken not found. '.
-        'In Laravel 11+, this is the canonical CSRF middleware class. '.
-        'If the class name is different in your Laravel version, update tests/TestCase.php.'
+        'In Laravel 11+, this is the canonical CSRF middleware class.'
     );
 });
+
