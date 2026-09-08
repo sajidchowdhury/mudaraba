@@ -25,30 +25,37 @@ return Application::configure(basePath: dirname(__DIR__))
         // CSRF protection is the browser's job, not the test's. Without this
         // exemption, every POST/PUT/DELETE test fails with HTTP 419.
         //
-        // === Why this approach (not TestCase setUp or Pest beforeEach) ===
+        // === Why we use a custom MUDARABA_TESTING env var (not APP_ENV) ===
         //
-        // We tried 3 other approaches that did NOT fully work:
+        // We tried 4 other approaches that did NOT work:
         //
         // 1. tests/TestCase.php setUp() with $this->withoutMiddleware(ValidateCsrfToken::class)
-        //    → This disables the middleware for the global stack, but NOT for
-        //      middleware applied via the `web` middleware GROUP (which is how
-        //      routes/web.php routes get CSRF). Result: 35 tests still 419.
+        //    → withoutMiddleware() only disables middleware on the GLOBAL stack,
+        //      NOT middleware applied via the `web` middleware GROUP. Real app
+        //      routes in routes/web.php get CSRF via the `web` group. No-op. 35 tests still 419.
         //
         // 2. tests/Pest.php beforeEach with $this->withoutMiddleware(...)
-        //    → Same issue — withoutMiddleware doesn't affect group middleware.
-        //      Result: 65 tests still 419.
+        //    → Same issue. 65 tests still 419.
         //
         // 3. bootstrap/app.php with Env::get('APP_ENV') === 'testing'
-        //    → Env::get() goes through Laravel's env repository which may not
-        //      be initialized at this boot stage. Didn't take effect.
+        //    → Env::get() goes through Laravel's env repository, which isn't
+        //      initialized at withMiddleware boot stage. Didn't take effect.
         //
-        // 4. THIS APPROACH: native PHP getenv('APP_ENV') === 'testing'
-        //    → Reads the OS env var directly. PHPUnit's <env> tag in phpunit.xml
-        //      calls putenv() BEFORE Laravel boots, so this value is reliably
-        //      'testing' during test runs and 'local'/'production' otherwise.
-        //      validateCsrfTokens(except: ['*']) disables CSRF for ALL routes
-        //      (global + group + route-level), which is what we want for tests.
-        if (getenv('APP_ENV') === 'testing') {
+        // 4. bootstrap/app.php with getenv('APP_ENV') === 'testing'
+        //    → APP_ENV gets overwritten by Dotenv loading .env (which has
+        //      APP_ENV=local). Even though Dotenv's default is "don't
+        //      overwrite existing env vars", some versions/configs do.
+        //      Diagnostic test still showed 419.
+        //
+        // 5. THIS APPROACH: custom MUDARABA_TESTING env var
+        //    → phpunit.xml sets MUDARABA_TESTING=1 via <env> tag (putenv).
+        //    → .env does NOT have MUDARABA_TESTING, so Dotenv can't overwrite.
+        //    → getenv('MUDARABA_TESTING') reliably returns '1' during tests.
+        //    → In prod/dev, the var is unset, so getenv returns false → no bypass.
+        //
+        // validateCsrfTokens(except: ['*']) disables CSRF for ALL routes
+        // (global + group + route-level), which is what we want for tests.
+        if (getenv('MUDARABA_TESTING') === '1') {
             $middleware->validateCsrfTokens(except: ['*']);
         }
 
