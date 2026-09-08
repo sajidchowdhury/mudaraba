@@ -204,7 +204,10 @@ test.describe("Golden Path — Monthly Reconciliation Workflow", () => {
         // access to dashboard" test below — this step just verifies we CAN
         // log out and end up back on /login.
         const logoutResponse = await page.request.post("/logout");
-        expect(logoutResponse.status()).toBeOneOf([200, 302]);
+        // Playwright's expect doesn't have toBeOneOf — use a simple check.
+        // Logout should return 302 (redirect to /login) or 200.
+        const status = logoutResponse.status();
+        expect(status === 200 || status === 302).toBeTruthy();
 
         // Navigate to /login to verify we're logged out
         await page.goto("/login");
