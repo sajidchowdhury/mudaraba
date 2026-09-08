@@ -15,6 +15,7 @@ use App\Http\Controllers\OpeningBalanceController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfitAdjustmentController;
 use App\Http\Controllers\SectorController;
+use App\Http\Controllers\SectorInvestmentController;
 use App\Http\Controllers\SectorProfitController;
 use Illuminate\Support\Facades\Route;
 
@@ -58,6 +59,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/{sector}/edit', [SectorController::class, 'edit'])->middleware('permission:sectors.index')->name('edit');
         Route::put('/{sector}', [SectorController::class, 'update'])->middleware('permission:sectors.index')->name('update');
         Route::delete('/{sector}', [SectorController::class, 'destroy'])->middleware('permission:sectors.index')->name('destroy');
+    });
+
+    // Sector Investments (add money to / withdraw from sectors)
+    // This is the M/Y's workflow: get investment from investors, then assign
+    // those funds to sectors. Uses the same permission as sector viewing.
+    Route::prefix('sector-investments')->name('sector-investments.')->group(function () {
+        Route::post('/', [SectorInvestmentController::class, 'store'])->middleware('permission:sectors.index')->name('store');
+        Route::delete('/{investment}', [SectorInvestmentController::class, 'destroy'])->middleware('permission:sectors.index')->name('destroy');
     });
 
     // Directors / M/Y (permission-guarded)

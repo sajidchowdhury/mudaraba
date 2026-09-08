@@ -1,16 +1,16 @@
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import { useState } from "react";
 import { route } from "ziggy-js";
 import { AuthenticatedLayout } from "@/Components/layout";
 import {
     Card, CardContent, CardDescription, CardHeader, CardTitle,
-    Button, Badge,
+    Button, Badge, Input, Label, Select, Textarea,
 } from "@/Components/ui";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui";
 import {
     Pencil, ArrowLeft, Wallet, ReceiptText, Phone, MapPin,
-    ArrowUpCircle, ArrowDownCircle, TrendingUp,
+    ArrowUpCircle, ArrowDownCircle, TrendingUp, Plus,
 } from "lucide-react";
 import { formatBDT, cn } from "@/lib/utils";
 
@@ -54,6 +54,23 @@ interface Props {
 
 export default function SectorShow({ sector, stats, recentInvestments, recentProfit }: Props) {
     const [tab, setTab] = useState("profile");
+
+    // ── Sector Investment form (add money to / withdraw from this sector) ──
+    const { data, setData, post, processing, reset } = useForm({
+        sector_id: sector.id,
+        amount: "",
+        type: "add",
+        transaction_date: new Date().toISOString().slice(0, 10),
+        remarks: "",
+    });
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        post(route("sector-investments.store"), {
+            preserveScroll: true,
+            onSuccess: () => reset("amount", "remarks"),
+        });
+    };
 
     return (
         <AuthenticatedLayout
@@ -128,6 +145,82 @@ export default function SectorShow({ sector, stats, recentInvestments, recentPro
 
                     {/* Investments tab */}
                     <TabsContent value="investments">
+                        {/* Add/Withdraw form */}
+                        <Card className="mb-4">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Plus className="size-5 text-primary" />
+                                    Allocate / Withdraw Capital
+                                </CardTitle>
+                                <CardDescription>
+                                    Assign investor funds to this sector or withdraw capital back to the M/Y pool.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <form onSubmit={handleSubmit} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="type">Action</Label>
+                                        <Select
+                                            value={data.type}
+                                            onValueChange={(v) => setData("type", v)}
+                                        >
+                                            <SelectTrigger id="type">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="add">Add (Allocate)</SelectItem>
+                                                <SelectItem value="withdraw">Withdraw</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="amount">Amount (BDT)</Label>
+                                        <Input
+                                            id="amount"
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            placeholder="0.00"
+                                            value={data.amount}
+                                            onChange={(e) => setData("amount", e.target.value)}
+                                            className="font-num text-right"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="transaction_date">Date</Label>
+                                        <Input
+                                            id="transaction_date"
+                                            type="date"
+                                            value={data.transaction_date}
+                                            onChange={(e) => setData("transaction_date", e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="remarks">Remarks (optional)</Label>
+                                        <Input
+                                            id="remarks"
+                                            type="text"
+                                            placeholder="e.g. January allocation"
+                                            value={data.remarks}
+                                            onChange={(e) => setData("remarks", e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="sm:col-span-2 lg:col-span-4 flex justify-end">
+                                        <Button type="submit" disabled={processing || !data.amount}>
+                                            {data.type === "add" ? (
+                                                <><ArrowUpCircle className="size-4" /> Allocate to {sector.name}</>
+                                            ) : (
+                                                <><ArrowDownCircle className="size-4" /> Withdraw from {sector.name}</>
+                                            )}
+                                        </Button>
+                                    </div>
+                                </form>
+                            </CardContent>
+                        </Card>
+
+                        {/* Investment history */}
                         <Card>
                             <CardHeader>
                                 <CardTitle>Recent Investments</CardTitle>
