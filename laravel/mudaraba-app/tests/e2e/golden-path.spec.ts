@@ -194,15 +194,24 @@ test.describe("Golden Path — Monthly Reconciliation Workflow", () => {
         }
 
         // ─── 9. LOGOUT ──────────────────────────────────────────────────────
-        // The user menu is a dropdown in the TopBar — click it to open
-        // We look for the avatar/trigger button (it contains the user's initials or avatar image)
-        const userMenuButton = page.locator('[aria-haspopup="menu"]').filter({ has: page.locator("img, svg").first() }).last();
+        // The user menu is a dropdown in the TopBar. The trigger is a <button>
+        // containing an Avatar (with the user's initials). We click it to open
+        // the dropdown, then click the "Sign out" text.
+        //
+        // Radix DropdownMenuTrigger renders as a <button> — we find it by
+        // looking for the button that contains an Avatar element (the user's
+        // initial). This is the last interactive button in the header.
+        const userMenuButton = page.locator("header button:has([class*='avatar'], [class*='Avatar'])").last();
         await userMenuButton.click();
 
-        // Click "Sign out" in the dropdown menu
-        const signOutItem = page.getByRole("menuitem", { name: /sign out/i });
-        await expect(signOutItem).toBeVisible({ timeout: 5_000 });
+        // Wait for the dropdown to open and the "Sign out" text to appear.
+        // Radix DropdownMenuItem renders as a <div> with the text — we use
+        // text matching (not role="menuitem") because the role attribute
+        // may vary across Radix versions.
+        const signOutItem = page.locator("text=Sign out").first();
+        await expect(signOutItem).toBeVisible({ timeout: 10_000 });
 
+        // Click "Sign out" — Inertia will POST /logout and redirect to /login
         await Promise.all([
             page.waitForURL("**/login", { timeout: 10_000 }),
             signOutItem.click(),
