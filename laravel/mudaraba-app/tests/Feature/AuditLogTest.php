@@ -71,6 +71,50 @@ it('the Auditable trait fires created event on InvestmentTransaction (diagnostic
     expect($tx->exists)->toBeTrue();
 });
 
+it('directly calls AuditService::log with a real model and checks for errors (diagnostic)', function () {
+    // This test calls AuditService::log() directly (bypassing the trait's
+    // event listener) with a REAL InvestmentTransaction model — not a
+    // transient one like the other direct-service tests. If this fails
+    // with an exception, we'll see the actual error that's being silently
+    // swallowed by the try/catch in AuditService::log().
+    $this->actingAs($this->superadmin);
+
+    $tx = InvestmentTransaction::create([
+        'investor_id' => $this->investor->id,
+        'amount' => 100000, 'type' => 'add',
+        'transaction_month' => '2026-07-01', 'transaction_date' => '2026-07-15',
+        'created_by' => $this->superadmin->id,
+    ]);
+
+    // Call AuditService::log directly — if this throws, the test will
+    // show the actual error message (instead of the swallowed null).
+    $audit = AuditService::log(
+        action: 'create',
+        model: $tx,
+        before: null,
+        after: ['amount' => 100000, 'test' => true],
+    );
+
+    // If $audit is null here, the try/catch in AuditService::log swallowed
+    // an exception. Let's check the Laravel log for the actual error.
+    if ($audit === null) {
+        // Read the last few lines of the log to find the swallowed error
+        $logFile = storage_path('logs/laravel.log');
+        $logContent = file_exists($logFile) ? file_get_contents($logFile) : '(no log file)';
+        // Find the last 'Audit log write failed' entry
+        $pattern = '/Audit log write failed.*?error.*?:(.*?)(?=\n\d{4}-|\z)/s';
+        if (preg_match_all($pattern, $logContent, $matches)) {
+            $lastError = end($matches[1]);
+            throw new \RuntimeException('AuditService::log returned null. Swallowed error: ' . trim($lastError));
+        }
+        throw new \RuntimeException('AuditService::log returned null but no error was found in storage/logs/laravel.log');
+    }
+
+    expect($audit)->not->toBeNull()
+        ->and($audit->entity_type)->toBe('investment_transaction')
+        ->and($audit->entity_id)->toBe($tx->id);
+});
+
 it('logs an audit entry when an investment transaction is created', function () {
     $this->actingAs($this->superadmin);
 
