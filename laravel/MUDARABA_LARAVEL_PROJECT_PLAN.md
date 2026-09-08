@@ -82,7 +82,12 @@ These are the items where the current code differs from the written plan, and wh
 3. **Phase 2.3 (TOTP 2FA) appears NOT implemented** — there is no `spomky-labs/otphp` in composer.json, no `two_factor_secret` column usage in the user model, no 2FA enforcement in `LoginController`. **This is the most material gap.** If 2FA is required for superadmin (plan §2.3 deliverable), it must be added.
 4. **Session timeout / login time-window enforcement** — verify these are wired into `LoginController` (plan §2.2 deliverable). Quick code review needed.
 5. **Phase 8.4 E2E (Playwright) tests** — `package.json` has no Playwright dependency. Only Pest feature/unit tests exist. If browser E2E is required (plan §8.2), add Playwright + a golden-path test.
-6. **Phase 8.5 Documentation** — README is one-liner; no deployment checklist or backup strategy doc. AGENTS.md/CLAUDE.md are just Laravel Boost bootstrap stubs.
+6. **Phase 8.5 Documentation** — ✅ **CLOSED (2026-09-08)**. Wrote the full documentation set:
+   - `README.md` — expanded from a one-liner to a full project overview with Docker + bare-metal setup, common commands, env vars, smoke test, project structure, testing, project plan reference
+   - `DEPLOYMENT.md` (new) — production deployment guide covering server requirements, system dependencies, PostgreSQL 16 + PHP 8.4-FPM + Redis + Nginx install, environment configuration, Systemd services for queue + scheduler, SSL/TLS via Let's Encrypt, smoke test, backup strategy (nightly `pg_dump` + monthly audit log archival + quarterly restore test), security hardening checklist (14 items), GitHub Actions CI/CD pipeline spec (tests + auto-deploy on push to main), monitoring + logs + log rotation, scaling notes for > 50 operators, troubleshooting guide
+   - `CHANGELOG.md` (new) — Keep a Changelog format with full version history, the 52 commits grouped by phase, security notes, and "How to Update This Changelog" instructions
+   - Updated this plan's §10 (Deployment Notes) with what was actually built — replaced the original 11-line spec with a 60-line section covering environments, CI/CD, backup, security hardening, monitoring & logs, scaling notes, and a documentation inventory table
+   - `AGENTS.md` and `CLAUDE.md` remain as Laravel Boost bootstrap stubs — replace with project-specific agent guidelines after running `composer require laravel/boost --dev && php artisan boost:install`
 7. **Phase 4.5 "Export to Excel (preserves the familiar format)"** — ✅ **CLOSED (2026-09-08)**. The `InvestmentProfitExport` and `ExportController::investmentProfitExcel` route already existed, but the "For Sajid" page (`/profit/investor`) had no button to trigger it. Added an "Export to Excel" button to `InvestorProfit/Index.tsx` (visible only when `isCalculated`), wired to the existing `/exports/investment-profit?month=...` route. Updated the filename to `For Sajid - {Month Year}.xlsx` and the sheet tab title to `For Sajid - {Month Year}`. Enhanced the totals row to show Σ Primary Share (Z2), Σ Actual @100% (X2), true Σ Net Settlement (rather than reusing `my_profit`), plus a dedicated M/Y Profit block (AG184, AG186) and Retained Earnings block (AI3, AJ4, AK4) below the totals row. Added 2 new Pest tests in `ExportTest.php` covering the filename convention and graceful empty-state behavior.
 8. **Audit log writes** — ✅ **CLOSED (2026-09-08)**. Built a full audit-trail system covering every financial mutation. Created `app/Services/AuditService.php` (handles `log()`, `snapshot()`, `diff()`, IP + user-agent capture, non-numeric PK handling) and `app/Traits/Auditable.php` (opt-in trait that auto-wires Eloquent `created`/`updating`/`updated`/`deleted` events to write audit logs). Applied the trait to 9 financial models: `InvestmentTransaction`, `SectorInvestment`, `DirectorTransaction`, `MonthlySectorProfit`, `InvestorMonthlyProfitDetail`, `AdvanceProfitAdjustment`, `AdvanceProfitAdjustmentTypeA`, `AdvanceProfitAdjustmentTypeB`, `ProfitAdjustment`, `MonthlyProfitSummary`. Special-case overrides: `MonthlySectorProfit` logs `finalize` (not generic `update`) when status transitions to finalized; `MonthlyProfitSummary` logs `lock`/`unlock` for status transitions; `InvestorMonthlyProfitDetail` skips `delete` events (bulk-delete plumbing during re-finalize). Wired `AuditService::log(ACTION_RECONCILE, ...)` directly into `ProfitCalculatorService` so a single 'reconcile' audit row represents the entire batch (regardless of investor count). Added 14 Pest tests in `tests/Feature/AuditLogTest.php` covering each mutation type + the lock/unlock/finalize/reconcile semantic actions + non-numeric PK handling.
 9. **Soft deletes** — plan §4.1 calls for soft deletes on financial records. Verify the migration schemas actually include `deleted_at` columns and that the corresponding Eloquent models use `SoftDeletes`.
@@ -865,7 +870,7 @@ Stored in `investor_due_ledger` as a running balance, updated on each `investmen
 | 5 | Advance Profit Adjustments | 4 | Medium | Type A/B/C adjustments working | ✅ DONE |
 | 6 | Opening Balances | 3 | Low | Opening entries migrate PHP data | ✅ DONE |
 | 7 | Reports & Dashboards | 6 | Medium | All ledgers + dashboard + exports | ✅ DONE |
-| 8 | Polish & QA | 5 | Medium | Mobile pass, E2E tests, deploy-ready | 🟡 E2E + docs missing |
+| 8 | Polish & QA | 5 | Medium | Mobile pass, E2E tests, deploy-ready | 🟡 E2E missing; docs DONE |
 
 **Total: 41 sessions** across 9 phases — **37 fully complete, 4 partial, 0 not-started** as of 2026-09-08.
 
@@ -1202,13 +1207,15 @@ Stored in `investor_due_ledger` as a running balance, updated on each `investmen
 - ❌ Playwright E2E: login → enter sector profits → reconcile → verify M/Y profit = 476,220.07 — **Playwright not installed** (Gap #5)
 - 🟡 **Deliverable**: Test suite green, parity with Excel confirmed — *Pest suite is green; E2E missing*
 
-#### Session 8.5 — Documentation & Deployment  ❌ **NOT DONE**
-- ❌ README with setup steps — current README is a one-liner pointing at this plan (Gap #6)
-- ❌ `php artisan` deploy checklist
-- ❌ Database backup strategy (pg_dump nightly)
-- 🟡 Docker dev environment exists (`docker-compose.yml`, `Makefile`, `QUICKSTART.md`) but no production deployment docs
-- ❌ **Deliverable**: Deploy-ready, documented
-- 📌 **See "Where to Start Next → Step 7" above.**
+#### Session 8.5 — Documentation & Deployment  ✅ **DONE**
+- ✅ README with setup steps — expanded to full project overview with Docker + bare-metal setup, env vars, common commands, project structure, testing, project plan reference → `mudaraba-app/README.md`
+- ✅ `php artisan` deploy checklist — full step-by-step guide in `mudaraba-app/DEPLOYMENT.md` (server requirements, system deps, PostgreSQL 16 + PHP 8.4-FPM + Redis + Nginx install, environment config, Systemd services, SSL/TLS via Let's Encrypt, smoke test, troubleshooting)
+- ✅ Database backup strategy (pg_dump nightly) — `/etc/cron.daily/mudaraba-backup` script in `mudaraba-app/DEPLOYMENT.md` → Backup Strategy, plus monthly audit log archival and quarterly restore test procedures
+- ✅ Docker dev environment documented (`docker-compose.yml`, `Makefile`, `QUICKSTART.md`) AND production deployment docs in `DEPLOYMENT.md`
+- ✅ Bonus: `CHANGELOG.md` with Keep a Changelog format + full 52-commit index grouped by phase
+- ✅ Bonus: GitHub Actions CI/CD pipeline spec (`.github/workflows/ci.yml` + `deploy.yml`) in `DEPLOYMENT.md`
+- ✅ Bonus: Security hardening checklist (14 items), monitoring & logs table, log rotation config, scaling notes
+- ✅ **Deliverable**: Deploy-ready, documented → see `mudaraba-app/DEPLOYMENT.md`
 
 ---
 
@@ -1264,25 +1271,95 @@ A Pest test seeds July 2026 data (17 sectors + 151 investors with their balances
 
 ## 10. Deployment Notes
 
+> **Updated 2026-09-08** — what was actually built, replacing the original plan's spec.
+
 ### 10.1 Environments
-- **Local**: Laravel Herd / Sail + Postgres in Docker
-- **Staging**: VPS (Ubuntu) + Nginx + PHP-FPM + Postgres + Redis
-- **Production**: Same as staging, scaled
+
+| Environment | Stack | Notes |
+|-------------|-------|-------|
+| **Local (Docker — recommended)** | Docker Compose: `postgres:16-alpine` + `php:8.4-fpm-alpine` + `nginx:alpine` + custom Node image | 4 services; auto-creates `.env`, installs deps, runs migrations, seeds on first `docker compose up -d --build`. App at `http://localhost:8080`, Postgres at `:5432`, Vite HMR at `:5173`. |
+| **Local (bare metal)** | PHP 8.4 + Composer + Node 20 + SQLite (default) or PostgreSQL | SQLite is the default in `.env.example` (zero-config — just `touch database/database.sqlite`). |
+| **Staging** | VPS (Ubuntu 22.04+) + Nginx 1.24+ + PHP 8.4-FPM + PostgreSQL 16 + Redis 7 | Single-server, mirrors production. |
+| **Production** | Same as staging | Single-server for ≤ 50 concurrent operators. Multi-server scaling notes in `DEPLOYMENT.md`. |
+
+**Setup guides**:
+- Local: [`README.md`](mudaraba-app/README.md) → "Quick Start (Docker)" or "Quick Start (Bare Metal)"
+- Production: [`mudaraba-app/DEPLOYMENT.md`](mudaraba-app/DEPLOYMENT.md) — full step-by-step with Nginx, PHP-FPM, PostgreSQL, Redis, Systemd, Let's Encrypt, backup scripts, CI/CD, monitoring, scaling notes
 
 ### 10.2 CI/CD (GitHub Actions)
-```
+
+Wiring spec lives in [`mudaraba-app/DEPLOYMENT.md` → CI/CD via GitHub Actions](mudaraba-app/DEPLOYMENT.md#cicd-via-github-actions). Summary:
+
+```yaml
 on: push
 jobs:
-  lint:        pint --test
-  static:      phpstan analyse
-  test:        pest --parallel
-  parity:      php artisan test --filter=ParityTest
-  deploy:     (on main push) ssh deploy script
+  tests:    # postgres service + composer + npm + pint + phpstan + pest --parallel + parity
+  deploy:   # on push to main, SSH to prod, pull, migrate, optimize:clear + cache, restart FPM + queue
 ```
 
+Required GitHub Actions secrets: `PROD_HOST`, `PROD_USER`, `PROD_SSH_KEY`.
+
+**Note**: `.github/workflows/ci.yml` and `.github/workflows/deploy.yml` are spec'd in DEPLOYMENT.md but **not yet committed to the repo** — to wire up, create these files using the YAML in DEPLOYMENT.md.
+
 ### 10.3 Backup
-- Nightly `pg_dump` of production DB → encrypted offsite
-- Daily audit log archive to cold storage
+
+Per `mudaraba-app/DEPLOYMENT.md` → "Backup Strategy":
+
+- **Nightly PostgreSQL backup** — `/etc/cron.daily/mudaraba-backup` runs `pg_dump | gzip` → keeps 30 days locally; offsite copy line is stubbed for S3/B2/R2.
+- **Audit log archival (monthly)** — `/etc/cron.monthly/mudaraba-audit-archive` moves `audit_logs` rows older than 2 years to `audit_logs_archive` table + `VACUUM ANALYZE`. Keeps the hot `audit_logs` table small.
+- **Restore test (quarterly)** — gunzip a backup dump and load it into a staging DB; verify `Investor::count()` matches production.
+
+### 10.4 Security hardening (production checklist)
+
+Documented in [`mudaraba-app/DEPLOYMENT.md` → Security Hardening Checklist](mudaraba-app/DEPLOYMENT.md#security-hardening-checklist). Headlines:
+
+- `APP_DEBUG=false`, `APP_ENV=production`
+- Strong `DB_PASSWORD` (≥ 32 chars random)
+- `SESSION_ENCRYPT=true`, `SESSION_SECURE_COOKIE=true`, `SameSite=Strict`
+- HTTPS enforced via Let's Encrypt + Nginx `:80 → :443` redirect
+- UFW firewall (22/80/443 only) + fail2ban for SSH + Nginx
+- `.env` owned by `www-data`, chmod `600`
+- `php artisan config:cache` run so `.env` is no longer read at runtime
+- **Default superadmin password (`Mudaraba@2026`) changed before going live**
+
+### 10.5 Monitoring & logs
+
+| What | Path |
+|------|------|
+| Laravel app log | `/var/www/mudaraba/storage/logs/laravel.log` |
+| Nginx access | `/var/log/nginx/mudaraba-access.log` |
+| Nginx error | `/var/log/nginx/mudaraba-error.log` |
+| PHP-FPM error | `/var/log/php8.4-fpm/error.log` |
+| PHP-FPM slow log | `/var/log/php8.4-fpm/slow.log` (logs requests > 5s) |
+| Queue worker | `/var/log/mudaraba/queue.log` |
+| Scheduler | `/var/log/mudaraba/scheduler.log` |
+
+Log rotation config in `mudaraba-app/DEPLOYMENT.md` → Monitoring & Logs.
+
+### 10.6 Scaling notes (future)
+
+For > 50 concurrent operators or > 1000 investors:
+
+- **Multi-server PHP-FPM** behind a load balancer (Redis shared session + cache + queue)
+- **PostgreSQL read replicas** for report-heavy workloads (ledger reports are read-heavy)
+- **Object storage** (S3 / B2 / R2) for PDF + Excel exports (currently written to `storage/app/`)
+- **PgBouncer** for connection pooling (default 30 FPM workers = 30 PG connections; with PgBouncer, 5-10 real connections multiplexed)
+- **CDN** for Vite-fingerprinted static assets (cache for 1 year at the edge)
+
+Full details: [`mudaraba-app/DEPLOYMENT.md` → Scaling Notes](mudaraba-app/DEPLOYMENT.md#scaling-notes).
+
+### 10.7 Documentation inventory
+
+The following documentation files exist as of 2026-09-08:
+
+| File | Purpose |
+|------|---------|
+| [`README.md`](mudaraba-app/README.md) | Project overview, tech stack, Docker + bare-metal setup, common commands, env vars, smoke test, project structure, testing |
+| [`mudaraba-app/QUICKSTART.md`](mudaraba-app/QUICKSTART.md) | One-page Docker quick-start guide (auto-setup, common commands, troubleshooting) |
+| [`mudaraba-app/DEPLOYMENT.md`](mudaraba-app/DEPLOYMENT.md) | Production deployment guide (Nginx + PHP-FPM + PostgreSQL + Redis + Systemd + Let's Encrypt + backup + CI/CD + monitoring + scaling) |
+| [`mudaraba-app/CHANGELOG.md`](mudaraba-app/CHANGELOG.md) | All notable changes per version, full commit index |
+| [`mudaraba-app/AGENTS.md`](mudaraba-app/AGENTS.md) / [`CLAUDE.md`](mudaraba-app/CLAUDE.md) | Laravel Boost bootstrap stubs (auto-generated by `composer require laravel/boost --dev && php artisan boost:install` — replace with project-specific agent guidelines after running Boost) |
+| [`MUDARABA_LARAVEL_PROJECT_PLAN.md`](MUDARABA_LARAVEL_PROJECT_PLAN.md) | This file — the master plan + progress tracker + per-session status markers |
 
 ---
 
