@@ -416,6 +416,75 @@ make pint
 vendor/bin/pint
 ```
 
+### Laravel Telescope (dev-only)
+
+[Telescope](https://laravel.com/docs/telescope) is a debug assistant that provides insights into requests, exceptions, logs, database queries, emails, and more. It's added as a **dev-only** dependency — disabled in production and tests.
+
+#### Setup (one-time)
+
+```bash
+# Install Telescope (dev-only)
+docker compose exec app composer require laravel/telescope --dev
+
+# Publish the config + run the Telescope migration
+docker compose exec app php artisan telescope:install
+docker compose exec app php artisan migrate
+
+# Enable Telescope in your .env (local only)
+# Add: TELESCOPE_ENABLED=true
+```
+
+#### Access
+
+Once enabled, visit `http://localhost:8080/telescope` to see:
+- **Requests** — every HTTP request with duration, status, middleware
+- **Exceptions** — all exceptions with stack traces
+- **Database** — every SQL query with bindings + execution time (N+1 detection!)
+- **Logs** — Laravel log entries
+- **Mail** — outgoing emails
+- **Cache** — cache hits/misses
+
+#### Production safety
+
+Telescope is **disabled by default** in production. The `config/telescope.php` file (published by `telescope:install`) checks `env('TELESCOPE_ENABLED', false)`. In production:
+- `.env` has `TELESCOPE_ENABLED=false` (or the line is absent — defaults to false)
+- `phpunit.xml` has `TELESCOPE_ENABLED=false` (tests don't get Telescope overhead)
+
+Never enable Telescope in production — it has meaningful performance overhead and stores request data in the DB.
+
+### Performance audit (Lighthouse)
+
+To run a [Lighthouse](https://developer.chrome.com/docs/lighthouse) audit against the dashboard:
+
+```bash
+# Install Lighthouse CLI (one-time, on your host)
+npm install -g lighthouse
+
+# Run the audit against the local dashboard (requires the app to be running)
+lighthouse http://localhost:8080/dashboard --output html --output-path ./lighthouse-report.html
+
+# View the report
+open ./lighthouse-report.html  # macOS
+start ./lighthouse-report.html  # Windows
+```
+
+**Note**: Lighthouse requires authentication to audit the dashboard. For an unauthenticated audit, run against the login page instead:
+```bash
+lighthouse http://localhost:8080/login --output html --output-path ./lighthouse-login.html
+```
+
+**Target scores**: Performance > 90, Accessibility > 90, Best Practices > 90, SEO > 90.
+
+#### Performance optimizations already in place
+
+| Optimization | What it does | Where |
+|---|---|---|
+| Dashboard caching | 5-minute TTL via `Cache::remember` on dashboard aggregates | `DashboardController.php` |
+| N+1 elimination | Eager-load relationships (`with()`) on all list queries | All controllers |
+| Row virtualization | Only visible rows + 8 overscan in DOM for 150+ investor grid | `InvestorProfit/Index.tsx` via `@tanstack/react-virtual` |
+| Vite asset fingerprinting | Content-hashed CSS/JS filenames with 1-year cache headers | Nginx config + Vite build |
+| OPcache | PHP opcode cache enabled with 128MB | `php.ini` (production) |
+
 ---
 
 ## Production Deployment
