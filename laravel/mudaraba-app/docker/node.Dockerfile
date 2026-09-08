@@ -28,11 +28,37 @@ LABEL description="Node 22 for Vite dev server + npm build (Linux/musl native)"
 # ---------------------------------------------------------------------------
 # System packages
 # ---------------------------------------------------------------------------
+# The Playwright-related packages (nss, nspr, atk, cups-libs, libdrm,
+# mesa-gbm, libxcomposite, libxdamage, libxrandr, pango, alsa-lib,
+# libxkbcommon, libxshmfence) are needed for Chromium to run inside
+# the Alpine container. Without them, `npx playwright install chromium`
+# downloads the browser but it crashes on launch with "missing shared
+# library" errors.
 RUN apk add --no-cache \
         bash \
         git \
         wget \
         curl \
+        # Playwright / Chromium system dependencies (Alpine equivalents of
+        # what `playwright install --with-deps` installs on Debian/Ubuntu)
+        nss \
+        nspr \
+        at-spi2-core \
+        cups-libs \
+        libdrm \
+        mesa-gbm \
+        ttf-freefont \
+        libxcomposite \
+        libxscrnsaver \
+        libxdamage \
+        libxrandr \
+        alsa-lib \
+        pango \
+        libxkbcommon \
+        libxshmfence \
+        # Playwright itself needs these for download/extract
+        tar \
+        xz \
     && rm -rf /var/cache/apk/*
 
 # ---------------------------------------------------------------------------

@@ -373,7 +373,11 @@ Browser-level end-to-end tests for the golden path: login → dashboard → sect
 #   1. Docker dev environment running: docker compose up -d --build
 #   2. Database seeded: docker compose exec app php artisan migrate:fresh --seed
 #   3. Playwright browser installed:
-docker compose exec node npx playwright install --with-deps chromium
+docker compose exec node npx playwright install chromium
+
+# (Note: do NOT use --with-deps — the Node container is Alpine-based,
+#  and --with-deps tries to use apt-get which doesn't exist on Alpine.
+#  The required system libraries are already baked into the Dockerfile.)
 
 # Run all E2E tests (headless):
 npm run e2e

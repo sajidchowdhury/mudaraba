@@ -14,8 +14,11 @@ import { defineConfig, devices } from "@playwright/test";
  *        docker compose exec app php artisan migrate:fresh --seed
  *
  *   3. Playwright browsers must be installed (one-time):
- *        npx playwright install --with-deps chromium
- *      (In Docker: docker compose exec node npx playwright install --with-deps chromium)
+ *        npx playwright install chromium
+ *      (In Docker: docker compose exec node npx playwright install chromium)
+ *      IMPORTANT: do NOT use --with-deps — the Node container is Alpine-based
+ *      and --with-deps tries to use apt-get which doesn't exist on Alpine.
+ *      The required system libraries are already baked into the Dockerfile.
  *
  * Running the tests:
  *   npm run e2e                    # headless, all tests
