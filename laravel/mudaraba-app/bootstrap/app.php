@@ -7,7 +7,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use Illuminate\Support\Env;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,19 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
         ]);
 
-        // Pest tests submit POST/PUT/DELETE requests without a CSRF token
-        // (CSRF protection is the browser's job, not the test's). In the
-        // testing environment, exempt every route from CSRF verification so
-        // tests don't get HTTP 419 responses. phpunit.xml sets APP_ENV=testing.
-        //
-        // IMPORTANT: we must read APP_ENV directly from $_ENV via the Env
-        // helper, NOT via app()->environment() — the env repository binding
-        // is not yet registered when the withMiddleware closure runs, so
-        // calling app()->environment() here throws
-        // "Target class [env] does not exist" (BindingResolutionException).
-        if (Env::get('APP_ENV') === 'testing') {
-            $middleware->validateCsrfTokens(except: ['*']);
-        }
+        // NOTE: CSRF exemption in the testing environment is handled in
+        // tests/Pest.php via $this->withoutMiddleware(ValidateCsrfToken::class)
+        // in beforeEach. Doing it here via app()->environment('testing') doesn't
+        // work because the env repository isn't bound yet when this closure
+        // executes during boot.
 
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->redirectUsersTo(fn () => route('dashboard'));
