@@ -1,5 +1,6 @@
 import { Head, Link, router } from "@inertiajs/react";
-import { useState } from "react";
+import React, { useState, useRef } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { route } from "ziggy-js";
 import { AuthenticatedLayout } from "@/Components/layout";
 import {
@@ -68,6 +69,24 @@ const tierBadge = (ratio: string) => {
 
 export default function InvestorProfitIndex({ month, monthLabel, grid, totals, retained, isCalculated, canEdit }: Props) {
     const [expandedRow, setExpandedRow] = useState<number | null>(null);
+
+    // ── Virtualization for the 150+ investor grid ────────────────────────
+    // When the grid has more than 50 investors, we virtualize the rows so
+    // only visible rows + a small overscan are rendered in the DOM. This
+    // keeps the grid fast even with 200+ investors × 10 columns each.
+    //
+    // For smaller grids (≤ 50 rows), we render all rows directly — simpler
+    // and avoids the overhead of the virtualizer for small datasets.
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const useVirtual = grid.length > 50;
+
+    const rowVirtualizer = useVirtualizer({
+        count: grid.length,
+        getScrollElement: () => scrollRef.current,
+        estimateSize: () => 49, // approximate row height (matches h-12 + padding)
+        overscan: 8, // render 8 rows above/below the visible area
+        enabled: useVirtual,
+    });
 
     const navigateMonth = (direction: "prev" | "next") => {
         const date = new Date(month);
@@ -214,10 +233,10 @@ export default function InvestorProfitIndex({ month, monthLabel, grid, totals, r
                             </div>
                         </CardHeader>
                         <CardContent className="p-0">
-                            <div className="overflow-x-auto">
-                                <Table>
+                            <div ref={scrollRef} className={useVirtual ? "overflow-auto max-h-[600px]" : "overflow-x-auto"}>
+                                <Table style={useVirtual ? { tableLayout: "fixed" } : undefined}>
                                     <TableHeader>
-                                        <TableRow>
+                                        <TableRow className={useVirtual ? "sticky top-0 z-20 bg-surface-2 shadow-sm" : ""}>
                                             <TableHead className="sticky left-0 bg-surface-2 z-10">Investor</TableHead>
                                             <TableHead className="text-right">Investment (D)</TableHead>
                                             <TableHead className="text-right">Ratio (E)</TableHead>
@@ -231,7 +250,85 @@ export default function InvestorProfitIndex({ month, monthLabel, grid, totals, r
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {grid.map((item) => {
+                                        {useVirtual ? (
+                                            <>
+                                                {rowVirtualizer.getVirtualItems().length > 0 && (
+                                                    <tr style={{ height: rowVirtualizer.getVirtualItems()[0].start }}>
+                                                        <td colSpan={10} />
+                                                    </tr>
+                                                )}
+                                                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                                                    const item = grid[virtualRow.index];
+                                                    const isExpanded = expandedRow === item.investor_id;
+                                                    const isOverpaid = item.advance_difference > 0;
+                                                    const isUnderpaid = item.advance_difference < 0;
+                                                    const netReceivable = item.net_settlement > 0;
+                                                    const netPayable = item.net_settlement < 0;
+                                                    return (
+                                                        <React.Fragment key={item.investor_id}>
+                                                            <TableRow
+                                                                className="cursor-pointer hover:bg-surface-2/50"
+                                                                onClick={() => setExpandedRow(isExpanded ? null : item.investor_id)}
+                                                            >
+                                                                <TableCell className="sticky left-0 bg-surface z-10 font-medium">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <ChevronRight className={cn("size-4 text-muted transition-transform", isExpanded && "rotate-90")} />
+                                                                        <span>{item.investor_name}</span>
+                                                                        {item.reference && (
+                                                                            <Badge variant="outline" className="text-[10px]">{item.reference}</Badge>
+                                                                        )}
+                                                                    </div>
+                                                                </TableCell>
+                                                                <TableCell className="text-right font-num">{formatBDT(item.investment, false)}</TableCell>
+                                                                <TableCell className="text-right font-num text-muted">{formatPercent(item.investment_ratio * 100, 4)}</TableCell>
+                                                                <TableCell className="text-right font-num">{formatBDT(item.primary_profit_share, false)}</TableCell>
+                                                                <TableCell className="text-right font-num text-muted">{formatBDT(item.actual_profit_at_full, false)}</TableCell>
+                                                                <TableCell className="text-center">{tierBadge(item.deed_ratio)}</TableCell>
+                                                                <TableCell className="text-right font-num text-success">{formatBDT(item.actual_profit_due, false)}</TableCell>
+                                                                <TableCell className={cn("text-right font-num font-medium", isOverpaid ? "text-danger" : isUnderpaid ? "text-success" : "text-muted")}>
+                                                                    {item.advance_difference > 0 ? "+" : ""}{formatBDT(item.advance_difference, false)}
+                                                                </TableCell>
+                                                                <TableCell className="text-right font-num text-accent">{formatBDT(item.retained_earnings_credit, false)}</TableCell>
+                                                                <TableCell className={cn("text-right font-num font-bold", netReceivable ? "text-danger" : netPayable ? "text-success" : "text-muted")}>
+                                                                    {item.net_settlement > 0 ? "+" : ""}{formatBDT(item.net_settlement, false)}
+                                                                </TableCell>
+                                                            </TableRow>
+                                                            {isExpanded && (
+                                                                <TableRow className="bg-surface-2/30">
+                                                                    <TableCell colSpan={10} className="py-4">
+                                                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 ml-8">
+                                                                            <ExpandedField label="Investment (D)" value={formatBDT(item.investment)} />
+                                                                            <ExpandedField label="Ratio (E)" value={formatPercent(item.investment_ratio * 100, 4)} />
+                                                                            <ExpandedField label="Primary Share (Q)" value={formatBDT(item.primary_profit_share)} />
+                                                                            <ExpandedField label="Actual @ 100% (N)" value={formatBDT(item.actual_profit_at_full)} />
+                                                                            <ExpandedField label="Deed Ratio (AF)" value={`${item.deed_ratio}%`} />
+                                                                            <ExpandedField label="Profit Due (AG)" value={formatBDT(item.actual_profit_due)} tone="success" />
+                                                                            <ExpandedField label="Advance Diff (AH)" value={`${item.advance_difference > 0 ? "+" : ""}${formatBDT(item.advance_difference)}`} tone={isOverpaid ? "danger" : isUnderpaid ? "success" : undefined} />
+                                                                            <ExpandedField label="Net Settlement (AK)" value={`${item.net_settlement > 0 ? "+" : ""}${formatBDT(item.net_settlement)}`} tone={netReceivable ? "danger" : netPayable ? "text-success" : undefined} />
+                                                                        </div>
+                                                                        <div className="mt-4 ml-8 flex items-center gap-2 text-xs text-muted">
+                                                                            <Info className="size-3" />
+                                                                            {netReceivable && `Investor owes M/Y ${formatBDT(item.net_settlement)} (after retained credit)`}
+                                                                            {netPayable && `M/Y owes investor ${formatBDT(Math.abs(item.net_settlement))} (retained credit exceeds advance difference)`}
+                                                                            {!netReceivable && !netPayable && "Settled — no amount owed either way"}
+                                                                        </div>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            )}
+                                                        </React.Fragment>
+                                                    );
+                                                })}
+                                                {rowVirtualizer.getVirtualItems().length > 0 && (() => {
+                                                    const last = rowVirtualizer.getVirtualItems().at(-1)!;
+                                                    return (
+                                                        <tr style={{ height: rowVirtualizer.getTotalSize() - last.end }}>
+                                                            <td colSpan={10} />
+                                                        </tr>
+                                                    );
+                                                })()}
+                                            </>
+                                        ) : (
+                                        grid.map((item) => {
                                             const isExpanded = expandedRow === item.investor_id;
                                             const isOverpaid = item.advance_difference > 0;
                                             const isUnderpaid = item.advance_difference < 0;
@@ -239,9 +336,8 @@ export default function InvestorProfitIndex({ month, monthLabel, grid, totals, r
                                             const netPayable = item.net_settlement < 0;
 
                                             return (
-                                                <>
+                                                <React.Fragment key={item.investor_id}>
                                                     <TableRow
-                                                        key={item.investor_id}
                                                         className="cursor-pointer hover:bg-surface-2/50"
                                                         onClick={() => setExpandedRow(isExpanded ? null : item.investor_id)}
                                                     >
@@ -304,9 +400,10 @@ export default function InvestorProfitIndex({ month, monthLabel, grid, totals, r
                                                             </TableCell>
                                                         </TableRow>
                                                     )}
-                                                </>
+                                                </React.Fragment>
                                             );
-                                        })}
+                                        })
+                                        )}
                                     </TableBody>
                                 </Table>
                             </div>
