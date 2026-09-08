@@ -87,10 +87,19 @@ fi
 # ---------------------------------------------------------------------------
 # 5. Storage permissions
 # ---------------------------------------------------------------------------
+# NOTE: On Windows + Docker Desktop, bind-mounted directories ignore Unix
+# chown — the host owns them. We rely on chmod 777 (works for any owner).
+# We also create storage/inertia-devtools/ — Laravel 13.29+ writes a
+# .gitignore there on first request, and the dir doesn't exist in a fresh
+# clone, which causes a "Permission denied" 500 on the login page.
 echo "🔧 Fixing storage permissions..."
-mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache/data storage/logs
-chmod -R 775 storage bootstrap/cache 2>/dev/null || true
-chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
+mkdir -p \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/framework/cache/data \
+    storage/logs \
+    storage/inertia-devtools
+chmod -R 777 storage bootstrap/cache 2>/dev/null || true
 echo "✅ Permissions fixed"
 
 # ---------------------------------------------------------------------------
