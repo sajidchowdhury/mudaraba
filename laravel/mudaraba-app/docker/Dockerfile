@@ -18,14 +18,18 @@
 #   ext-openssl, ext-pcre, ext-session, ext-simplexml, ext-tokenizer,
 #   ext-xml, ext-xmlwriter).
 #
-#   We install ONLY 4 additional extensions the application actually needs:
+#   We install ONLY 5 additional extensions the application actually needs:
 #     1. pdo_pgsql — Postgres driver (docker-compose sets DB_CONNECTION=pgsql)
 #     2. zip       — Composer needs it to extract package archives
 #     3. intl      — Carbon/Laravel locale formatting (Asia/Dhaka, BDT)
 #     4. opcache   — enables the compiled-in opcache (no compilation needed)
+#     5. gd        — required by phpoffice/phpspreadsheet (transitive dep of
+#                   maatwebsite/excel — used for InvestmentProfitExport).
+#                   phpspreadsheet 5.x declares `ext-gd: *` in its composer.json
+#                   and `composer install` will fail without it.
 #
 #   NOT installed (verified unused via grep on app/ and database/):
-#     gd, bcmath, pcntl, exif — the application code does not call any
+#     bcmath, pcntl, exif — the application code does not call any
 #     functions from these extensions.
 # =============================================================================
 
@@ -47,10 +51,19 @@ RUN apk add --no-cache \
         postgresql-client \
         libzip \
         icu-libs \
+        # GD runtime libs (libpng + libjpeg + freetype + libwebp for full image support)
+        libpng \
+        libjpeg-turbo \
+        freetype \
+        libwebp \
         # Build dependencies (removed after extensions are compiled)
         postgresql-dev \
         libzip-dev \
         icu-dev \
+        libpng-dev \
+        libjpeg-turbo-dev \
+        freetype-dev \
+        libwebp-dev \
         autoconf \
         m4 \
         make \
@@ -62,18 +75,25 @@ RUN apk add --no-cache \
         git \
         zip \
         unzip \
-    # Compile only the 4 extensions the application needs
+    # Compile only the 5 extensions the application needs
     # (pdo, pdo_sqlite, sqlite3, mbstring, curl, dom, xml are already in base image)
+    # GD is compiled with freetype + jpeg + webp + png for full phpspreadsheet image support
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) \
         pdo_pgsql \
         zip \
         intl \
         opcache \
+        gd \
     # Remove build dependencies (keep runtime libs + utilities)
     && apk del \
         postgresql-dev \
         libzip-dev \
         icu-dev \
+        libpng-dev \
+        libjpeg-turbo-dev \
+        freetype-dev \
+        libwebp-dev \
         autoconf \
         m4 \
         make \
