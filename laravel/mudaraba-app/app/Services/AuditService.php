@@ -91,10 +91,17 @@ class AuditService
                 $after = array_merge($after ?? [], ['_entity_key' => (string) $key]);
             }
 
+            // Use the table name (snake_case) as entity_type — NOT getMorphClass()
+            // which returns the FQCN (e.g. 'App\Models\InvestmentTransaction').
+            // The snake_case table name is shorter, more readable in the audit log
+            // UI, and matches the convention used by the dashboard's recent-activity
+            // feed. Tests query by table name, so this must be consistent.
+            $entityType = $model->getTable();
+
             return AuditLog::create([
                 'user_id' => $userId,
                 'action' => $action,
-                'entity_type' => $model->getMorphClass(),
+                'entity_type' => $entityType,
                 'entity_id' => $entityId,
                 'before_data' => $before,
                 'after_data' => $after,
@@ -112,7 +119,7 @@ class AuditService
             // for any reason, we don't want to poison the test.
             \Illuminate\Support\Facades\Log::warning('Audit log write failed', [
                 'action' => $action,
-                'entity_type' => $model->getMorphClass(),
+                'entity_type' => $model->getTable(),
                 'entity_id' => $model->getKey(),
                 'error' => $e->getMessage(),
             ]);
