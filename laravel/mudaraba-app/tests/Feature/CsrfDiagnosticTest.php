@@ -33,17 +33,17 @@ it('POST requests to test routes do not get blocked by CSRF middleware', functio
     expect($response->status())->toBe(200, "Expected 200 OK but got {$response->status()}. CSRF middleware is NOT being bypassed — see tests/TestCase.php setUp().");
 });
 
-it('the TestCase setUp() method actually disables ValidateCsrfToken', function () {
-    // Verify that the withoutMiddleware call in TestCase::setUp() actually
-    // registered ValidateCsrfToken as disabled. This is a meta-test that
-    // checks the testing infrastructure, not the app.
-    $reflection = new ReflectionClass($this);
-    $property = $reflection->getProperty('unauthenticatedMiddleware');
-    // (No public API to inspect withoutMiddleware list — this is best-effort.)
-
-    // Better: just check that the class exists and is the one we expect
+it('the ValidateCsrfToken class exists (sanity check for the Laravel 11+ class name)', function () {
+    // Sanity check: confirm the class name we're disabling in
+    // tests/TestCase.php setUp() actually exists in this Laravel version.
+    // In Laravel 11+, the canonical CSRF middleware is
+    // Illuminate\Foundation\Http\Middleware\ValidateCsrfToken
+    // (in older Laravel it was VerifyCsrfToken).
+    //
+    // If this fails, the class name changed in a future Laravel version —
+    // update tests/TestCase.php to use the new class name.
     expect(class_exists(ValidateCsrfToken::class))->toBeTrue(
-        "Class Illuminate\\Foundation\\Http\\Middleware\\ValidateCsrfToken not found. ".
+        'Class Illuminate\\Foundation\\Http\\Middleware\\ValidateCsrfToken not found. '.
         'In Laravel 11+, this is the canonical CSRF middleware class. '.
         'If the class name is different in your Laravel version, update tests/TestCase.php.'
     );
