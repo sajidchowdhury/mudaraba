@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Services\AuditService;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Auditable — opt-in trait for models whose mutations should be
@@ -51,14 +52,22 @@ trait Auditable
 
         // UPDATE — snapshot before, snapshot after, diff, log only the changed keys.
         //
-        // We hook `updating` (fires BEFORE the save) to capture the original
-        // attributes, then `updated` (fires AFTER) to capture the new ones.
+        // We hook `updating` (fires BEFORE the save) to:
+        //   1. Set `updated_by` = Auth::id() (plan §4.1: universal updated_by)
+        //   2. Capture the original attributes for the diff
+        //
+        // Then `updated` (fires AFTER) to capture the new ones and log.
         //
         // The before-snapshot is stashed in a static array keyed by the
         // model object's spl_object_id, then retrieved + unset in `updated`.
         // This avoids polluting the model's attributes (which Eloquent would
         // try to save as DB columns).
         static::updating(function ($model) {
+            // Auto-set updated_by = current authenticated user (plan §4.1)
+            if (Auth::id() && static::hasColumn($model, 'updated_by')) {
+                $model->updated_by = Auth::id();
+            }
+
             $originalModel = (new static())->setRawAttributes($model->getOriginal());
             static::$auditBeforeSnapshots[spl_object_id($model)] = AuditService::snapshot($originalModel);
         });
@@ -88,7 +97,20 @@ trait Auditable
             );
         });
 
-        // DELETE — capture the model's final state as `before_data`.
+        // DELETE — set deleted_by BEFORE the soft-delete fires, then log
+        // the model's final state as `before_data`.
+        //
+        // We hook `deleting` (fires BEFORE the delete/soft-delete executes)
+        // to set `deleted_by = Auth::id()` (plan §4.1: universal deleted_by).
+        // This ensures the deleted_by column is saved in the same query as
+        // the deleted_at column.
+        static::deleting(function ($model) {
+            // Auto-set deleted_by = current authenticated user (plan §4.1)
+            if (Auth::id() && static::hasColumn($model, 'deleted_by')) {
+                $model->deleted_by = Auth::id();
+            }
+        });
+
         static::deleted(function ($model) {
             if (! static::shouldAudit(AuditService::ACTION_DELETE, $model)) {
                 return;
@@ -111,6 +133,24 @@ trait Auditable
      * @var array<int, array<string, mixed>>
      */
     protected static array $auditBeforeSnapshots = [];
+
+    /**
+     * Check if the model's table has a specific column.
+     * Used to safely check for optional columns like updated_by / deleted_by
+     * before setting them (avoids "column not found" errors on tables that
+     * don't have these columns).
+     */
+    protected static function hasColumn($model, string $column): bool
+    {
+        try {
+            return \Illuminate\Support\Facades\Schema::hasColumn(
+                $model->getTable(),
+                $column
+            );
+        } catch (\Throwable) {
+            return false;
+        }
+    }
 
     /**
      * Models can override this to suppress specific actions from being
