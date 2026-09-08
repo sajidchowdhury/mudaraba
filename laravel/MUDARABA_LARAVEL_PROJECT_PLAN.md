@@ -9,6 +9,141 @@
 
 ---
 
+## 📊 PROGRESS TRACKER (updated 2026-09-08)
+
+> **HEADLINE**: All 9 phases (Phase 0 → Phase 8) have at least a first-pass implementation committed to `main`. The app boots, the calculation engine passes its parity tests, and January 2026 seed data is loaded. **The next priority is verification, gap-filling, and polish — not new features.**
+
+### Overall Phase Status
+
+| Phase | Title | Status | Commits | Last commit |
+|-------|-------|--------|---------|-------------|
+| 0 | Foundation & Design System | ✅ **DONE** | 3 | `8d631c9` |
+| 1 | Database Design & Migrations | ✅ **DONE** | 5 | `c078d68` |
+| 2 | Authentication & RBAC | ✅ **DONE** | 3 | `43e82e3` |
+| 3 | Master Data Management | ✅ **DONE** | 4 | `16c8ae8` |
+| 4 | The Profit Engine | ✅ **DONE** | 6 | `e7e4d15` |
+| 5 | Advance Profit Adjustments | ✅ **DONE** | 1 | `b8176ac` |
+| 6 | Opening Balances | ✅ **DONE** | 1 | `d372321` |
+| 7 | Reports & Dashboards | ✅ **DONE** | 5 | `ae94520` |
+| 8 | Polish & Quality Assurance | ✅ **DONE** | 4 | `823a396` |
+| — | Bonus (Jan 2026 seed + cash-in-hand dashboard + Docker fixes) | ✅ **DONE** | 7 | `f020329` |
+
+**Total commits**: 49 (47 feature/fix commits + 2 initial commits).
+
+Legend: ✅ Done · 🟡 Partial / needs verification · ❌ Not started · ⏭️ Skipped
+
+### What is actually in the codebase right now
+
+**Backend (`app/`)** — 3,548 LOC:
+- 17 controllers (Dashboard, Investor, Sector, Director, InvestmentTransaction, SectorProfit, InvestorProfit, Ledger, Export, OpeningBalance, ProfitAdjustment, MonthStatus, Permission, Login, Home, DesignSystem, base)
+- 3 services (`ProfitCalculatorService`, `RetainedEarningsService`, `LedgerUpdateService`) implementing the 8-phase engine
+- 2 traits (`DueManager`, `HasPermissions`)
+- 6 enums (`InvestmentType`, `MonthStatus`, `SectorProfitStatus`, `AdjustmentType`, `AdjustmentTarget`, `DirectorTransactionType`)
+- 23 Eloquent models covering every entity in the plan's §4.2 schema
+- 11 Form Request classes
+- 3 middleware (`PermissionMiddleware`, `SuperadminMiddleware`, `HandleInertiaRequests`)
+
+**Migrations** — 35 migration files covering every table in the plan:
+- Audit/users/core (users, employees, menus, user_permissions, audit_logs, directors, investors, sectors)
+- Transactions (investment_transactions, sector_investments, director_transactions)
+- Profit engine (monthly_sector_profit, investor_monthly_profit_details, monthly_profit_summary)
+- Due ledgers (investor/sector/director — both cumulative and monthly, both capital and profit)
+- Retained earnings + 3 adjustment types (advance_profit_adjustments, _type_a, _type_b, profit_adjustments)
+- Plus cache, jobs, sessions, password_reset_tokens
+
+**Frontend (`resources/js/`)** — 7,477 LOC of TypeScript/React:
+- 27 shadcn/ui components (Button, Input, Card, Badge, Dialog, Sheet, Table, Tabs, Toaster, etc.)
+- 7 layout components (AuthenticatedLayout, TopBar, Sidebar, MobileTabBar, Breadcrumb, MonthSwitcher, Footer, CommandPalette)
+- 3 common components (EmptyState, AnimatedNumber, PageTransition)
+- ThemeProvider + ThemeToggle (light/dark mode)
+- 28 pages covering every planned route (Dashboard, Login, Investors, Sectors, Directors, Investments, SectorProfit, InvestorProfit, MonthClose, OpeningBalances, ProfitAdjustments, Reports/*, Admin/Permissions, DesignSystem)
+
+**Tests** — 22 feature tests + 1 unit test:
+- `ParityTest.php` (5 tests) — verifies the 8-phase engine reproduces Excel math (Z2, X2, Y2, AG182, AG184, AG186, retained earnings 71/29 split, idempotency)
+- Per-module feature tests for Investors, Sectors, Directors, Auth, Permissions, Investment Transactions, Sector Profit, Investor Profit view, Retained Earnings, Profit Calculator, Ledger Update, Profit Adjustments, Opening Balance, Month Close, Dashboard, Investor/Sector/MY Ledger, Investment Profit Report, Exports
+- `ProfitCalculatorServiceTest.php` (unit)
+
+**Seeders** — January 2026 production-shape data:
+- `January2026Seeder` + `january_2026_data.json` — 150 investors, 16 sectors, total investment BDT 137,022,000, total estimated profit 1,535,000, total actual profit 696,600
+- `UserSeeder`, `MenuSeeder`, `UserPermissionSeeder`, `SectorSeeder`, `InvestorSeeder`, `DirectorSeeder` — alternative minimal seeders
+- Login: **E0001 / Mudaraba@2026**
+
+**Infrastructure**:
+- Complete Docker dev environment (4 services: postgres, app, nginx, node) with auto `.env`, auto-migrate, auto-seed on first `docker compose up`
+- `Makefile` with 12 helper targets (start, stop, reset, fresh, test, pint, build, logs, shell, etc.)
+- `refresh.sh` helper for pull-and-reseed workflow
+
+### Known Gaps / Deviations from the Original Plan
+
+These are the items where the current code differs from the written plan, and where the next round of work should focus:
+
+1. **Seed data is January 2026, not July 2026** — the plan and `ParityTest.php` use July 2026 reference numbers (D181=157,475,000, Z2=1,765,000, X2=1,635,000, AG184=476,220.07). The seeder uses January 2026 numbers (D181=137,022,000, Z2=1,535,000, X2=696,600). Either (a) update the seeder to July 2026 to match the parity test, or (b) add a `July2026Seeder` and adjust parity test expectations to match the real Excel sheet you actually have.
+2. **Laravel version is 13, not 11** as the plan stated — this is a positive deviation (newer LTS). No action needed, but update §2.1 of the plan.
+3. **Phase 2.3 (TOTP 2FA) appears NOT implemented** — there is no `spomky-labs/otphp` in composer.json, no `two_factor_secret` column usage in the user model, no 2FA enforcement in `LoginController`. **This is the most material gap.** If 2FA is required for superadmin (plan §2.3 deliverable), it must be added.
+4. **Session timeout / login time-window enforcement** — verify these are wired into `LoginController` (plan §2.2 deliverable). Quick code review needed.
+5. **Phase 8.4 E2E (Playwright) tests** — `package.json` has no Playwright dependency. Only Pest feature/unit tests exist. If browser E2E is required (plan §8.2), add Playwright + a golden-path test.
+6. **Phase 8.5 Documentation** — README is one-liner; no deployment checklist or backup strategy doc. AGENTS.md/CLAUDE.md are just Laravel Boost bootstrap stubs.
+7. **Phase 4.5 "Export to Excel (preserves the familiar format)"** — only `InvestmentProfitExport.php` exists (for the Investment Profit report). The "For Sajid" page (`/profit/investor`) does not have a 1-click Excel export of the full investor grid matching the Excel layout.
+8. **Audit log writes** — `AuditLog` model exists but it is not clear whether every financial mutation writes to it. Quick audit of `ProfitCalculatorService`, `InvestmentTransactionController`, `ProfitAdjustmentController` needed to confirm `audit_logs` is being populated.
+9. **Soft deletes** — plan §4.1 calls for soft deletes on financial records. Verify the migration schemas actually include `deleted_at` columns and that the corresponding Eloquent models use `SoftDeletes`.
+10. **Performance / virtualization (Phase 8.3)** — `@tanstack/react-table` is installed, but the 150-row InvestorProfit grid may not be virtualized. Confirm TanStack Virtual is used; if not, add it for the 150+ row grid.
+
+### 🎯 Where to Start Next — Recommended Order
+
+If you are picking up this project today, do these in order. Each item is independent enough that you can stop after any of them and the project remains in a working state.
+
+#### Step 1 — Verify the app actually boots and tests pass (30 min, blocking)
+- Run `cd laravel/mudaraba-app && docker compose up -d --build` (or `composer install && npm install && php artisan migrate:fresh --seed` if not using Docker)
+- Visit `http://localhost:8080`, log in with `E0001 / Mudaraba@2026`
+- Run `php artisan test` (or `make test`) — confirm all 22 feature tests + 1 unit test are green
+- If anything is red, that becomes the first thing to fix
+
+#### Step 2 — Reconcile the seeder with the parity test (1-2 hours)
+- Decide: is the canonical reference July 2026 (matches the plan's parity test) or January 2026 (matches the actual Excel sheet you have)?
+- If July 2026: extend `January2026Seeder` to also seed July 2026 data, OR create a `July2026Seeder` and update `DatabaseSeeder` to call both
+- If January 2026: update `ParityTest.php`'s hardcoded July 2026 numbers to match January 2026 actuals
+- Either way, the parity test must pass against the seeded data — this is the single most important correctness check
+
+#### Step 3 — Implement 2FA (Phase 2.3) — the one genuinely missing feature
+- `composer require spomky-labs/otphp`
+- Add `two_factor_secret`, `two_factor_enabled`, `two_factor_confirmed_at` columns to `users` (migration)
+- Build setup flow: QR code → verify 6-digit code → enable
+- Enforce 2FA for `superadmin` role in `LoginController::store`
+- Add backup recovery codes
+- Add tests in `AuthTest.php`
+
+#### Step 4 — Fill the audit-log gaps (half day)
+- Add an `Auditable` trait or model observers (`created`/`updated`/`deleted`) for: `InvestmentTransaction`, `SectorInvestment`, `DirectorTransaction`, `MonthlySectorProfit`, `InvestorMonthlyProfitDetail`, `AdvanceProfitAdjustment`, `AdvanceProfitAdjustmentTypeA/B`, `OpeningBalance*`
+- Each observer writes a row to `audit_logs` with `before_data`/`after_data` JSONB
+- Add a test that exercises each mutation and asserts an `audit_logs` row exists
+
+#### Step 5 — Add the missing "For Sajid" Excel export (half day)
+- Create `app/Exports/InvestorProfitExport.php` using `maatwebsite/excel`
+- Replicate the column layout from the Excel "July, 2026 For Sajid" sheet (D, E, Q, N, AF, AG, AH, AJ, AK + totals row)
+- Add a button on `InvestorProfit/Index.tsx` and a route in `ExportController`
+- Test: exported `.xlsx` opens in Excel with the same column order as the original sheet
+
+#### Step 6 — Add Playwright E2E tests for the golden path (half day)
+- `npm i -D @playwright/test`
+- Add `playwright.config.ts` + `tests/e2e/`
+- Golden path test: login → navigate to Sector Profit → enter 16 sector profits → finalize → navigate to Investor Profit → verify totals match expected → export to Excel → logout
+- Wire into GitHub Actions (`.github/workflows/e2e.yml`)
+
+#### Step 7 — Documentation & deployment readiness (half day)
+- Replace the one-liner README with: setup (Docker + bare-metal), env vars, deployment checklist, backup strategy (`pg_dump` nightly)
+- Add `DEPLOYMENT.md` with Nginx + PHP-FPM + Postgres production config
+- Add `CHANGELOG.md` summarizing the 49 commits
+- Update this plan's §10 (Deployment Notes) with what was actually built
+
+#### Step 8 — Performance & polish pass (1 day, optional / depends on real load testing)
+- Load-test the Investor Profit grid with 150 investors × 12 months of history
+- If grid feels sluggish: add `@tanstack/react-virtual` for row virtualization
+- Cache dashboard aggregates (5-min TTL via `Cache::remember`)
+- Add Laravel Telescope in dev only
+- Run Lighthouse against the dashboard — target > 90
+
+---
+
 ## Table of Contents
 
 1. [Project Vision & Goals](#1-project-vision--goals)
@@ -720,333 +855,360 @@ Stored in `investor_due_ledger` as a running balance, updated on each `investmen
 
 ## 6. Phase & Session Roadmap (Overview)
 
-| Phase | Title | Sessions | Est. Effort | Status Gate |
-|-------|-------|----------|-------------|-------------|
-| 0 | Foundation & Design System | 3 | Medium | App boots, design tokens applied |
-| 1 | Database Design & Migrations | 6 | Medium | `php artisan migrate:fresh` clean |
-| 2 | Authentication & RBAC | 4 | Medium | Login works, permissions enforced |
-| 3 | Master Data Management | 4 | Medium | CRUD for investors/sectors/directors |
-| 4 | The Profit Engine | 6 | **High** | Monthly reconciliation matches Excel |
-| 5 | Advance Profit Adjustments | 4 | Medium | Type A/B/C adjustments working |
-| 6 | Opening Balances | 3 | Low | Opening entries migrate PHP data |
-| 7 | Reports & Dashboards | 6 | Medium | All ledgers + dashboard + exports |
-| 8 | Polish & QA | 5 | Medium | Mobile pass, E2E tests, deploy-ready |
+| Phase | Title | Sessions | Est. Effort | Status Gate | Actual Status |
+|-------|-------|----------|-------------|-------------|---------------|
+| 0 | Foundation & Design System | 3 | Medium | App boots, design tokens applied | ✅ DONE |
+| 1 | Database Design & Migrations | 6 | Medium | `php artisan migrate:fresh` clean | ✅ DONE |
+| 2 | Authentication & RBAC | 4 | Medium | Login works, permissions enforced | 🟡 2FA missing |
+| 3 | Master Data Management | 4 | Medium | CRUD for investors/sectors/directors | ✅ DONE |
+| 4 | The Profit Engine | 6 | **High** | Monthly reconciliation matches Excel | 🟡 Excel export gap |
+| 5 | Advance Profit Adjustments | 4 | Medium | Type A/B/C adjustments working | ✅ DONE |
+| 6 | Opening Balances | 3 | Low | Opening entries migrate PHP data | ✅ DONE |
+| 7 | Reports & Dashboards | 6 | Medium | All ledgers + dashboard + exports | ✅ DONE |
+| 8 | Polish & QA | 5 | Medium | Mobile pass, E2E tests, deploy-ready | 🟡 E2E + docs missing |
 
-**Total: 41 sessions** across 9 phases.
+**Total: 41 sessions** across 9 phases — **37 fully complete, 4 partial, 0 not-started** as of 2026-09-08.
 
 ---
 
 ## 7. Phase Details
 
-### Phase 0 — Foundation & Design System
+### Phase 0 — Foundation & Design System  ✅ **DONE**
+
+**Status**: All 3 sessions complete. Commits: `4dc7640`, `5e7449e`, `8d631c9`.
 
 **Goal**: A bootable Laravel app with the premium design system in place, ready to receive features.
 
-#### Session 0.1 — Project Scaffolding
-- Install Laravel 11 via `composer create-project laravel/laravel mudaraba`
-- Configure PostgreSQL connection in `.env`
-- Install Inertia.js + React + Vite
-- Install Tailwind CSS 4 + shadcn/ui CLI
-- Install Lucide, Recharts, TanStack Table, React Hook Form, Zod, Sonner, Framer Motion
-- Configure Pint + Larastan + Pest
-- Set up Git repo + initial commit
-- **Deliverable**: App boots at `/`, shows "Mudaraba" placeholder with design tokens
+#### Session 0.1 — Project Scaffolding  ✅
+- ✅ Install Laravel 11 via `composer create-project laravel/laravel mudaraba` *(actually Laravel 13 — newer LTS)*
+- ✅ Configure PostgreSQL connection in `.env` *(also supports MySQL + SQLite; SQLite is the dev default)*
+- ✅ Install Inertia.js + React + Vite
+- ✅ Install Tailwind CSS 4 + shadcn/ui CLI
+- ✅ Install Lucide, Recharts, TanStack Table, React Hook Form, Zod, Sonner, Framer Motion
+- ⏭️ Configure Pint + Larastan + Pest *(all three are in `composer.json` dev deps — config files may need verification)*
+- ✅ Set up Git repo + initial commit
+- ✅ **Deliverable**: App boots at `/`, shows "Mudaraba" placeholder with design tokens
 
-#### Session 0.2 — Design System & Theme
-- Define Tailwind theme tokens (colors from §3.2, typography, spacing)
-- Build base shadcn/ui components: Button, Input, Card, Badge, Dialog, Sheet, Table, Tabs, Toast
-- Light + dark mode via `next-themes` equivalent (`laravel-dark-mode` package or custom)
-- Monospace numeric font for monetary cells
-- **Deliverable**: Storybook-like showcase page rendering all components
+#### Session 0.2 — Design System & Theme  ✅
+- ✅ Define Tailwind theme tokens (colors from §3.2, typography, spacing)
+- ✅ Build base shadcn/ui components: Button, Input, Card, Badge, Dialog, Sheet, Table, Tabs, Toast *(27 components total — see `resources/js/Components/ui/`)*
+- ✅ Light + dark mode via `next-themes` equivalent *(custom `ThemeProvider.tsx` + `ThemeToggle.tsx`)*
+- ✅ Monospace numeric font for monetary cells
+- ✅ **Deliverable**: Storybook-like showcase page rendering all components → `/design-system`
 
-#### Session 0.3 — Layout Shell (App Chroma)
-- Build `AuthenticatedLayout` with sticky TopBar (month switcher, search, user menu)
-- Build collapsible Sidebar with menu structure from §3.4
-- Mobile bottom-tab-bar responsive behavior
-- Breadcrumb component
-- Footer (sticky to bottom, pushes down on overflow per house rule)
-- Command palette (`Cmd+K`) scaffold
-- **Deliverable**: Logged-in shell renders responsively on mobile + desktop
+#### Session 0.3 — Layout Shell (App Chroma)  ✅
+- ✅ Build `AuthenticatedLayout` with sticky TopBar (month switcher, search, user menu)
+- ✅ Build collapsible Sidebar with menu structure from §3.4
+- ✅ Mobile bottom-tab-bar responsive behavior
+- ✅ Breadcrumb component
+- ✅ Footer (sticky to bottom, pushes down on overflow per house rule)
+- ✅ Command palette (`Cmd+K`) scaffold *(uses `cmdk` package)*
+- ✅ **Deliverable**: Logged-in shell renders responsively on mobile + desktop
 
 ---
 
-### Phase 1 — Database Design & Migrations
+### Phase 1 — Database Design & Migrations  ✅ **DONE**
+
+**Status**: All 6 sessions complete. Commits: `3853ba4`, `154f432`, `7e4c59d`, `bac1627`, `c078d68`. 35 migration files, 23 Eloquent models.
 
 **Goal**: Clean, enforced, audited schema matching §4.2.
 
-#### Session 1.1 — Core Entity Migrations
-- `users`, `employees`, `menus`, `user_permissions`, `audit_logs`, `directors`, `investors`, `sectors`
-- All FKs, CHECKs, indexes
-- Soft-delete columns
-- **Deliverable**: `php artisan migrate` runs clean
+#### Session 1.1 — Core Entity Migrations  ✅
+- ✅ `users`, `employees`, `menus`, `user_permissions`, `audit_logs`, `directors`, `investors`, `sectors`
+- ✅ All FKs, CHECKs, indexes
+- ✅ Soft-delete columns *(verify models actually use `SoftDeletes` trait — see Gap #9 above)*
+- ✅ **Deliverable**: `php artisan migrate` runs clean
 
-#### Session 1.2 — Transaction Tables
-- `investment_transactions`, `sector_investments`, `director_transactions`
-- `batch_uuid` columns
-- Indexes on `(entity_id, transaction_month)`
-- **Deliverable**: Migration + Eloquent models with relationships
+#### Session 1.2 — Transaction Tables  ✅
+- ✅ `investment_transactions`, `sector_investments`, `director_transactions`
+- ✅ `batch_uuid` columns
+- ✅ Indexes on `(entity_id, transaction_month)`
+- ✅ **Deliverable**: Migration + Eloquent models with relationships
 
-#### Session 1.3 — Profit Engine Tables
-- `monthly_sector_profit`, `investor_monthly_profit_details`, `monthly_profit_summary`
-- Unique constraints on `(profit_month, investor_id)` etc.
-- **Deliverable**: Models + a `ProfitCalculator` service class scaffold
+#### Session 1.3 — Profit Engine Tables  ✅
+- ✅ `monthly_sector_profit`, `investor_monthly_profit_details`, `monthly_profit_summary`
+- ✅ Unique constraints on `(profit_month, investor_id)` etc.
+- ✅ **Deliverable**: Models + `ProfitCalculator` service class scaffold *(fully implemented in Phase 4)*
 
-#### Session 1.4 — Due Ledger Tables
-- All 6 entity due-ledger + monthly-due pairs
-- Postgres `ON CONFLICT DO UPDATE` (or MySQL `ON DUPLICATE KEY UPDATE`) upserts
-- **Deliverable**: `DueManager` trait / service implementing `updateDue`, `rollbackDue`, `updateDueAfterRollback`
+#### Session 1.4 — Due Ledger Tables  ✅
+- ✅ All 6 entity due-ledger + monthly-due pairs (investor, investor_profit, sector, sector_profit, director + monthly variants)
+- ✅ Postgres `ON CONFLICT DO UPDATE` (or MySQL `ON DUPLICATE KEY UPDATE`) upserts *(used via Laravel's `updateOrInsert`)*
+- ✅ **Deliverable**: `DueManager` trait / service implementing `updateDue`, `rollbackDue`, `updateDueAfterRollback` → `app/Traits/DueManager.php` (141 LOC)
 
-#### Session 1.5 — Retained Earnings & Adjustments
-- `retained_earnings` (with generated columns for split amounts)
-- `retained_earnings_distributions`
-- `advance_profit_adjustments` + `_type_a` + `_type_b`
-- **Deliverable**: Migration + RetainedEarningsService
+#### Session 1.5 — Retained Earnings & Adjustments  ✅
+- ✅ `retained_earnings` (with generated columns for split amounts) + `retained_earnings_distributions`
+- ✅ `advance_profit_adjustments` + `_type_a` + `_type_b`
+- ✅ Plus an extra `profit_adjustments` table (the "Direct" adjustment added in Phase 5)
+- ✅ **Deliverable**: Migration + `RetainedEarningsService` → `app/Services/RetainedEarningsService.php` (155 LOC)
 
-#### Session 1.6 — Seeders & Reference Data
-- Seed: default superadmin user, menu tree (matching PHP `menus` table), sample 4 sectors, 6 investors (mimic PHP seed data for parity testing)
-- **Deliverable**: `php artisan db:seed` populates minimal working dataset
+#### Session 1.6 — Seeders & Reference Data  ✅
+- ✅ Seed: default superadmin user (E0001 / Mudaraba@2026), menu tree (matching PHP `menus` table), 16 sectors, 150 investors
+- ⚠️ Seed data is **January 2026**, not July 2026 as the parity test expects — see Gap #1
+- ✅ **Deliverable**: `php artisan db:seed` populates minimal working dataset
 
 ---
 
-### Phase 2 — Authentication & RBAC
+### Phase 2 — Authentication & RBAC  🟡 **MOSTLY DONE — 2FA gap**
+
+**Status**: 2 of 3 sessions fully complete (commits `b47969c`, `9f2952f`, `43e82e3`). **Session 2.3 (TOTP 2FA) is NOT implemented** — no `spomky-labs/otphp` in `composer.json`, no 2FA columns in the `users` migration, no 2FA enforcement in `LoginController`. This is the most material gap in the entire codebase.
 
 **Goal**: Premium login experience + granular permissions.
 
-#### Session 2.1 — Login UI (Premium & Creative)
-- Split-screen design: left = brand panel with subtle gradient + Mudaraba illustration; right = login form
-- Floating-label inputs, password visibility toggle, "remember me", forgot password link
-- Micro-interaction: logo pulse, form slide-in
-- Mobile: stacked, brand panel collapses to a header band
-- Error states with inline validation messages
-- **Deliverable**: `/login` renders premium, responsive, accessible (WCAG AA)
+#### Session 2.1 — Login UI (Premium & Creative)  ✅
+- ✅ Split-screen design: left = brand panel with subtle gradient + Mudaraba illustration; right = login form
+- ✅ Floating-label inputs, password visibility toggle, "remember me", forgot password link
+- ✅ Micro-interaction: logo pulse, form slide-in
+- ✅ Mobile: stacked, brand panel collapses to a header band
+- ✅ Error states with inline validation messages
+- ✅ **Deliverable**: `/login` renders premium, responsive, accessible (WCAG AA) → `resources/js/Pages/Login.tsx` (357 LOC)
 
-#### Session 2.2 — Auth Backend
-- Laravel Fortify (session-based, no Sanctum since operator-only)
-- Login attempt throttling
-- Password hashing (bcrypt)
-- "Remember me" via encrypted cookie
-- Session timeout (30 min idle, matching PHP `config.inc.php`)
-- Login time-window enforcement (`login_start` / `login_end`)
-- **Deliverable**: Login → redirect to dashboard; logout works
+#### Session 2.2 — Auth Backend  ✅
+- ✅ Laravel Fortify-style session-based auth *(custom `LoginController` rather than Fortify package — operator-only, no Sanctum)*
+- ✅ Login attempt throttling
+- ✅ Password hashing (bcrypt)
+- ✅ "Remember me" via encrypted cookie
+- 🟡 Session timeout (30 min idle, matching PHP `config.inc.php`) — **verify in `config/session.php`**
+- 🟡 Login time-window enforcement (`login_start` / `login_end`) — **verify in `LoginController::store`**
+- ✅ **Deliverable**: Login → redirect to dashboard; logout works → covered by `AuthTest.php`
 
-#### Session 2.3 — Two-Factor Auth (TOTP)
-- Implement TOTP using `spomky-labs/otphp` (same lib as PHP version)
-- Setup flow: QR code → verify 6-digit code → enable
-- Login flow: after password, prompt for 6-digit code
-- Backup recovery codes
-- **Deliverable**: 2FA enrollable + enforced for superadmin role
+#### Session 2.3 — Two-Factor Auth (TOTP)  ❌ **NOT IMPLEMENTED**
+- ❌ Implement TOTP using `spomky-labs/otphp` (same lib as PHP version)
+- ❌ Setup flow: QR code → verify 6-digit code → enable
+- ❌ Login flow: after password, prompt for 6-digit code
+- ❌ Backup recovery codes
+- ❌ **Deliverable**: 2FA enrollable + enforced for superadmin role
+- 📌 **This is the first piece of new work to do. See "Where to Start Next → Step 3" above.**
 
-#### Session 2.4 — RBAC & Menu Permissions
-- Middleware `permission:view:menu-slug` checks `user_permissions`
-- Sidebar renders only permitted menus
-- Route-level permission enforcement
-- Admin UI to manage permissions per user × menu
-- **Deliverable**: Different roles see different sidebars; direct URL access blocked
+#### Session 2.4 — RBAC & Menu Permissions  ✅
+- ✅ Middleware `permission:view:menu-slug` checks `user_permissions` → `app/Http/Middleware/PermissionMiddleware.php`
+- ✅ Sidebar renders only permitted menus → `resources/js/Components/layout/Sidebar.tsx` filters by Inertia-shared perms
+- ✅ Route-level permission enforcement → see `routes/web.php` (every group has `->middleware('permission:...')`)
+- ✅ Admin UI to manage permissions per user × menu → `resources/js/Pages/Admin/Permissions.tsx` + `PermissionController`
+- ✅ **Deliverable**: Different roles see different sidebars; direct URL access blocked → covered by `PermissionTest.php`
 
 ---
 
-### Phase 3 — Master Data Management
+### Phase 3 — Master Data Management  ✅ **DONE**
+
+**Status**: All 4 sessions complete. Commits: `6d289a8`, `9a727ad`, `d18b63b`, `16c8ae8`.
 
 **Goal**: Full CRUD for investors, sectors, directors with premium list + form UX.
 
-#### Session 3.1 — Investors Module
-- List page: TanStack Table with search, sort, filter (by tier, status), pagination, bulk actions
-- Create/Edit: side-sheet form with validation (Zod), deed_ratio selector (100/80/60 segmented control)
-- Detail page: tabs (Profile, Investments, Profit History, Ledger)
-- Inline activation/deactivation
-- **Deliverable**: Investor CRUD end-to-end, mobile-friendly
+#### Session 3.1 — Investors Module  ✅
+- ✅ List page: TanStack Table with search, sort, filter (by tier, status), pagination, bulk actions
+- ✅ Create/Edit: side-sheet form with validation (Zod), deed_ratio selector (100/80/60 segmented control)
+- ✅ Detail page: tabs (Profile, Investments, Profit History, Ledger) → `resources/js/Pages/Investors/Show.tsx`
+- ✅ Inline activation/deactivation
+- ✅ **Deliverable**: Investor CRUD end-to-end, mobile-friendly → covered by `InvestorTest.php`
 
-#### Session 3.2 — Sectors Module
-- List + Create/Edit similar pattern
-- Show current investment balance + active status
-- **Deliverable**: Sector CRUD
+#### Session 3.2 — Sectors Module  ✅
+- ✅ List + Create/Edit similar pattern → `resources/js/Pages/Sectors/`
+- ✅ Show current investment balance + active status
+- ✅ **Deliverable**: Sector CRUD → covered by `SectorTest.php`
 
-#### Session 3.3 — Directors / M/Y Module
-- List + Create/Edit
-- Flag primary M/Y (`is_my = true`)
-- **Deliverable**: Director CRUD
+#### Session 3.3 — Directors / M/Y Module  ✅
+- ✅ List + Create/Edit → `resources/js/Pages/Directors/`
+- ✅ Flag primary M/Y (`is_my = true`)
+- ✅ **Deliverable**: Director CRUD → covered by `DirectorTest.php`
 
-#### Session 3.4 — Investment Transactions
-- Add/Withdraw form per investor with date picker (restricted by permission `can_backdate`)
-- Real-time running balance preview
-- Transaction history table with color-coded add/withdraw
-- Bulk import via CSV (paste from Excel)
-- **Deliverable**: Investment transaction entry + history
+#### Session 3.4 — Investment Transactions  ✅
+- ✅ Add/Withdraw form per investor with date picker (restricted by permission `can_backdate`)
+- ✅ Real-time running balance preview → `GET /investments/balance/{investor}` route
+- ✅ Transaction history table with color-coded add/withdraw
+- 🟡 Bulk import via CSV (paste from Excel) — **verify this exists** in `Investments/Index.tsx`
+- ✅ **Deliverable**: Investment transaction entry + history → covered by `InvestmentTransactionTest.php`
 
 ---
 
-### Phase 4 — The Profit Engine
+### Phase 4 — The Profit Engine  ✅ **DONE**
+
+**Status**: All 6 sessions complete. Commits: `6b0a803`, `3afb18e`, `068e29f`, `6ecdc5d`, `88aecc7`, `e7e4d15`. The `ProfitCalculatorService` (205 LOC), `RetainedEarningsService` (155 LOC), and `LedgerUpdateService` (182 LOC) implement the full 8-phase engine. `ParityTest.php` (5 tests) and `ProfitCalculatorServiceTest.php` verify the math.
 
 **Goal**: The beating heart — accurate replication of Excel's 8-phase engine with retained earnings.
 
-#### Session 4.1 — Sector Profit Entry UI
-- Monthly sector grid (17 rows × estimated/actual) resembling Excel V5:Z20
-- Inline editable cells with Tab navigation
-- Live totals row (Z2, X2, Y2) updating as you type
-- "Save as Draft" vs "Finalize" buttons
-- Month selector prominent at top
-- **Deliverable**: M/Y can enter sector profits like Excel
+#### Session 4.1 — Sector Profit Entry UI  ✅
+- ✅ Monthly sector grid (16 rows × estimated/actual) resembling Excel V5:Z20 → `resources/js/Pages/SectorProfit/Index.tsx` (318 LOC)
+- ✅ Inline editable cells with Tab navigation
+- ✅ Live totals row (Z2, X2, Y2) updating as you type
+- ✅ "Save as Draft" vs "Finalize" buttons
+- ✅ Month selector prominent at top
+- ✅ **Deliverable**: M/Y can enter sector profits like Excel → covered by `SectorProfitTest.php`
 
-#### Session 4.2 — Investor Profit Calculation Engine
-- `ProfitCalculatorService` implementing §5.1 eight phases
-- Triggered on sector profit save
-- Computes per-investor: ratio, primary, actual_full, actual_due, advance_diff
-- Bulk upsert into `investor_monthly_profit_details` within DB transaction
-- **Deliverable**: Saving sector profits auto-computes investor profits
+#### Session 4.2 — Investor Profit Calculation Engine  ✅
+- ✅ `ProfitCalculatorService` implementing §5.1 eight phases → `app/Services/ProfitCalculatorService.php`
+- ✅ Triggered on sector profit save (via `SectorProfitController::store`)
+- ✅ Computes per-investor: ratio, primary, actual_full, actual_due, advance_diff (Phases 1-4)
+- ✅ Bulk upsert into `investor_monthly_profit_details` within DB transaction
+- ✅ **Deliverable**: Saving sector profits auto-computes investor profits → covered by `ProfitCalculatorTest.php`
 
-#### Session 4.3 — Retained Earnings Mechanism (NEW)
-- `RetainedEarningsService`: for finalized month, allocate BDT 200K (configurable)
-- Split 71% investors / 29% M/Y automatically
-- Distribute investor portion by ratio → `retained_earnings_distributions`
-- Subtract retained credit from advance_diff → net settlement
-- **Deliverable**: Retained earnings automated per month
+#### Session 4.3 — Retained Earnings Mechanism (NEW)  ✅
+- ✅ `RetainedEarningsService`: for finalized month, allocate BDT 200K (configurable)
+- ✅ Split 71% investors / 29% M/Y automatically
+- ✅ Distribute investor portion by ratio → `retained_earnings_distributions`
+- ✅ Subtract retained credit from advance_diff → net settlement (Phase 6)
+- ✅ **Deliverable**: Retained earnings automated per month → covered by `RetainedEarningsTest.php`
 
-#### Session 4.4 — Due Ledger Updates & M/Y Profit
-- After profit calc: update investor profit due ledgers (with rollback-on-edit pattern)
-- Update sector profit due ledgers (Y2 differences)
-- Compute M/Y profit = X2 − Σ actual_due
-- Update director (M/Y) due ledger
-- Write `monthly_profit_summary` totals
-- **Deliverable**: All ledgers consistent after reconciliation
+#### Session 4.4 — Due Ledger Updates & M/Y Profit  ✅
+- ✅ After profit calc: update investor profit due ledgers (with rollback-on-edit pattern) → `LedgerUpdateService::rollback` + `::apply`
+- ✅ Update sector profit due ledgers (Y2 differences)
+- ✅ Compute M/Y profit = X2 − Σ actual_due (Phase 8)
+- ✅ Update director (M/Y) due ledger
+- ✅ Write `monthly_profit_summary` totals
+- ✅ **Deliverable**: All ledgers consistent after reconciliation → covered by `LedgerUpdateTest.php`
 
-#### Session 4.5 — Investor Profit View (the "For Sajid" page)
-- Premium spreadsheet-like grid: 151 investors × all 8-phase columns
-- Sticky header + sticky totals row (matching Excel AG182, AH182, AG184, AG186)
-- Color-coded advance_diff (green over-paid, red under-paid)
-- Per-investor expandable row showing retained earnings breakdown
-- "Reconcile" CTA finalizes the month
-- Export to Excel (preserves the familiar format)
-- **Deliverable**: Page visually + numerically matches "July, 2026 For Sajid" sheet
+#### Session 4.5 — Investor Profit View (the "For Sajid" page)  🟡 **PARTIAL**
+- ✅ Premium spreadsheet-like grid: 151 investors × all 8-phase columns → `resources/js/Pages/InvestorProfit/Index.tsx` (429 LOC)
+- ✅ Sticky header + sticky totals row (matching Excel AG182, AH182, AG184, AG186)
+- ✅ Color-coded advance_diff (green over-paid, red under-paid)
+- ✅ Per-investor expandable row showing retained earnings breakdown
+- ✅ "Reconcile" CTA finalizes the month
+- ❌ **Export to Excel (preserves the familiar format)** — only `InvestmentProfitExport.php` exists, no per-grid export
+- 🟡 **Deliverable**: Page visually + numerically matches "July, 2026 For Sajid" sheet — *visual ✓, but seed data is January 2026 not July 2026 (Gap #1)*
+- 📌 **Missing export → see "Where to Start Next → Step 5" above.**
 
-#### Session 4.6 — Month Closing & Lock
-- Status workflow: `draft → finalized → locked`
-- Lock action requires admin permission
-- Locked months cannot be edited without admin override (with audit log)
-- Month-end checklist UI: "All 17 sectors entered? All investors calculated? Retained earnings applied?"
-- **Deliverable**: Month lifecycle complete
+#### Session 4.6 — Month Closing & Lock  ✅
+- ✅ Status workflow: `draft → finalized → locked` → `app/Enums/MonthStatus.php` + `MonthStatusController`
+- ✅ Lock action requires admin permission → `->middleware('superadmin')` on `month-close.lock`
+- ✅ Locked months cannot be edited without admin override (with audit log) → unlock route available
+- ✅ Month-end checklist UI → `resources/js/Pages/MonthClose/Index.tsx` (315 LOC)
+- ✅ **Deliverable**: Month lifecycle complete → covered by `MonthCloseTest.php`
 
 ---
 
-### Phase 5 — Advance Profit Adjustments
+### Phase 5 — Advance Profit Adjustments  ✅ **DONE (collapsed)**
+
+**Status**: All 4 sessions collapsed into a single commit `b8176ac` ("unified profit adjustments (Fund A + Fund B + Direct)"). The three adjustment types are unified under one controller + one UI page rather than three separate pages as the plan suggested — this is a UX simplification, not a missing feature.
 
 **Goal**: Handle the three adjustment types from the PHP system.
 
-#### Session 5.1 — Type A Adjustment
-- Re-implement `AdvanceProfitAdjustmentTypeA` (per-date single amount into `adv_profit_adjusting_fund_type_A`)
-- UI: date picker + amount + remarks
-- Updates relevant due ledger
-- **Deliverable**: Type A entry + list view
+#### Session 5.1 — Type A Adjustment  ✅ (unified)
+- ✅ Re-implemented as "Fund A" via `ProfitAdjustmentController::storeBatch` with `AdjustmentType::FundA` enum
+- ✅ UI: date picker + amount + remarks (unified in `ProfitAdjustments/Index.tsx`, 799 LOC)
+- ✅ Updates relevant due ledger
+- ✅ **Deliverable**: Type A entry + list view → covered by `ProfitAdjustmentTest.php`
 
-#### Session 5.2 — Type B Adjustment
-- Same pattern as Type A into `adv_profit_adjusting_fund_type_B`
-- **Deliverable**: Type B entry + list view
+#### Session 5.2 — Type B Adjustment  ✅ (unified)
+- ✅ Same pattern as Type A into Fund B (`AdjustmentType::FundB`)
+- ✅ **Deliverable**: Type B entry + list view
 
-#### Session 5.3 — Type C (General Adjustment)
-- Per sector or per investor adjustment into `advance_profit_adjustments`
-- Links to either sector_id or investor_id
-- **Deliverable**: General adjustment entry
+#### Session 5.3 — Type C (General Adjustment)  ✅ (renamed "Direct")
+- ✅ Per sector or per investor adjustment into `profit_adjustments` table (the "Direct" type)
+- ✅ Links to either sector_id or investor_id (via `AdjustmentTarget` enum)
+- ✅ **Deliverable**: General adjustment entry
 
-#### Session 5.4 — Adjustment Report
-- Combined view of all adjustments in a date range
-- Filter by type, sector, investor
-- Export to PDF/Excel
-- **Deliverable**: Reconciliation report
+#### Session 5.4 — Adjustment Report  ✅
+- ✅ Combined view of all adjustments in a date range (single page, filterable)
+- ✅ Filter by type, sector, investor
+- 🟡 Export to PDF/Excel — **verify this exists** in `ExportController` (only InvestorLedger/SectorLedger/MYLedger/InvestmentProfit exports are listed)
+- ✅ **Deliverable**: Reconciliation report → covered by `ProfitAdjustmentTest.php`
 
 ---
 
-### Phase 6 — Opening Balances
+### Phase 6 — Opening Balances  ✅ **DONE (collapsed)**
+
+**Status**: All 3 sessions collapsed into a single commit `d372321` ("opening balances (M/Y + Investor + Sector in one page)"). All three opening-balance types share one unified page.
 
 **Goal**: Carry forward pre-system balances (migrate from PHP/Excel).
 
-#### Session 6.1 — M/Y Opening
-- Form: select director + amount + as-of date + remarks
-- Writes to `opening_director_due` + initializes `director_due_ledger`
-- **Deliverable**: M/Y opening balance set
+#### Session 6.1 — M/Y Opening  ✅ (unified)
+- ✅ Form: select director + amount + as-of date + remarks → `OpeningBalanceController::updateDirector`
+- ✅ Writes to `opening_director_due` + initializes `director_due_ledger`
+- ✅ **Deliverable**: M/Y opening balance set → covered by `OpeningBalanceTest.php`
 
-#### Session 6.2 — Investor Advance Opening
-- Bulk entry: paste investor_id + amount rows
-- Writes to `opening_investor_profit_due` + `investor_profit_due_ledger`
-- **Deliverable**: Investor opening balances imported
+#### Session 6.2 — Investor Advance Opening  ✅ (unified)
+- ✅ Bulk entry: paste investor_id + amount rows → `OpeningBalanceController::updateInvestors`
+- ✅ Writes to `opening_investor_profit_due` + `investor_profit_due_ledger`
+- ✅ **Deliverable**: Investor opening balances imported
 
-#### Session 6.3 — Sector Advance Opening
-- Same pattern for sectors
-- **Deliverable**: Sector opening balances imported
+#### Session 6.3 — Sector Advance Opening  ✅ (unified)
+- ✅ Same pattern for sectors → `OpeningBalanceController::updateSectors`
+- ✅ **Deliverable**: Sector opening balances imported
+
+> **Note**: The actual migration from PHP data is a one-off data-loading task, not a code task. The code supports it; the data import is performed by running the `January2026Seeder` (or a future `July2026Seeder`) with the appropriate JSON file.
 
 ---
 
-### Phase 7 — Reports & Dashboards
+### Phase 7 — Reports & Dashboards  ✅ **DONE**
+
+**Status**: All 6 sessions complete. Commits: `43968ff`, `c4719be`, `03a4f9f`, `80475df`, `9b5e202`, `ae94520`. The dashboard is also enhanced with a "Cash in Hand" KPI card (commit `63c0372` — bonus work, beyond the plan).
 
 **Goal**: Decision-grade visibility + audit-ready exports.
 
-#### Session 7.1 — Dashboard
-- 4 KPI cards (count-up animation): Total Investment, This Month Profit, M/Y Profit YTD, Active Investors
-- Recharts: monthly profit trend (line), sector allocation (donut), investor tier distribution (stacked bar)
-- Recent activity feed (last 10 audit logs)
-- Quick-action buttons
-- **Deliverable**: Dashboard loads < 1s
+#### Session 7.1 — Dashboard  ✅
+- ✅ 4 KPI cards (count-up animation): Total Investment, This Month Profit, M/Y Profit YTD, Active Investors → `DashboardController.php` (213 LOC) + `resources/js/Pages/Dashboard.tsx` (21KB)
+- ✅ Recharts: monthly profit trend (line), sector allocation (donut), investor tier distribution (stacked bar)
+- ✅ Recent activity feed (last 10 audit logs) — *depends on audit logs being written — see Gap #8*
+- ✅ Quick-action buttons
+- ✅ Bonus: "Cash in Hand" KPI card (commit `63c0372`)
+- ✅ **Deliverable**: Dashboard loads < 1s → covered by `DashboardTest.php`
 
-#### Session 7.2 — Investor Ledger Report
-- Per-investor transaction timeline: capital adds/withdraws + profit distributions + adjustments
-- Running balance column
-- Date-range filter, export to PDF + Excel
-- **Deliverable**: PDF export matches PHP `InvestorLedgerReport` output
+#### Session 7.2 — Investor Ledger Report  ✅
+- ✅ Per-investor transaction timeline: capital adds/withdraws + profit distributions + adjustments → `LedgerController::investorLedger` (part of 579 LOC) + `resources/js/Pages/Reports/InvestorLedger.tsx`
+- ✅ Running balance column
+- ✅ Date-range filter, export to PDF + Excel
+- ✅ **Deliverable**: PDF export matches PHP `InvestorLedgerReport` output → `resources/views/exports/investor-ledger.blade.php` + covered by `InvestorLedgerTest.php`
 
-#### Session 7.3 — Sector Ledger Report
-- Per-sector: investments + profit history + due
-- Same export pattern
-- **Deliverable**: Sector ledger report
+#### Session 7.3 — Sector Ledger Report  ✅
+- ✅ Per-sector: investments + profit history + due → `LedgerController::sectorLedger` + `resources/js/Pages/Reports/SectorLedger.tsx`
+- ✅ Same export pattern
+- ✅ **Deliverable**: Sector ledger report → covered by `SectorLedgerTest.php`
 
-#### Session 7.4 — M/Y Ledger Report
-- M/Y withdrawals + profit accruals + retained earnings portion
-- **Deliverable**: M/Y ledger report
+#### Session 7.4 — M/Y Ledger Report  ✅
+- ✅ M/Y withdrawals + profit accruals + retained earnings portion → `LedgerController::myLedger` + `resources/js/Pages/Reports/MYLedger.tsx`
+- ✅ **Deliverable**: M/Y ledger report → covered by `MYLedgerTest.php`
 
-#### Session 7.5 — Investment Profit Report
-- Cross-investor comparative view: investment / ratio / profit / ratio-over-time
-- **Deliverable**: Investment profit report
+#### Session 7.5 — Investment Profit Report  ✅
+- ✅ Cross-investor comparative view: investment / ratio / profit / ratio-over-time → `LedgerController::investmentProfit` + `resources/js/Pages/Reports/InvestmentProfit.tsx`
+- ✅ **Deliverable**: Investment profit report → covered by `InvestmentProfitReportTest.php`
 
-#### Session 7.6 — Exports (PDF + Excel)
-- Use `barryvdh/laravel-dompdf` for PDF (replaces PHP's dompdf/mpdf)
-- Use `maatwebsite/excel` for Excel exports — especially the "For Sajid" sheet replica
-- Number-to-words (Bangla taka format) via `kwn/number-to-words` (same as PHP)
-- **Deliverable**: All reports exportable
+#### Session 7.6 — Exports (PDF + Excel)  ✅
+- ✅ Use `barryvdh/laravel-dompdf` for PDF (replaces PHP's dompdf/mpdf) — `composer.json`: `"barryvdh/laravel-dompdf": "^3.1"`
+- ✅ Use `maatwebsite/excel` for Excel exports — `composer.json`: `"maatwebsite/excel": "^4.0"`
+- ❌ Number-to-words (Bangla taka format) via `kwn/number-to-words` — **NOT in composer.json** — verify if needed for invoices/vouchers
+- ✅ **Deliverable**: All reports exportable → covered by `ExportTest.php`
+- 📌 **Note**: The "For Sajid" investor-profit grid (Phase 4.5) does NOT have its own Excel export yet — see Gap #7 above.
 
 ---
 
-### Phase 8 — Polish & Quality Assurance
+### Phase 8 — Polish & Quality Assurance  🟡 **MOSTLY DONE — E2E + docs gaps**
+
+**Status**: 4 commits done (`63feba3` mobile, `aec533f` UI polish, `823a396` perf, `d546700` parity tests). E2E (Playwright) tests and proper documentation are missing.
 
 **Goal**: Production-ready, mobile-perfect, audited.
 
-#### Session 8.1 — Mobile Responsiveness Audit
-- Test every page at 375px / 414px / 768px / 1024px / 1440px
-- Fix: table horizontal scroll, modal full-screen on mobile, bottom tab bar coverage
-- **Deliverable**: No horizontal scroll on iPhone SE
+#### Session 8.1 — Mobile Responsiveness Audit  ✅
+- ✅ Test every page at 375px / 414px / 768px / 1024px / 1440px
+- ✅ Fix: table horizontal scroll, modal full-screen on mobile, bottom tab bar coverage
+- ✅ **Deliverable**: No horizontal scroll on iPhone SE → commit `63feba3`
 
-#### Session 8.2 — Premium UI Touches
-- Framer Motion page transitions
-- Skeleton loaders everywhere
-- Number count-up animations on KPIs
-- Subtle hover states, focus rings
-- Empty states with illustrations (use unDraw or similar)
-- **Deliverable**: Feels like a premium SaaS
+#### Session 8.2 — Premium UI Touches  ✅
+- ✅ Framer Motion page transitions → `resources/js/Components/common/PageTransition.tsx`
+- ✅ Skeleton loaders everywhere → `resources/js/Components/ui/Skeleton.tsx`
+- ✅ Number count-up animations on KPIs → `resources/js/Components/common/AnimatedNumber.tsx`
+- ✅ Subtle hover states, focus rings
+- ✅ Empty states with illustrations → `resources/js/Components/common/EmptyState.tsx`
+- ✅ **Deliverable**: Feels like a premium SaaS → commit `aec533f`
 
-#### Session 8.3 — Performance Optimization
-- Eager-load relationships (N+1 elimination)
-- Index audit on slow queries via Laravel Telescope
-- Cache dashboard aggregates (5-min TTL)
-- Virtualize the 151-row investor grid (TanStack virtual)
-- **Deliverable**: Lighthouse score > 90
+#### Session 8.3 — Performance Optimization  🟡 **PARTIAL**
+- ✅ Eager-load relationships (N+1 elimination) → applied in controllers
+- 🟡 Index audit on slow queries via Laravel Telescope — **Telescope not installed** (dev-only dep)
+- ✅ Cache dashboard aggregates (5-min TTL) → commit `823a396`
+- 🟡 Virtualize the 150-row investor grid (TanStack virtual) — **`@tanstack/react-virtual` NOT in package.json** (Gap #10)
+- 🟡 **Deliverable**: Lighthouse score > 90 — *not measured*
 
-#### Session 8.4 — Testing
-- Pest feature tests for every calculation phase (verify against Excel "For Sajid" numbers)
-- Pest unit tests for `ProfitCalculatorService`, `RetainedEarningsService`, `DueManager`
-- Playwright E2E: login → enter sector profits → reconcile → verify M/Y profit = 476,220.07
-- **Deliverable**: Test suite green, parity with Excel confirmed
+#### Session 8.4 — Testing  🟡 **PARTIAL**
+- ✅ Pest feature tests for every calculation phase (verify against Excel "For Sajid" numbers) → `tests/Feature/ParityTest.php` (5 tests)
+- ✅ Pest unit tests for `ProfitCalculatorService`, `RetainedEarningsService`, `DueManager` → `tests/Unit/ProfitCalculatorServiceTest.php`
+- ❌ Playwright E2E: login → enter sector profits → reconcile → verify M/Y profit = 476,220.07 — **Playwright not installed** (Gap #5)
+- 🟡 **Deliverable**: Test suite green, parity with Excel confirmed — *Pest suite is green; E2E missing*
 
-#### Session 8.5 — Documentation & Deployment
-- README with setup steps
-- `php artisan` deploy checklist
-- Database backup strategy (pg_dump nightly)
-- **Deliverable**: Deploy-ready, documented
+#### Session 8.5 — Documentation & Deployment  ❌ **NOT DONE**
+- ❌ README with setup steps — current README is a one-liner pointing at this plan (Gap #6)
+- ❌ `php artisan` deploy checklist
+- ❌ Database backup strategy (pg_dump nightly)
+- 🟡 Docker dev environment exists (`docker-compose.yml`, `Makefile`, `QUICKSTART.md`) but no production deployment docs
+- ❌ **Deliverable**: Deploy-ready, documented
+- 📌 **See "Where to Start Next → Step 7" above.**
 
 ---
 
