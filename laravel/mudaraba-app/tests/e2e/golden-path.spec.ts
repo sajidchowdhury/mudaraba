@@ -78,14 +78,19 @@ test.describe("Golden Path — Monthly Reconciliation Workflow", () => {
     }) => {
         // ─── 1. LOGIN ───────────────────────────────────────────────────────
         await login(page);
-        await expect(page.locator("h1, h2, h3").filter({ hasText: /dashboard|Dashboard/i })).toBeVisible({
-            timeout: 10_000,
+
+        // ─── 2. DASHBOARD — verify it loaded ────────────────────────────────
+        // The dashboard h1 says "Assalamu Alaikum, {userName} 👋" (not "Dashboard")
+        // Check for the greeting OR the KPI card labels — both are reliable indicators
+        await expect(page.locator("text=Assalamu Alaikum").first()).toBeVisible({
+            timeout: 15_000,
         });
 
-        // ─── 2. DASHBOARD — verify KPI cards load ────────────────────────────
-        // The dashboard should show KPI cards with monetary values
-        await expect(page.locator("text=Total Investment").first()).toBeVisible();
-        // The Cash in Hand KPI was added in a bonus commit — verify it too
+        // Verify KPI cards load — "Total Investment" and "Cash in Hand" are in
+        // <p> tags inside KPI card components
+        await expect(page.locator("text=Total Investment").first()).toBeVisible({
+            timeout: 10_000,
+        });
         await expect(page.locator("text=Cash in Hand").first()).toBeVisible();
 
         // ─── 3. NAVIGATE TO SECTOR PROFIT ENTRY ──────────────────────────────
@@ -177,11 +182,18 @@ test.describe("Authentication edge cases", () => {
         await page.locator('button[type="submit"]').click();
 
         // Should stay on /login (not redirect to /dashboard)
+        // Inertia redirects back to /login with validation errors in the session
         await page.waitForURL(/\/login/, { timeout: 10_000 });
 
         // Should show an error message (Inertia validation error)
-        // The login form shows errors in elements with id="username-error" or similar
-        await expect(page.locator("[id$='-error']").first()).toBeVisible({ timeout: 5_000 });
+        // The login form renders errors in <p id="username-error"> (wrapped in
+        // Framer Motion <motion.p> — the animation may take a moment to render)
+        // Use the specific #username-error selector with a generous timeout
+        await expect(page.locator("#username-error")).toBeVisible({
+            timeout: 10_000,
+        });
+        // Verify the error text mentions "invalid" or "credentials"
+        await expect(page.locator("#username-error")).toContainText(/invalid|credentials|password/i);
     });
 
     test("unauthenticated access to dashboard redirects to login", async ({ page, context }) => {
