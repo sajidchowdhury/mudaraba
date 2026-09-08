@@ -3,28 +3,36 @@
 /**
  * CsrfDiagnosticTest — confirms CSRF middleware is bypassed during tests.
  *
- * If this test PASSES, the CSRF exemption is working for real app routes
- * (not just dynamically-registered test routes).
+ * If this test PASSES, the CSRF exemption is working for real app routes.
  * If this test FAILS with HTTP 419, the exemption is NOT working.
  *
  * Run: php artisan test --filter=CsrfDiagnosticTest
+ *
+ * === Why we use a custom MUDARABA_TESTING env var (not APP_ENV) ===
+ *
+ * APP_ENV gets overwritten by Dotenv loading .env (which has APP_ENV=local).
+ * This was confirmed by the user's diagnostic run on 2026-09-08:
+ *   getenv('APP_ENV') returned 'local' during tests, NOT 'testing'.
+ * That's why all previous APP_ENV-based CSRF bypass attempts failed.
+ *
+ * MUDARABA_TESTING is a custom env var that exists ONLY in phpunit.xml
+ * (set via <env name="MUDARABA_TESTING" value="1"/>), NOT in .env.
+ * Dotenv can't overwrite what doesn't exist in .env, so
+ * getenv('MUDARABA_TESTING') reliably returns '1' during tests.
+ *
+ * The bootstrap/app.php check is:
+ *   if (getenv('MUDARABA_TESTING') === '1') {
+ *       $middleware->validateCsrfTokens(except: ['*']);
+ *   }
  */
 
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 
 it('the MUDARABA_TESTING env var is set to 1 during tests', function () {
-    // Direct env-var check — if this fails, PHPUnit's <env> tag isn't
-    // being applied, or Dotenv is overwriting it.
+    // Direct env-var check — confirms PHPUnit's <env> tag is being applied
+    // AND that Dotenv isn't overwriting it (because it's not in .env).
     $value = getenv('MUDARABA_TESTING');
     expect($value)->toBe('1', "Expected MUDARABA_TESTING='1' but got: " . var_export($value, true) . ". Check phpunit.xml has <env name='MUDARABA_TESTING' value='1'/> and that no .env file sets MUDARABA_TESTING.");
-});
-
-it('APP_ENV is set to testing during tests (cross-check)', function () {
-    // Cross-check: APP_ENV should be 'testing' during the test run.
-    // If this returns 'local', Dotenv overwrote it — which explains why
-    // the previous getenv('APP_ENV') approach didn't work.
-    $value = getenv('APP_ENV');
-    expect($value)->toBe('testing', "Expected APP_ENV='testing' but got: " . var_export($value, true));
 });
 
 it('POST to a REAL app route (/login) does not get blocked by CSRF', function () {
@@ -49,5 +57,6 @@ it('the ValidateCsrfToken class exists (sanity check for the Laravel 11+ class n
         'In Laravel 11+, this is the canonical CSRF middleware class.'
     );
 });
+
 
 
