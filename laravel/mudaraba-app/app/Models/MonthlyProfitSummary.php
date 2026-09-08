@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\MonthStatus;
+use App\Services\AuditService;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class MonthlyProfitSummary extends Model
 {
-    use HasFactory;
+    use Auditable, HasFactory;
 
     protected $table = 'monthly_profit_summary';
 
@@ -79,6 +81,54 @@ class MonthlyProfitSummary extends Model
     /* -------------------------------------------------------
      * Helpers
      * ----------------------------------------------------- */
+
+    /**
+     * Audit hook override: log lock/unlock transitions as their own
+     * actions (not generic 'update'). The MonthStatusController::lock
+     * sets status to 'locked'; ::unlock sets it back to 'finalized'.
+     *
+     * Any other update (e.g. retained_earnings_service updating
+     * total_investor_retained) falls through to the default 'update'
+     * audit log.
+     */
+    protected static function shouldAudit(string $action, $model): bool
+    {
+        if ($action !== AuditService::ACTION_UPDATE) {
+            return true;
+        }
+
+        // Status-driven audit: lock or unlock
+        if ($model->wasChanged('status')) {
+            $oldStatus = $model->getOriginal('status');
+            $newStatus = $model->status;
+
+            // Lock transition
+            if ($newStatus === MonthStatus::Locked) {
+                AuditService::log(
+                    action: AuditService::ACTION_LOCK,
+                    model: $model,
+                    before: ['status' => $oldStatus instanceof MonthStatus ? $oldStatus->value : (string) $oldStatus],
+                    after: ['status' => 'locked', 'locked_by' => $model->locked_by],
+                );
+
+                return false;
+            }
+
+            // Unlock transition (locked -> anything else)
+            if ($oldStatus instanceof MonthStatus ? $oldStatus === MonthStatus::Locked : (string) $oldStatus === 'locked') {
+                AuditService::log(
+                    action: AuditService::ACTION_UNLOCK,
+                    model: $model,
+                    before: ['status' => 'locked'],
+                    after: ['status' => $newStatus instanceof MonthStatus ? $newStatus->value : (string) $newStatus],
+                );
+
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     /**
      * Recompute M/Y profit ratio from total_actual_profit and my_profit.

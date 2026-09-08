@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Services\AuditService;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class InvestorMonthlyProfitDetail extends Model
 {
-    use HasFactory;
+    use Auditable, HasFactory;
 
     // No soft deletes — these are computed snapshot rows; rollback = delete
     public const UPDATED_AT = null; // append-only snapshot per month
@@ -62,6 +64,26 @@ class InvestorMonthlyProfitDetail extends Model
     public function scopeInBatch($query, string $batchUuid)
     {
         return $query->where('batch_uuid', $batchUuid);
+    }
+
+    /* -------------------------------------------------------
+     * Auditable override
+     * ----------------------------------------------------- */
+    /**
+     * This model is a per-month per-investor snapshot row that gets
+     * bulk-deleted + bulk-inserted every time the ProfitCalculatorService
+     * re-finalizes a month. Auditing every individual row would generate
+     * ~150 audit log entries per re-finalize — pure noise.
+     *
+     * Strategy: log CREATE events only (so we know who first computed
+     * the month's profits), skip DELETE events (the bulk delete during
+     * re-finalize is plumbing — the user intent is "re-run the calc",
+     * which the ProfitCalculatorService logs explicitly as a
+     * 'reconcile' action via AuditService::log directly).
+     */
+    protected static function shouldAudit(string $action, $model): bool
+    {
+        return $action !== AuditService::ACTION_DELETE;
     }
 
     /* -------------------------------------------------------

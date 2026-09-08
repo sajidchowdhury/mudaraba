@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Investor;
 use App\Models\InvestorMonthlyProfitDetail;
+use App\Models\MonthlyProfitSummary;
 use App\Models\MonthlySectorProfit;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -184,6 +185,39 @@ class ProfitCalculatorService
             'my_ratio' => round($myProfitRatio, 2),
             'batch_uuid' => $batchUuid,
         ]);
+
+        // Audit log: a single 'reconcile' action representing the entire
+        // batch of N investor_monthly_profit_details rows that were
+        // (re)computed. The individual rows also log their own 'create'
+        // events via the Auditable trait, but this entry is the
+        // user-intent-level record ("M/Y reconciled month X" — one row
+        // per month per user action, regardless of investor count).
+        //
+        // We construct a transient MonthlyProfitSummary model to pass
+        // to AuditService::log so the entity_type / entity_id are
+        // populated correctly. We don't reload from DB (avoids an
+        // extra query) — the model only needs the PK for the audit log.
+        $summaryModel = new MonthlyProfitSummary();
+        $summaryModel->profit_month = $profitMonth;
+        $summaryModel->exists = true; // tell Eloquent this is an existing row
+        $summaryModel->setRawAttributes(['profit_month' => $profitMonth]);
+
+        AuditService::log(
+            action: AuditService::ACTION_RECONCILE,
+            model: $summaryModel,
+            before: null,
+            after: [
+                'profit_month' => $profitMonth,
+                'batch_uuid' => $batchUuid,
+                'investor_count' => count($details),
+                'total_estimated' => $totalEstimated,
+                'total_actual' => $totalActual,
+                'my_profit' => $myProfit,
+                'my_profit_ratio' => round($myProfitRatio, 2),
+                'retained_total' => $retainedResult['total'],
+            ],
+            userId: $userId,
+        );
 
         return [
             'summary' => [

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\DirectorTransactionType;
+use App\Traits\Auditable;
 use App\Traits\DueManager;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ])]
 class DirectorTransaction extends Model
 {
-    use DueManager, HasFactory, SoftDeletes;
+    use Auditable, DueManager, HasFactory, SoftDeletes;
 
     protected $casts = [
         'amount' => 'decimal:2',
