@@ -72,60 +72,44 @@ class AuditService
         ?array $after = null,
         ?int $userId = null,
     ): ?AuditLog {
-        try {
-            $userId ??= Auth::id();
+        $userId ??= Auth::id();
 
-            // Handle non-numeric primary keys (e.g. MonthlyProfitSummary has
-            // profit_month as a string date PK, but audit_logs.entity_id is
-            // unsignedBigInteger). For non-numeric keys, we set entity_id to
-            // null and stash the actual key in after_data['_entity_key'] so
-            // the audit row is still traceable. Numeric keys go to entity_id
-            // directly for fast indexed lookups.
-            $key = $model->getKey();
-            $entityId = null;
-            if (is_numeric($key)) {
-                $entityId = (int) $key;
-            } elseif ($key !== null) {
-                // Preserve the actual key in after_data so the row is still
-                // traceable. Merge with any existing after_data.
-                $after = array_merge($after ?? [], ['_entity_key' => (string) $key]);
-            }
-
-            // Use the table name (snake_case) as entity_type — NOT getMorphClass()
-            // which returns the FQCN (e.g. 'App\Models\InvestmentTransaction').
-            // The snake_case table name is shorter, more readable in the audit log
-            // UI, and matches the convention used by the dashboard's recent-activity
-            // feed. Tests query by table name, so this must be consistent.
-            $entityType = $model->getTable();
-
-            return AuditLog::create([
-                'user_id' => $userId,
-                'action' => $action,
-                'entity_type' => $entityType,
-                'entity_id' => $entityId,
-                'before_data' => $before,
-                'after_data' => $after,
-                'ip_address' => self::requestIp(),
-                'user_agent' => self::userAgent(),
-            ]);
-        } catch (\Throwable $e) {
-            // Audit logging must NEVER break the main operation — if the audit
-            // write fails (e.g. DB constraint violation, transaction rollback),
-            // log the error and return null. The main business operation
-            // should still succeed.
-            //
-            // This is especially important in tests where RefreshDatabase
-            // wraps everything in a transaction — if the audit insert fails
-            // for any reason, we don't want to poison the test.
-            \Illuminate\Support\Facades\Log::warning('Audit log write failed', [
-                'action' => $action,
-                'entity_type' => $model->getTable(),
-                'entity_id' => $model->getKey(),
-                'error' => $e->getMessage(),
-            ]);
-
-            return null;
+        // Handle non-numeric primary keys (e.g. MonthlyProfitSummary has
+        // profit_month as a string date PK, but audit_logs.entity_id is
+        // unsignedBigInteger). For non-numeric keys, we set entity_id to
+        // null and stash the actual key in after_data['_entity_key'] so
+        // the audit row is still traceable. Numeric keys go to entity_id
+        // directly for fast indexed lookups.
+        $key = $model->getKey();
+        $entityId = null;
+        if (is_numeric($key)) {
+            $entityId = (int) $key;
+        } elseif ($key !== null) {
+            // Preserve the actual key in after_data so the row is still
+            // traceable. Merge with any existing after_data.
+            $after = array_merge($after ?? [], ['_entity_key' => (string) $key]);
         }
+
+        // Use the table name (snake_case) as entity_type — NOT getMorphClass()
+        // which returns the FQCN (e.g. 'App\Models\InvestmentTransaction').
+        // The snake_case table name is shorter, more readable in the audit log
+        // UI, and matches the convention used by the tests.
+        $entityType = $model->getTable();
+
+        // Note: no try/catch here. If the audit log write fails, we want the
+        // exception to propagate so we can see and fix the actual error.
+        // In production, wrap the calling code in a try/catch if you need
+        // audit failures to be non-fatal.
+        return AuditLog::create([
+            'user_id' => $userId,
+            'action' => $action,
+            'entity_type' => $entityType,
+            'entity_id' => $entityId,
+            'before_data' => $before,
+            'after_data' => $after,
+            'ip_address' => self::requestIp(),
+            'user_agent' => self::userAgent(),
+        ]);
     }
 
     /**
