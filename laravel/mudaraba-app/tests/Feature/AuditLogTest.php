@@ -68,7 +68,7 @@ it('logs an audit entry when an investment transaction is created', function () 
     expect($audit)->not->toBeNull()
         ->and($audit->user_id)->toBe($this->superadmin->id)
         ->and($audit->after_data)->toHaveKey('amount')
-        ->and($audit->after_data['amount'])->toBe(500000.0)
+        ->and((float) $audit->after_data['amount'])->toBe(500000.0)
         ->and($audit->before_data)->toBeNull();
 });
 
@@ -117,7 +117,7 @@ it('logs an audit entry when a sector investment is created', function () {
         ->first();
 
     expect($audit)->not->toBeNull()
-        ->and($audit->after_data['amount'])->toBe(300000.0);
+        ->and((float) $audit->after_data['amount'])->toBe(300000.0);
 });
 
 // ----------------------------------------------------------------------------
@@ -142,7 +142,7 @@ it('logs an audit entry when a director transaction is created', function () {
         ->first();
 
     expect($audit)->not->toBeNull()
-        ->and($audit->after_data['amount'])->toBe(50000.0)
+        ->and((float) $audit->after_data['amount'])->toBe(50000.0)
         ->and($audit->after_data['type'])->toBe('withdraw');
 });
 
@@ -236,7 +236,7 @@ it('logs an audit entry when a ProfitAdjustment (Fund A) is created', function (
     expect($audit)->not->toBeNull()
         ->and($audit->after_data['type'])->toBe('fund_a')
         ->and($audit->after_data['target_type'])->toBe('investor')
-        ->and($audit->after_data['amount'])->toBe(5000.0);
+        ->and((float) $audit->after_data['amount'])->toBe(5000.0);
 });
 
 // NOTE: Tests for AdvanceProfitAdjustment (Type C), AdvanceProfitAdjustmentTypeA,
