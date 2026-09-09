@@ -77,8 +77,8 @@ export const navigation: NavGroup[] = [
         icon: Wallet,
         order: 4,
         children: [
-            { label: "New / Return", href: "/investments", icon: Banknote },
-            { label: "Sector Wise", href: "/investments/sector-wise", icon: Layers },
+            { label: "Investor", href: "/investments", icon: Banknote },
+            { label: "Sector", href: "/sector-investments", icon: Layers },
         ],
     },
     {

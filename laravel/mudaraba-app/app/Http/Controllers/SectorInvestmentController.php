@@ -7,9 +7,59 @@ use App\Models\SectorInvestment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class SectorInvestmentController extends Controller
 {
+    /**
+     * Display the sector investments page with form + history.
+     * This is the sector equivalent of the Investor investments page —
+     * the M/Y uses it to allocate investor funds to sectors.
+     */
+    public function index(Request $request): Response
+    {
+        $query = SectorInvestment::query()
+            ->with(['sector:id,name', 'creator:id,username'])
+            ->orderByDesc('transaction_date');
+
+        // Filter by sector if selected
+        if ($request->sector_id) {
+            $query->where('sector_id', $request->sector_id);
+        }
+
+        // Filter by type if selected
+        if ($request->type && in_array($request->type, ['add', 'withdraw'])) {
+            $query->where('type', $request->type);
+        }
+
+        $transactions = $query->paginate(20)->withQueryString();
+
+        // Get all active sectors for the dropdown
+        $sectors = Sector::orderBy('name')
+            ->where('status', 'active')
+            ->get(['id', 'name']);
+
+        return Inertia::render('SectorInvestments/Index', [
+            'transactions' => $transactions->through(fn (SectorInvestment $t) => [
+                'id' => $t->id,
+                'sector_name' => $t->sector?->name ?? '—',
+                'sector_id' => $t->sector_id,
+                'amount' => (float) $t->amount,
+                'type' => $t->type->value,
+                'transaction_date' => $t->transaction_date?->format('Y-m-d'),
+                'remarks' => $t->remarks,
+                'created_by' => $t->creator?->username ?? '—',
+                'created_at' => $t->created_at?->format('Y-m-d H:i'),
+            ]),
+            'sectors' => $sectors->map(fn (Sector $s) => [
+                'id' => $s->id,
+                'name' => $s->name,
+            ]),
+            'filters' => $request->only(['sector_id', 'type']),
+        ]);
+    }
+
     /**
      * Store a new sector investment (add money to / withdraw from a sector).
      *

@@ -72,7 +72,8 @@ class MenuSeeder extends Seeder
         $this->createChild($sectors->id, 'New Sector', 'sectors.new', 'PlusCircle', 1);
         $this->createChild($sectors->id, 'All Sectors', 'sectors.index', 'List', 2);
 
-        $this->createChild($investment->id, 'New / Return', 'investments.index', 'Banknote', 1);
+        $this->createChild($investment->id, 'Investor', 'investments.index', 'Banknote', 1);
+        $this->createChild($investment->id, 'Sector', 'sector-investments.index', 'Layers', 2);
 
         $this->createChild($profit->id, 'Sector Profit', 'profit.sector.index', 'PieChart', 1);
         $this->createChild($profit->id, 'Investor Profit', 'profit.investor.index', 'ReceiptText', 2);

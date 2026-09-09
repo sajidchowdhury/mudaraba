@@ -65,6 +65,7 @@ Route::middleware('auth')->group(function () {
     // This is the M/Y's workflow: get investment from investors, then assign
     // those funds to sectors. Uses the same permission as sector viewing.
     Route::prefix('sector-investments')->name('sector-investments.')->group(function () {
+        Route::get('/', [SectorInvestmentController::class, 'index'])->middleware('permission:sectors.index')->name('index');
         Route::post('/', [SectorInvestmentController::class, 'store'])->middleware('permission:sectors.index')->name('store');
         Route::delete('/{investment}', [SectorInvestmentController::class, 'destroy'])->middleware('permission:sectors.index')->name('destroy');
     });
