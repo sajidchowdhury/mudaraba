@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AutoCalcController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DesignSystemController;
 use App\Http\Controllers\DirectorController;
@@ -148,6 +149,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/sector-ledger', [ExportController::class, 'sectorLedgerPdf'])->name('sector-ledger');
         Route::get('/my-ledger', [ExportController::class, 'myLedgerPdf'])->name('my-ledger');
         Route::get('/investment-profit', [ExportController::class, 'investmentProfitExcel'])->name('investment-profit');
+    });
+
+    // Auto Calculation — download template + upload + process
+    Route::prefix('auto-calc')->name('auto-calc.')->group(function () {
+        Route::get('/', [AutoCalcController::class, 'index'])->middleware('permission:profit.sector.index')->name('index');
+        Route::get('/template', [AutoCalcController::class, 'downloadTemplate'])->middleware('permission:profit.sector.index')->name('template');
+        Route::post('/upload', [AutoCalcController::class, 'upload'])->middleware('permission:profit.sector.index')->name('upload');
     });
 
     // Admin — permission management (superadmin only)

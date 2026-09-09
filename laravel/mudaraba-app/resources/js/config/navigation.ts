@@ -22,6 +22,7 @@ import {
     BookOpen,
     ReceiptText,
     DollarSign,
+    Zap,
 } from "lucide-react";
 
 export interface NavChild {
@@ -88,6 +89,7 @@ export const navigation: NavGroup[] = [
         children: [
             { label: "Sector Profit", href: "/profit/sector", icon: PieChart },
             { label: "Investor Profit", href: "/profit/investor", icon: ReceiptText },
+            { label: "Auto Calculation", href: "/auto-calc", icon: Zap },
         ],
     },
     {
