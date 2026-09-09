@@ -43,9 +43,18 @@ class ProfitCalculatorService
      *
      * @param  string  $profitMonth  'YYYY-MM-DD' (1st of month)
      * @param  int  $userId  The user triggering the calculation
+     * @param  float|null  $retainedEarningsTotal  Custom retained earnings amount (null = use existing or default 200K)
+     * @param  float|null  $investorPct  Custom investor portion % (null = default 71%)
+     * @param  float|null  $myPct  Custom M/Y portion % (null = default 29%)
      * @return array{summary: array, details_count: int}
      */
-    public function calculate(string $profitMonth, int $userId): array
+    public function calculate(
+        string $profitMonth,
+        int $userId,
+        ?float $retainedEarningsTotal = null,
+        ?float $investorPct = null,
+        ?float $myPct = null,
+    ): array
     {
         $batchUuid = Str::uuid()->toString();
 
@@ -168,7 +177,14 @@ class ProfitCalculatorService
         });
 
         // PHASES 5-7 — Retained earnings allocation + net settlement
-        $retainedResult = $this->retainedEarningsService->allocate($profitMonth, $userId);
+        // Pass the user-supplied amount + split (or null to use existing/default)
+        $retainedResult = $this->retainedEarningsService->allocate(
+            $profitMonth,
+            $userId,
+            $retainedEarningsTotal ?? $this->getExistingRetainedEarningsAmount($profitMonth),
+            $investorPct,
+            $myPct,
+        );
 
         // POST-CALCULATION — Update due ledgers (investor profit, sector profit, M/Y)
         $this->ledgerUpdateService->apply($profitMonth, $myProfit);
@@ -235,5 +251,16 @@ class ProfitCalculatorService
             ],
             'details_count' => count($details),
         ];
+    }
+
+    /**
+     * Get the existing retained earnings amount for a month (if set),
+     * or null to let RetainedEarningsService use its default (200K).
+     */
+    private function getExistingRetainedEarningsAmount(string $profitMonth): ?float
+    {
+        $re = \App\Models\RetainedEarnings::where('profit_month', $profitMonth)->first();
+
+        return $re ? (float) $re->total_amount : null;
     }
 }

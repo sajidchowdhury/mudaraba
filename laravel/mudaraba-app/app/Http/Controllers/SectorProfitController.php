@@ -6,6 +6,7 @@ use App\Enums\SectorProfitStatus;
 use App\Http\Requests\StoreSectorProfitRequest;
 use App\Models\MonthlyProfitSummary;
 use App\Models\MonthlySectorProfit;
+use App\Models\RetainedEarnings;
 use App\Models\Sector;
 use App\Services\ProfitCalculatorService;
 use Illuminate\Http\RedirectResponse;
@@ -54,6 +55,9 @@ class SectorProfitController extends Controller
 
         $summary = MonthlyProfitSummary::find($month) ?? new MonthlyProfitSummary(['status' => 'open']);
 
+        // Get existing retained earnings for this month (if any)
+        $retainedEarnings = RetainedEarnings::where('profit_month', $month)->first();
+
         return Inertia::render('SectorProfit/Index', [
             'month' => $month,
             'monthLabel' => date('F, Y', strtotime($month)),
@@ -66,6 +70,11 @@ class SectorProfitController extends Controller
             'isFinalized' => $isFinalized,
             'isLocked' => $summary->status->value === 'locked',
             'canEdit' => $summary->status->value !== 'locked' && ($request->user()?->isSuperadmin() || $request->user()?->canEdit('profit.sector') ?? false),
+            'retainedEarnings' => $retainedEarnings ? [
+                'total_amount' => (float) $retainedEarnings->total_amount,
+                'investor_pct' => (float) $retainedEarnings->investor_portion_pct,
+                'my_pct' => (float) $retainedEarnings->my_portion_pct,
+            ] : null,
         ]);
     }
 
@@ -74,6 +83,7 @@ class SectorProfitController extends Controller
      *
      * On 'finalize': sets status to 'finalized' AND triggers the
      * ProfitCalculatorService to compute per-investor profit details.
+     * Also accepts optional retained earnings parameters.
      */
     public function store(StoreSectorProfitRequest $request): RedirectResponse
     {
@@ -82,7 +92,12 @@ class SectorProfitController extends Controller
         $finalize = $data['finalize'] ?? false;
         $userId = $request->user()->id;
 
-        DB::transaction(function () use ($data, $month, $finalize, $userId) {
+        // Optional retained earnings input (null = use existing or default 200K)
+        $retainedEarningsTotal = $request->float('retained_earnings_total');
+        $investorPct = $request->float('investor_pct') ?: null;
+        $myPct = $request->float('my_pct') ?: null;
+
+        DB::transaction(function () use ($data, $month, $finalize, $userId, $retainedEarningsTotal, $investorPct, $myPct) {
             foreach ($data['items'] as $item) {
                 if ((float) $item['estimated_profit'] === 0.0 && (float) ($item['actual_profit'] ?? 0) === 0.0) {
                     continue;
@@ -106,8 +121,15 @@ class SectorProfitController extends Controller
             }
 
             // When finalizing, trigger the 8-phase calculation engine
+            // Pass the user-supplied retained earnings amount + split
             if ($finalize) {
-                $this->profitCalculator->calculate($month, $userId);
+                $this->profitCalculator->calculate(
+                    $month,
+                    $userId,
+                    $retainedEarningsTotal > 0 ? $retainedEarningsTotal : null,
+                    $investorPct,
+                    $myPct,
+                );
             }
         });
 

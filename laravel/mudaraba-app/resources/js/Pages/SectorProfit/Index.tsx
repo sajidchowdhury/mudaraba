@@ -4,7 +4,7 @@ import { route } from "ziggy-js";
 import { AuthenticatedLayout } from "@/Components/layout";
 import {
     Card, CardContent, CardDescription, CardHeader, CardTitle,
-    Button, Badge, Input,
+    Button, Badge, Input, Label,
 } from "@/Components/ui";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui";
 import {
@@ -32,12 +32,22 @@ interface Props {
     isFinalized: boolean;
     isLocked: boolean;
     canEdit: boolean;
+    retainedEarnings?: {
+        total_amount: number;
+        investor_pct: number;
+        my_pct: number;
+    } | null;
 }
 
-export default function SectorProfitIndex({ month, monthLabel, grid, totals, isFinalized, isLocked, canEdit }: Props) {
+export default function SectorProfitIndex({ month, monthLabel, grid, totals, isFinalized, isLocked, canEdit, retainedEarnings }: Props) {
     // Local state for the grid (allows live editing without round-trips)
     const [items, setItems] = useState<GridItem[]>(grid);
     const [currentMonth, setCurrentMonth] = useState(month);
+
+    // Retained earnings input state (user-configurable per month)
+    const [reTotal, setReTotal] = useState(retainedEarnings?.total_amount?.toString() || "200000");
+    const [reInvestorPct, setReInvestorPct] = useState(retainedEarnings?.investor_pct?.toString() || "71");
+    const [reMyPct, setReMyPct] = useState(retainedEarnings?.my_pct?.toString() || "29");
 
     // Sync when server data changes (e.g. after navigation to a different month)
     useEffect(() => {
@@ -82,7 +92,25 @@ export default function SectorProfitIndex({ month, monthLabel, grid, totals, isF
             actual_profit: i.actual_profit,
         })));
         setData("finalize", finalize);
-        post(route("profit.sector.store"), {
+
+        // When finalizing, include retained earnings input
+        const postData: Record<string, unknown> = {
+            profit_month: currentMonth,
+            items: items.map(i => ({
+                sector_id: i.sector_id,
+                estimated_profit: i.estimated_profit,
+                actual_profit: i.actual_profit,
+            })),
+            finalize,
+        };
+
+        if (finalize) {
+            postData.retained_earnings_total = parseFloat(reTotal) || 200000;
+            postData.investor_pct = parseFloat(reInvestorPct) || 71;
+            postData.my_pct = parseFloat(reMyPct) || 29;
+        }
+
+        router.post(route("profit.sector.store"), postData, {
             preserveScroll: true,
             onSuccess: () => {
                 toast.success(
@@ -282,6 +310,86 @@ export default function SectorProfitIndex({ month, monthLabel, grid, totals, isF
                         <Badge variant="outline" className="font-num">Z2/X2/Y2</Badge> Monthly Totals
                     </span>
                 </div>
+
+                {/* Retained Earnings input (shown when editing, used on finalize) */}
+                {!isReadOnly && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <TrendingUp className="size-5 text-accent" />
+                                Retained Earnings (AI3)
+                            </CardTitle>
+                            <CardDescription>
+                                Enter the retained earnings amount for {monthLabel}. This will be split between investors and M/Y when you finalize the month.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid sm:grid-cols-3 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="re_total">Total Amount (BDT)</Label>
+                                    <Input
+                                        id="re_total"
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        value={reTotal}
+                                        onChange={(e) => setReTotal(e.target.value)}
+                                        className="font-num text-right"
+                                        placeholder="200000"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="re_investor_pct">Investor Portion (%)</Label>
+                                    <Input
+                                        id="re_investor_pct"
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        max="100"
+                                        value={reInvestorPct}
+                                        onChange={(e) => {
+                                            setReInvestorPct(e.target.value);
+                                            setReMyPct(String(100 - (parseFloat(e.target.value) || 0)));
+                                        }}
+                                        className="font-num text-right"
+                                        placeholder="71"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="re_my_pct">M/Y Portion (%)</Label>
+                                    <Input
+                                        id="re_my_pct"
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        max="100"
+                                        value={reMyPct}
+                                        onChange={(e) => {
+                                            setReMyPct(e.target.value);
+                                            setReInvestorPct(String(100 - (parseFloat(e.target.value) || 0)));
+                                        }}
+                                        className="font-num text-right"
+                                        placeholder="29"
+                                    />
+                                </div>
+                            </div>
+                            <div className="mt-4 flex flex-wrap gap-4 text-sm">
+                                <span className="flex items-center gap-1">
+                                    <Badge variant="outline" className="font-num">AJ4</Badge>
+                                    Investor portion: <span className="font-num font-bold text-primary">
+                                        {formatBDT((parseFloat(reTotal) || 0) * (parseFloat(reInvestorPct) || 0) / 100)}
+                                    </span>
+                                </span>
+                                <span className="flex items-center gap-1">
+                                    <Badge variant="outline" className="font-num">AK4</Badge>
+                                    M/Y portion: <span className="font-num font-bold text-accent">
+                                        {formatBDT((parseFloat(reTotal) || 0) * (parseFloat(reMyPct) || 0) / 100)}
+                                    </span>
+                                </span>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Action buttons */}
                 {!isReadOnly && (
