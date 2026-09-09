@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\Investor;
 use App\Models\Sector;
+use Maatwebsite\Excel\Concerns\Export;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
@@ -24,7 +25,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
  *   3. Sectors — pre-filled with name/balance, blank: New Allocation, Estimated, Actual
  *   4. Retained Earnings — blank: Total Amount, Investor %, M/Y %
  */
-class AutoCalcTemplateExport implements WithMultipleSheets
+class AutoCalcTemplateExport implements Export, WithMultipleSheets
 {
     public function __construct(
         private readonly string $month,
