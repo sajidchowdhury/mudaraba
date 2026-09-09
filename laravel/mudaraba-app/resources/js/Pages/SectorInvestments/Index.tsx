@@ -1,5 +1,5 @@
 import { Head, Link, router, useForm } from "@inertiajs/react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { route } from "ziggy-js";
 import { AuthenticatedLayout } from "@/Components/layout";
 import {
