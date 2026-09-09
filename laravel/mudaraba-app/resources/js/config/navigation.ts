@@ -23,6 +23,7 @@ import {
     ReceiptText,
     DollarSign,
     Zap,
+    Trash2,
 } from "lucide-react";
 
 export interface NavChild {
@@ -90,6 +91,7 @@ export const navigation: NavGroup[] = [
             { label: "Sector Profit", href: "/profit/sector", icon: PieChart },
             { label: "Investor Profit", href: "/profit/investor", icon: ReceiptText },
             { label: "Auto Calculation", href: "/auto-calc", icon: Zap },
+            { label: "Reset Month", href: "/month-reset", icon: Trash2 },
         ],
     },
     {

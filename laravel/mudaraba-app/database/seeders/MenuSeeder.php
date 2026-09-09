@@ -78,6 +78,7 @@ class MenuSeeder extends Seeder
         $this->createChild($profit->id, 'Sector Profit', 'profit.sector.index', 'PieChart', 1);
         $this->createChild($profit->id, 'Investor Profit', 'profit.investor.index', 'ReceiptText', 2);
         $this->createChild($profit->id, 'Auto Calculation', 'auto-calc.index', 'Zap', 3);
+        $this->createChild($profit->id, 'Reset Month', 'month-reset.index', 'Trash2', 4);
 
         $this->createChild($my->id, 'New Director', 'directors.new', 'UserPlus', 1);
         $this->createChild($my->id, 'Director List', 'directors.index', 'List', 2);

@@ -11,6 +11,7 @@ use App\Http\Controllers\InvestorController;
 use App\Http\Controllers\InvestorProfitController;
 use App\Http\Controllers\LedgerController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\MonthResetController;
 use App\Http\Controllers\MonthStatusController;
 use App\Http\Controllers\OpeningBalanceController;
 use App\Http\Controllers\PermissionController;
@@ -156,6 +157,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [AutoCalcController::class, 'index'])->middleware('permission:profit.sector.index')->name('index');
         Route::get('/template', [AutoCalcController::class, 'downloadTemplate'])->middleware('permission:profit.sector.index')->name('template');
         Route::post('/upload', [AutoCalcController::class, 'upload'])->middleware('permission:profit.sector.index')->name('upload');
+    });
+
+    // Month Reset — bulk delete a month's calculation (superadmin only)
+    Route::prefix('month-reset')->name('month-reset.')->middleware('superadmin')->group(function () {
+        Route::get('/', [MonthResetController::class, 'index'])->name('index');
+        Route::delete('/', [MonthResetController::class, 'destroy'])->name('destroy');
     });
 
     // Admin — permission management (superadmin only)
