@@ -8,17 +8,16 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Default: load the canonical "July, 2026 For Sajid" reference data.
-        // Also loads January 2026 sector profits so users can navigate between
-        // months at /profit/investor?month=YYYY-MM-01.
+        // Default: clean empty state — all investors/sectors at 0 balance.
+        // Use this for step-by-step testing of the system workflow.
         //
-        // To load ONLY January 2026 (the original seeder), run:
+        // To load the canonical July 2026 reference data instead:
+        //   php artisan db:seed --class=July2026Seeder
+        //
+        // To load only January 2026 data:
         //   php artisan db:seed --class=January2026Seeder
-        //
-        // See laravel/MUDARABA_LARAVEL_PROJECT_PLAN.md §8.1 for the canonical
-        // reference values (Z2=1,765,000, X2=1,635,000, Y2=130,000).
         $this->call([
-            July2026Seeder::class,
+            CleanStartSeeder::class,
         ]);
     }
 }
