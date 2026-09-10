@@ -141,13 +141,13 @@ export default function Login({ appName }: LoginProps) {
                             transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                         >
                             <h1 className="font-display text-4xl xl:text-5xl font-bold leading-tight tracking-tight">
-                                The Mudaraba profit engine,{" "}
-                                <span className="text-amber-200">reimagined.</span>
+                                সুশৃঙ্খল ব্যবসা,{" "}
+                                <span className="text-amber-200">স্বচ্ছ লেনদেন।</span>
                             </h1>
                             <p className="mt-6 text-lg text-white/80 max-w-md">
-                                Premium money management for Islamic-finance profit-sharing pools.
-                                Eight-phase calculation engine, tier-based profit sharing, retained
-                                earnings — all automated.
+                                ইসলামিক মুদারাবা প্রফিট-শেয়ারিং সিস্টেম।
+                                বিনিয়োগকারী ব্যবস্থাপনা, সেক্টর ইনভেস্টমেন্ট,
+                                ক্যালকুলেশন ইঞ্জিন — সব স্বয়ংক্রিয়।
                             </p>
                         </motion.div>
 
@@ -159,9 +159,9 @@ export default function Login({ appName }: LoginProps) {
                             className="mt-12 space-y-4"
                         >
                             {[
-                                { icon: TrendingUp, label: "8-phase profit engine", detail: "Excel-accurate reconciliation" },
-                                { icon: Users, label: "151 investors, 17 sectors", detail: "Proportional tier-based sharing" },
-                                { icon: ShieldCheck, label: "Audit-grade ledger", detail: "Every transaction traceable" },
+                                { icon: TrendingUp, label: "৮-ফেজ প্রফিট ইঞ্জিন", detail: "নির্ভুল ও স্বয়ংক্রিয় ক্যালকুলেশন" },
+                                { icon: Users, label: "বিনিয়োগকারী ব্যবস্থাপনা", detail: "টায়ার-ভিত্তিক প্রফিট শেয়ারিং" },
+                                { icon: ShieldCheck, label: "অডিট-গ্রেড সিকিউরিটি", detail: "প্রতিটি লেনদেন ট্র্যাকেবল" },
                             ].map((feat, i) => (
                                 <div key={i} className="flex items-center gap-4">
                                     <div className="size-10 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center ring-1 ring-white/20 shrink-0">
@@ -232,7 +232,7 @@ export default function Login({ appName }: LoginProps) {
                                             id="username"
                                             type="text"
                                             autoComplete="username"
-                                            placeholder="E0001"
+                                            placeholder="Enter your username"
                                             className="pl-10"
                                             aria-invalid={!!fieldError("username")}
                                             aria-describedby={fieldError("username") ? "username-error" : undefined}
@@ -335,12 +335,10 @@ export default function Login({ appName }: LoginProps) {
                                 </Button>
                             </form>
 
-                            {/* Demo credentials hint */}
-                            <div className="mt-8 p-4 rounded-lg border border-border bg-surface-2/50">
-                                <p className="text-xs text-muted text-center">
-                                    <span className="font-medium text-foreground">Test credentials:</span>{" "}
-                                    username <code className="font-num px-1 py-0.5 rounded bg-surface text-foreground">E0001</code>
-                                    {" · "}password <code className="font-num px-1 py-0.5 rounded bg-surface text-foreground">Mudaraba@2026</code>
+                            {/* Bismillah */}
+                            <div className="mt-8 text-center">
+                                <p className="text-lg text-emerald-500/70" dir="rtl">
+                                    بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
                                 </p>
                             </div>
                         </div>
@@ -348,7 +346,7 @@ export default function Login({ appName }: LoginProps) {
 
                     {/* Footer */}
                     <footer className="py-4 px-6 text-center text-xs text-muted border-t border-border">
-                        <p>{appName} · v0.2.0 · Phase 2</p>
+                        <p>© 2026 {appName} · Islamic Finance Platform</p>
                     </footer>
                 </main>
             </div>
